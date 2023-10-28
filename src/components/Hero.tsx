@@ -143,7 +143,7 @@ const Hero = () => {
 
 export default Hero;
 
-const SingleImage = ({ href, imgSrc }) => {
+const SingleImage = ({ href, imgSrc }:any) => {
     return (
         <>
             <a href={href} className="flex w-full items-center justify-center">
