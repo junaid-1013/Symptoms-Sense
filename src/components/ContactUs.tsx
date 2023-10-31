@@ -1,4 +1,49 @@
+'use client'
+import React, { useState } from "react";
+
+
 const ContactUs = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+  const handleChange1 = (newName: string) => {
+    setFormData({ ...formData, name: newName });
+  };
+  const handleChange2 = (newEmail: string) => {
+    setFormData({ ...formData, email: newEmail });
+  };
+  const handleChange3 = (newPhone: string) => {
+    setFormData({ ...formData, phone: newPhone });
+  };
+  
+  const handleChange4 = (newMessage: string) => {
+    setFormData({ ...formData, message: newMessage });
+  };
+ 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5000/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert("Successful")
+      } else {
+        alert("Not Successful")
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <>
       <section className="bg-white py-20 lg:py-[120px] overflow-hidden relative z-10 sm:px-16 px-8">
@@ -83,31 +128,41 @@ const ContactUs = () => {
             </div>
             <div className="w-full px-4 lg:w-1/2 xl:w-5/12">
               <div className="relative p-8 bg-white rounded-lg shadow-lg sm:p-12">
-                <form>
+                <form >
                   <ContactInputBox
                     type="text"
                     name="name"
                     placeholder="Your Name"
+                    
+                    value={formData.name}
+                    onChange={handleChange1}
                   />
                   <ContactInputBox
                     type="text"
                     name="email"
                     placeholder="Your Email"
+                    value={formData.email}
+                    onChange={handleChange2}
                   />
                   <ContactInputBox
                     type="text"
                     name="phone"
                     placeholder="Your Phone"
+                    value={formData.phone}
+                    onChange={handleChange3}
                   />
                   <ContactTextArea
                     row="6"
                     placeholder="Your Message"
                     name="details"
                     defaultValue=""
+                    value={formData.message}
+            onChange={handleChange4}
                   />
                   <div>
                     <button
                       type="submit"
+                      onClick={handleSubmit}
                       className="w-full p-3 text-white transition border rounded border-primary bg-primary hover:bg-opacity-90"
                     >
                       Send Message
@@ -933,7 +988,7 @@ const ContactUs = () => {
 
 export default ContactUs;
 
-const ContactTextArea = ({ row, placeholder, name, defaultValue }:any) => {
+const ContactTextArea = ({ row, placeholder, name,onChange, defaultValue }:any) => {
   return (
     <>
       <div className="mb-6">
@@ -943,13 +998,14 @@ const ContactTextArea = ({ row, placeholder, name, defaultValue }:any) => {
           name={name}
           className="border-[f0f0f0] w-full resize-none rounded border py-3 px-[14px] text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none"
           defaultValue={defaultValue}
+          onChange={(e) => onChange(e.target.value)}
         />
       </div>
     </>
   );
 };
 
-const ContactInputBox = ({ type, placeholder, name }:any) => {
+const ContactInputBox = ({ type, placeholder, name,onChange }:any) => {
   return (
     <>
       <div className="mb-6">
@@ -957,6 +1013,7 @@ const ContactInputBox = ({ type, placeholder, name }:any) => {
           type={type}
           placeholder={placeholder}
           name={name}
+          onChange={(e) => onChange(e.target.value)}
           className="border-[f0f0f0] w-full rounded border py-3 px-[14px] text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none"
         />
       </div>
