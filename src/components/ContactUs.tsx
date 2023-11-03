@@ -1,5 +1,6 @@
 'use client'
-import React, { useState } from "react";
+import React, { SyntheticEvent, useState } from "react";
+import axios from "axios";
 
 
 const ContactUs = () => {
@@ -18,32 +19,23 @@ const ContactUs = () => {
   const handleChange3 = (newPhone: string) => {
     setFormData({ ...formData, phone: newPhone });
   };
-  
+
   const handleChange4 = (newMessage: string) => {
     setFormData({ ...formData, message: newMessage });
   };
- 
-  const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-
     try {
-      const response = await fetch("http://localhost:5000/api/contact", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      const response = await axios.post("/api/contactUs", formData);
+      console.log("Mail Sent", response.data);
+    } catch (error: any) {
+      console.log("Mail Sending Failed", error.message);
+    } finally {
 
-      if (response.ok) {
-        alert("Successful")
-      } else {
-        alert("Not Successful")
-      }
-    } catch (error) {
-      console.error(error);
     }
-  };
+  }
+  
   return (
     <>
       <section className="bg-white py-20 lg:py-[120px] overflow-hidden relative z-10 sm:px-16 px-8">
@@ -133,7 +125,7 @@ const ContactUs = () => {
                     type="text"
                     name="name"
                     placeholder="Your Name"
-                    
+
                     value={formData.name}
                     onChange={handleChange1}
                   />
@@ -157,13 +149,13 @@ const ContactUs = () => {
                     name="details"
                     defaultValue=""
                     value={formData.message}
-            onChange={handleChange4}
+                    onChange={handleChange4}
                   />
                   <div>
                     <button
                       type="submit"
                       onClick={handleSubmit}
-                      className="w-full p-3 text-white transition border rounded border-primary bg-primary hover:bg-opacity-90"
+                      className="w-full p-3 text-white transition border rounded border-green-600 bg-green-600 hover:bg-opacity-90"
                     >
                       Send Message
                     </button>
@@ -988,7 +980,7 @@ const ContactUs = () => {
 
 export default ContactUs;
 
-const ContactTextArea = ({ row, placeholder, name,onChange, defaultValue }:any) => {
+const ContactTextArea = ({ row, placeholder, name, onChange, defaultValue }: any) => {
   return (
     <>
       <div className="mb-6">
@@ -1005,7 +997,7 @@ const ContactTextArea = ({ row, placeholder, name,onChange, defaultValue }:any) 
   );
 };
 
-const ContactInputBox = ({ type, placeholder, name,onChange }:any) => {
+const ContactInputBox = ({ type, placeholder, name, onChange }: any) => {
   return (
     <>
       <div className="mb-6">
