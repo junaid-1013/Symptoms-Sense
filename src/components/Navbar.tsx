@@ -56,8 +56,11 @@ const Navbar = () => {
                     Explore
                   </ListItem>
                   <ListItem
+                  
                     navItemStyles="text-white hover:text-[#00A3FF]"
+                 
                     NavLink="/profile"
+                    
                   >
                     Profile
                   </ListItem>
