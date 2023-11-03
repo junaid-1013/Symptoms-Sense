@@ -1,7 +1,30 @@
+"use client";
 import Image from "next/image"
 import Link from "next/link"
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const Register = () => {
+    const router = useRouter();
+    const [user, setUser] = useState({
+        email: "",
+        password: "",
+        username: "",
+    })
+
+    const onRegister = async () => {
+        try {
+            const response = await axios.post("/api/users/register", user);
+            console.log("Signup Success", response.data);
+            router.push("/login");
+        } catch (error: any) {
+            console.log("Signup Failed", error.message);
+        } finally {
+
+        }
+    }
+
     return (
         <div className="py-6">
             <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
@@ -18,21 +41,40 @@ const Register = () => {
                     <p className="text-lg text-gray-500 text-center font-semibold">Hellow! Welcome back!</p>
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
-                        <input className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" type="text" />
+                        <input
+                            value={user.username}
+                            onChange={(e) => setUser({ ...user, username: e.target.value })}
+                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="text"
+                        />
                     </div>
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                        <input className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" type="email" />
+                        <input
+                            value={user.email}
+                            onChange={(e) => setUser({ ...user, email: e.target.value })}
+                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="email"
+                        />
                     </div>
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
                             <a href="#" className="text-xs text-gray-500">Forget Password?</a>
                         </div>
-                        <input className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none" type="password" />
+                        <input
+                            value={user.password}
+                            onChange={(e) => setUser({ ...user, password: e.target.value })}
+                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="password"
+                        />
                     </div>
                     <div className="mt-8">
-                        <button className="bg-green-600 text-white font-bold py-2 px-4 w-full rounded hover:bg-green-600/75">Sign Up</button>
+                        <button
+                            onClick={onRegister}
+                            className="bg-green-600 text-white font-bold py-2 px-4 w-full rounded hover:bg-green-600/75">
+                            Sign Up
+                        </button>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-x-2">
                         <span className="border-b w-full"></span>
