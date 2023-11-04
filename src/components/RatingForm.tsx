@@ -1,17 +1,36 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react"
+import { useRouter } from "next/navigation";
 
+import axios from "axios";
 const RatingForm = () => {
+    const router = useRouter();
     const [modalOpen, setModalOpen] = useState(false);
     const trigger = useRef<HTMLButtonElement | null>(null);
     const modal = useRef<HTMLDivElement | null>(null);
     const [rating, setRating] = useState(1);
-
+    const [message, setMessage] = useState('');
     const handleStarClick = (newRating: number) => {
         setRating(newRating);
     };
+   
+    const onSubmit = async () => {
+        try {
+            const fed = {
+                rat: rating,
+                mess: message,
+            }
+            const response = await axios.post("/api/users/feedback", fed);
+            console.log("Login Success", response.data);
+            router.push("/");
+        } catch (error: any) {
+            console.log("Login Failed", error.message);
+        } finally {
 
+        }
+    }
+    
     // close on click outside
     useEffect(() => {
         const clickHandler = ({ target }: MouseEvent) => {
@@ -90,9 +109,17 @@ const RatingForm = () => {
                                     onClick={() => handleStarClick(5)}
                                 />
                             </div>
-                            <textarea className="flex w-full p-4 text-gray-500 rounded-xl resize-none border">Let us know here</textarea>
-                            <button className="rounded-md border border-green-600 bg-green-600 p-3 text-center 
-                                    text-base font-medium text-white transition hover:bg-green-600/90 w-1/3 self-center">
+                            <textarea className="flex w-full p-4 text-gray-500 rounded-xl resize-none border"
+                              value={message}
+                              onChange={(e) => setMessage( e.target.value )}
+                              placeholder="Let us Know here"
+                            ></textarea>
+                            <button
+                             onClick={onSubmit}
+                            className="rounded-md border border-green-600 bg-green-600 p-3 text-center 
+                                    text-base font-medium text-white transition hover:bg-green-600/90 w-1/3 self-center"
+                                    
+                                    >
                                 Submit
                             </button>
                         </div>
