@@ -15,8 +15,8 @@ const Profile = () => {
     // If the user is authenticated, fetch their data from your backend API.
     axios.get("/api/users/profile").then((response) => {
      let ress=response.data;
-    
-  
+        
+
      setemail(ress.email)
      setname(ress.username)
     }).catch((error) => {

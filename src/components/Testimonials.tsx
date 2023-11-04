@@ -1,4 +1,41 @@
+"use client"
+import { useEffect, useRef, useState } from "react";
+
+import { useRouter } from "next/navigation";
+
+import axios from "axios";
 export const Testimonials = () => {
+
+
+    const [jsonData, setJsonData] = useState([{"_id":"65464c5b99d7c008d8ba1a87","message":"very good experience","__v":0},{"_id":"65464d7f99d7c008d8ba1a8a","message":"","__v":0},{"_id":"654650b290225ebe7bc3d527","message":"","name":"ali","__v":0},{"_id":"6546539884ec06e24cc2eb17","message":"","name":"muzzi","__v":0},{"_id":"6546546884ec06e24cc2eb1a","message":"good exp","name":"muzzi","__v":0},{"_id":"6546565b84ec06e24cc2eb1d","message":"good exp","name":"muzzi","__v":0},{"_id":"6546574c84ec06e24cc2eb20","message":"vgudaoo","name":"muzzi","__v":0}]);
+
+   async function getData() {
+    const res = await fetch("http://localhost:3000/api/users/feedback",{cache:"no-store"});
+    return res.json();
+   }
+const post=async()=>{
+
+    try {
+        
+        const response =  await axios.get("/api/users/feedback");
+        const data=await getData();
+        setJsonData(data); 
+       
+        return data;
+
+    } catch (error: any) {
+        console.log("Login Failed", error.message);
+    } finally {
+
+    }
+
+
+
+}
+
+useEffect(() => {
+    post();
+}, []);
     return (
         <>
             < section className="bg-white" >
@@ -71,15 +108,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[0]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Culpa sit
-                                    rerum incidunt, a consequuntur recusandae ab saepe illo est quia
-                                    obcaecati neque quibusdam eius accusamus error officiis atque
-                                    voluptates magnam!
+                                {jsonData?.[0]?.message}
                                 </p>
                             </blockquote>
                         </div>
@@ -147,14 +181,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[1]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ad
-                                    mollitia rerum quo unde neque atque molestias quas pariatur! Sint,
-                                    maxime?
+                                {jsonData?.[1]?.message}
                                 </p>
                             </blockquote>
                         </div>
@@ -296,18 +328,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[2]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum dolor sit amet consectetur, adipisicing elit. Cupiditate
-                                    officia natus blanditiis rerum incidunt ex autem repudiandae
-                                    doloribus eveniet quia? Culpa commodi quae atque perspiciatis?
-                                    Provident, magni beatae saepe porro aspernatur facere neque sunt
-                                    possimus assumenda perspiciatis aperiam quisquam animi libero
-                                    voluptatem fuga. Repudiandae, facere? Nemo reprehenderit quas
-                                    ratione quis.
+                                {jsonData?.[2]?.message}
                                 </p>
                             </blockquote>
                         </div>
@@ -375,13 +401,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[3]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, rerum.
-                                    Nobis laborum praesentium necessitatibus vero.
+                                {jsonData?.[3]?.message}
                                 </p>
                             </blockquote>
                         </div>
@@ -449,14 +474,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[4]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores
-                                    quaerat quasi ipsa repellendus quam! Beatae pariatur quia distinctio
-                                    fugit repellendus repudiandae nostrum consectetur quibusdam quo.
+                                {jsonData?.[4]?.message}
                                 </p>
                             </blockquote>
                         </div>
@@ -524,12 +547,12 @@ export const Testimonials = () => {
                                             </svg>
                                         </div>
 
-                                        <p className="mt-0.5 text-lg font-medium text-gray-900">Paul Starr</p>
+                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{jsonData?.[5]?.name}</p>
                                     </div>
                                 </div>
 
                                 <p className="mt-4 text-gray-700">
-                                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Sit, modi!
+                                {jsonData?.[5]?.message}
                                 </p>
                             </blockquote>
                         </div>
