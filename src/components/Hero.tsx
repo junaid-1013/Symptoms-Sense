@@ -7,14 +7,18 @@ const Hero = () => {
                         <div className="w-full px-4 lg:w-5/12">
                             <div className="hero-content">
                                 <h1 className="mb-3 text-4xl font-bold leading-snug text-dark sm:text-[42px] lg:text-[40px] xl:text-[42px]">
-                                    Lorem ipsum dolor sit amet consectetur
+                                Your Health, Your Future: Predicting Wellness
                                 </h1>
                                 <p className="mb-8 max-w-[480px] text-base text-body-color">
-                                    Lorem ipsum dolor sit, amet consectetur adipisicing elit. Culpa sit
-                                    rerum incidunt, a consequuntur recusandae ab saepe illo est quia
-                                    obcaecati neque quibusdam eius accusamus error officiis atque
-                                    voluptates magnam!
+                                Welcome to our cutting-edge Disease Prediction System, a revolutionary
+                                 platform dedicated to enhancing healthcare decision-making.
+                                  Our system combines the power of artificial intelligence with 
+                                  comprehensive medical knowledge to provide personalized predictions and recommendations
+                                   for a healthier future. With our user-friendly interface, 
+                                   you can access data-driven insights to stay ahead of potential health risks
+                                    and make informed choices.
                                 </p>
+                                 {/*
                                 <ul className="flex flex-wrap items-center">
                                     <li>
                                         <a
@@ -62,6 +66,7 @@ const Hero = () => {
                                         </a>
                                     </li>
                                 </ul>
+    */}
                                 <div className="pt-16 clients">
                                     <h6 className="flex items-center mb-3 text-xs font-normal text-body-color">
                                         Some Of Our Clients

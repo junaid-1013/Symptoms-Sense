@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image"
 import Link from "next/link"
 import axios from "axios";
-
+import Swal from 'sweetalert2';
 const Login = () => {
     const router = useRouter();
     const [user, setUser] = useState({
@@ -16,9 +16,11 @@ const Login = () => {
         try {
             const response = await axios.post("/api/users/login", user);
             console.log("Login Success", response.data);
-            router.push("/");
+            router.push("/#");
+            Swal.fire('Success!', 'Sign in Successful', 'success');
+
         } catch (error: any) {
-            console.log("Login Failed", error.message);
+            Swal.fire('Failed!', 'Invalid Username or Password', 'error');
         } finally {
 
         }
