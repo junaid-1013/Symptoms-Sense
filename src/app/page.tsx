@@ -11,7 +11,7 @@ export default function Home() {
       <Chatbot />
       <Testimonials />
       <RatingForm />
-      <ContactUs />
+      <ContactUs  />
     </>
   )
 }

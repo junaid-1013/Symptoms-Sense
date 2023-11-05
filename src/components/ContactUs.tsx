@@ -1,58 +1,73 @@
 'use client'
+
 import React, { SyntheticEvent, useState } from "react";
 import axios from "axios";
-
-
+import { useRouter } from "next/navigation";
+import Swal from 'sweetalert2';
 const ContactUs = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
+  const router = useRouter();
+  const [name ,setname]=useState('')
+  const [email ,setemail]=useState('')
+  const [phone ,setphone]=useState('')
+  const [message ,setmessage]=useState('')
+  
+  const isFormValid = name && email &&phone && message;
+
   const handleChange1 = (newName: string) => {
-    setFormData({ ...formData, name: newName });
+   setname(newName)
   };
   const handleChange2 = (newEmail: string) => {
-    setFormData({ ...formData, email: newEmail });
+    setemail(newEmail)
   };
   const handleChange3 = (newPhone: string) => {
-    setFormData({ ...formData, phone: newPhone });
+    setphone(newPhone)
   };
 
   const handleChange4 = (newMessage: string) => {
-    setFormData({ ...formData, message: newMessage });
+    setmessage(newMessage)
   };
 
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     try {
+      const formData= {
+        name: name,
+        email: email,
+        phone: phone,
+        message: message,
+      };
       const response = await axios.post("/api/contactUs", formData);
       console.log("Mail Sent", response.data);
+      Swal.fire('Success!', 'Thank you for contacting us! Your message has been successfully submitted. We will get back to you as soon as possible.', 'success');
+      
+      setname('')
+      setemail('')
+      setphone('')
+      setmessage('')
+      router.push("/");
     } catch (error: any) {
-      console.log("Mail Sending Failed", error.message);
+      Swal.fire('Failed!', 'Failed to Submit Form', 'error');
     } finally {
 
     }
   }
   
   return (
-    <>
+    <div id="contact-us">
       <section className="bg-white py-20 lg:py-[120px] overflow-hidden relative z-10 sm:px-16 px-8">
         <div className="container">
           <div className="flex flex-wrap -mx-4 lg:justify-between">
             <div className="w-full px-4 lg:w-1/2 xl:w-6/12">
               <div className="mb-12 max-w-[570px] lg:mb-0">
+                {/*
                 <span className="block mb-4 text-base font-semibold text-primary">
                   Contact Us
-                </span>
+                </span>*/}
                 <h2 className="mb-6 text-[32px] font-bold uppercase text-dark sm:text-[40px] lg:text-[36px] xl:text-[40px]">
                   GET IN TOUCH WITH US
                 </h2>
                 <p className="text-base leading-relaxed mb-9 text-body-color">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eius tempor incididunt ut labore e dolore magna aliqua. Ut
-                  enim adiqua minim veniam quis nostrud exercitation ullamco
+                We'd love to hear from you! Whether you have questions, need assistance, or simply want to chat, our team is here to help. Feel free to reach out, and we'll get back to you promptly. Your feedback and inquiries matter to us, and we look forward to connecting with you.
                 </p>
                 <div className="mb-8 flex w-full max-w-[370px]">
                   <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:max-w-[70px]">
@@ -70,7 +85,7 @@ const ContactUs = () => {
                       Our Location
                     </h4>
                     <p className="text-base text-body-color">
-                      99 S.t Jomblo Park Pekanbaru 28292. Indonesia
+                      Comsats University Islamabad, 1.5 KM Defence Rd، off Raiwand Road Lahore
                     </p>
                   </div>
                 </div>
@@ -92,7 +107,7 @@ const ContactUs = () => {
                       Phone Number
                     </h4>
                     <p className="text-base text-body-color">
-                      (+62)81 414 257 9980
+                      (+92)3333333333
                     </p>
                   </div>
                 </div>
@@ -126,21 +141,21 @@ const ContactUs = () => {
                     name="name"
                     placeholder="Your Name"
 
-                    value={formData.name}
+                    value={name}
                     onChange={handleChange1}
                   />
                   <ContactInputBox
                     type="text"
                     name="email"
                     placeholder="Your Email"
-                    value={formData.email}
+                    value={email}
                     onChange={handleChange2}
                   />
                   <ContactInputBox
                     type="text"
                     name="phone"
                     placeholder="Your Phone"
-                    value={formData.phone}
+                    value={phone}
                     onChange={handleChange3}
                   />
                   <ContactTextArea
@@ -148,12 +163,13 @@ const ContactUs = () => {
                     placeholder="Your Message"
                     name="details"
                     defaultValue=""
-                    value={formData.message}
+                    value={message}
                     onChange={handleChange4}
                   />
                   <div>
                     <button
                       type="submit"
+                      disabled={!isFormValid}
                       onClick={handleSubmit}
                       className="w-full p-3 text-white transition border rounded border-green-600 bg-green-600 hover:bg-opacity-90"
                     >
@@ -974,7 +990,7 @@ const ContactUs = () => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
 
@@ -1004,6 +1020,7 @@ const ContactInputBox = ({ type, placeholder, name, onChange }: any) => {
         <input
           type={type}
           placeholder={placeholder}
+          required
           name={name}
           onChange={(e) => onChange(e.target.value)}
           className="border-[f0f0f0] w-full rounded border py-3 px-[14px] text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none"

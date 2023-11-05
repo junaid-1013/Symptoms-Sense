@@ -7,7 +7,9 @@ import axios from "axios";
 export const Testimonials = () => {
 
 
-    const [jsonData, setJsonData] = useState([{"_id":"65464c5b99d7c008d8ba1a87","message":"very good experience","__v":0},{"_id":"65464d7f99d7c008d8ba1a8a","message":"","__v":0},{"_id":"654650b290225ebe7bc3d527","message":"","name":"ali","__v":0},{"_id":"6546539884ec06e24cc2eb17","message":"","name":"muzzi","__v":0},{"_id":"6546546884ec06e24cc2eb1a","message":"good exp","name":"muzzi","__v":0},{"_id":"6546565b84ec06e24cc2eb1d","message":"good exp","name":"muzzi","__v":0},{"_id":"6546574c84ec06e24cc2eb20","message":"vgudaoo","name":"muzzi","__v":0}]);
+    const [jsonData, setJsonData] = useState([{"name":"Loading...","message":"Loading...."},{"name":"Loading...","message":"Loading...."},
+    {"name":"Loading...","message":"Loading...."},{"name":"Loading...","message":"Loading...."},{"name":"Loading...","message":"Loading...."},
+    {"name":"Loading...","message":"Loading...."},]);
 
    async function getData() {
     const res = await fetch("/api/users/feedback",{cache:"no-store"});
@@ -24,7 +26,7 @@ const post=async()=>{
         return data;
 
     } catch (error: any) {
-        console.log("Login Failed", error.message);
+        console.log(" Failed", error.message);
     } finally {
 
     }
@@ -37,7 +39,7 @@ useEffect(() => {
     post();
 }, []);
     return (
-        <>
+        <div id="feedback">
             < section className="bg-white" >
                 <div className="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
                     <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
@@ -633,6 +635,6 @@ useEffect(() => {
                     </div>
                 </div>
             </section >
-        </>
+        </div>
     )
 }

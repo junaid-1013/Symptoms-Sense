@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react"
 import { useRouter } from "next/navigation";
-
+import Swal from 'sweetalert2';
 import axios from "axios";
 const RatingForm = () => {
     const router = useRouter();
@@ -23,9 +23,13 @@ const RatingForm = () => {
             }
             const response = await axios.post("/api/users/feedback", fed);
             console.log("Login Success", response.data);
+            Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
+            setMessage('');
             router.push("/");
+
         } catch (error: any) {
             console.log("Login Failed", error.message);
+            Swal.fire('Failed!', 'Please Login to share Feedback', 'error');
         } finally {
 
         }
@@ -60,7 +64,7 @@ const RatingForm = () => {
 
     return (
         <>
-            <div className="flex container mx-auto justify-center">
+            <div  className="flex container mx-auto justify-center">
                 <button
                     ref={trigger}
                     onClick={() => setModalOpen(true)}

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
-
+import Swal from 'sweetalert2';
 const Register = () => {
     const router = useRouter();
     const [user, setUser] = useState({
@@ -17,9 +17,11 @@ const Register = () => {
         try {
             const response = await axios.post("/api/users/register", user);
             console.log("Signup Success", response.data);
+
             router.push("/login");
+            Swal.fire('Success!', 'Signup Success. Please Sign in..', 'success');
         } catch (error: any) {
-            console.log("Signup Failed", error.message);
+            Swal.fire('Failed!', 'Email/username already exist.', 'error');
         } finally {
 
         }
