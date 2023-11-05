@@ -10,7 +10,7 @@ export const Testimonials = () => {
     const [jsonData, setJsonData] = useState([{"_id":"65464c5b99d7c008d8ba1a87","message":"very good experience","__v":0},{"_id":"65464d7f99d7c008d8ba1a8a","message":"","__v":0},{"_id":"654650b290225ebe7bc3d527","message":"","name":"ali","__v":0},{"_id":"6546539884ec06e24cc2eb17","message":"","name":"muzzi","__v":0},{"_id":"6546546884ec06e24cc2eb1a","message":"good exp","name":"muzzi","__v":0},{"_id":"6546565b84ec06e24cc2eb1d","message":"good exp","name":"muzzi","__v":0},{"_id":"6546574c84ec06e24cc2eb20","message":"vgudaoo","name":"muzzi","__v":0}]);
 
    async function getData() {
-    const res = await fetch("http://localhost:3000/api/users/feedback",{cache:"no-store"});
+    const res = await fetch("/api/users/feedback",{cache:"no-store"});
     return res.json();
    }
 const post=async()=>{
