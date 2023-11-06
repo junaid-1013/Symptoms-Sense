@@ -33,9 +33,10 @@ const onLogout = async () => {
 }
 const check = async () => {
   try {
+    console.log('entered check')
       const response = await axios.get("/api/users/user");
      if(response.data.mess == 1){
-      setUser({ username: 'exampleUser' });
+      setUser({ username: 'User' });
 console.log('user')
      }
      if(response.data.mess == 0){
@@ -55,7 +56,7 @@ useEffect(() => {
       check();
       
  
-});
+},[]);
 
   return (
     <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
