@@ -100,8 +100,8 @@ useEffect(() => {
                   <>
       <li>
         <a
-          href="/"
-          onClick={check}
+          href="/#"
+          
           className={`flex py-2 text-base font-medium lg:ml-12 lg:inline-flex text-white hover:text-[#00A3FF]`}
         >
            Home
