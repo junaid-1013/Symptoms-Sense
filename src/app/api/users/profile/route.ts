@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     if (!token) {
       return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
     }
-
+    
     const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
      const userData =tokenData.payload
     // Fetch user data based on the userData (e.g., email) from your database

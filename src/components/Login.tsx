@@ -5,18 +5,21 @@ import Image from "next/image"
 import Link from "next/link"
 import axios from "axios";
 import Swal from 'sweetalert2';
+import { useUser } from '@/helpers/UserContext';
 const Login = () => {
     const router = useRouter();
-    const [user, setUser] = useState({
+    const { user, setUser } = useUser();
+    const [users, setUsers] = useState({
         email: "",
         password: "",
     })
 
     const onLogin = async () => {
         try {
-            const response = await axios.post("/api/users/login", user);
+            const response = await axios.post("/api/users/login", users);
             console.log("Login Success", response.data);
-            router.push("/#");
+            setUser({ username: 'exampleUser' });
+            router.push("/");
             Swal.fire('Success!', 'Sign in Successful', 'success');
 
         } catch (error: any) {
@@ -43,8 +46,8 @@ const Login = () => {
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
-                            value={user.email}
-                            onChange={(e) => setUser({ ...user, email: e.target.value })}
+                            value={users.email}
+                            onChange={(e) => setUsers({ ...users, email: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
                             type="email" />
                     </div>
@@ -54,8 +57,8 @@ const Login = () => {
                             <a href="#" className="text-xs text-gray-500">Forget Password?</a>
                         </div>
                         <input
-                            value={user.password}
-                            onChange={(e) => setUser({ ...user, password: e.target.value })}
+                            value={users.password}
+                            onChange={(e) => setUsers({ ...users, password: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
                             type="password"
                         />
