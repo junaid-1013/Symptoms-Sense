@@ -21,7 +21,7 @@ const Profile = () => {
       setUser(null);
       console.error("Error fetching user data:", error);
     });
-  }, []);
+  });
 
   return (
     <>
