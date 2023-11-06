@@ -8,7 +8,7 @@ const Profile = () => {
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
   useEffect(() => {
-    console.log('profile comp')
+   
 
     
     axios.get("/api/users/profile").then((response) => {
@@ -21,7 +21,7 @@ const Profile = () => {
       setUser(null);
       console.error("Error fetching user data:", error);
     });
-  });
+  },[]);
 
   return (
     <>
