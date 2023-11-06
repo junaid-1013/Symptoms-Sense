@@ -74,7 +74,7 @@ const Register = () => {
                     <div className="mt-8">
                         <button
                             onClick={onRegister}
-                            className="bg-green-600 text-white font-bold py-2 px-4 w-full rounded hover:bg-green-600/75">
+                            className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
                             Sign Up
                         </button>
                     </div>
@@ -122,7 +122,7 @@ const Register = () => {
 
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
-                        <Link href="/login" className="text-xs text-green-600 uppercase hover:underline">Sign In</Link>
+                        <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 object-contain pb-8">

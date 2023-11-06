@@ -63,7 +63,7 @@ const RatingForm = () => {
                 <button
                     ref={trigger}
                     onClick={() => setModalOpen(true)}
-                    className={`rounded-lg bg-green-600 px-6 py-3 text-base font-medium text-white flex gap-x-2 hover:bg-green-600/90`}
+                    className={`rounded-lg bg-[#192a56] px-6 py-3 text-base font-medium text-white flex gap-x-2 hover:bg-[#192a56]/90`}
                 >
                     <div className="flex items-center flex-row-reverse group">
                         <Star className="w-5 h-5 ml-2 place-items-end group-hover:animate-ping absolute " />
@@ -79,7 +79,7 @@ const RatingForm = () => {
                         onBlur={() => setModalOpen(false)}
                         className="w-full max-w-[570px] rounded-[20px] bg-white px-8 py-12 text-center md:px-[70px] md:py-[60px]">
                         <h3 className="pb-[18px] text-xl font-semibold text-black  sm:text-2xl">Rate your experience</h3>
-                        <span className={`mx-auto mb-4 inline-block h-1 w-[90px] rounded bg-green-600`}></span>
+                        <span className={`mx-auto mb-4 inline-block h-1 w-[90px] rounded bg-[#192a56]`}></span>
                         <div className="flex flex-col gap-y-4">
                             <div className="flex flex-row-reverse justify-center">
                                 <Star
@@ -115,8 +115,8 @@ const RatingForm = () => {
                             ></textarea>
                             <button
                                 onClick={onSubmit}
-                                className="rounded-md border border-green-600 bg-green-600 p-3 text-center 
-                                    text-base font-medium text-white transition hover:bg-green-600/90 w-1/3 self-center"
+                                className="rounded-md border border-[#192a56] bg-[#192a56] p-3 text-center 
+                                    text-base font-medium text-white transition hover:bg-[#192a56]/90 w-1/3 self-center"
                             >
                                 Submit
                             </button>

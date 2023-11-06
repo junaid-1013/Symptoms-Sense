@@ -36,7 +36,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
+    <header className={`flex items-center w-full bg-[#192a56] md:px-16 px-4`}>
       <div className="container">
         <div className="relative flex items-center justify-between -mx-4">
           <div className="max-w-full px-4 w-60">
@@ -66,37 +66,37 @@ const Navbar = () => {
               <nav
                 // :className="!navbarOpen && 'hidden' "
                 id="navbarCollapse"
-                className={`bg-green-600 z-20 absolute right-4 top-full w-full max-w-[250px] rounded-lg py-5 px-6 shadow-lg lg:static lg:block lg:w-full lg:max-w-full lg:shadow-none ${!open && "hidden"
+                className={`bg-[#192a56] z-20 absolute right-4 top-full w-full max-w-[250px] rounded-lg py-5 px-6 shadow-lg lg:static lg:block lg:w-full lg:max-w-full lg:shadow-none ${!open && "hidden"
                   } `}
               >
                 <ul className="block lg:flex">
                   <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF]"
+                    navItemStyles="text-white hover:text-gray-300"
                     NavLink="/"
                   >
                     Home
                   </ListItem>
 
                   <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF]"
+                    navItemStyles="text-white hover:text-gray-300"
                     NavLink="#feedback"
                   >
                     Feedback
                   </ListItem>
                   <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF]"
+                    navItemStyles="text-white hover:text-gray-300"
                     NavLink="/profile"
                   >
                     Profile
                   </ListItem>
                   <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF]"
+                    navItemStyles="text-white hover:text-gray-300"
                     NavLink="#contact-us"
                   >
                     Contact Us
                   </ListItem>
                   <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF] sm:hidden lg:hidden xl:hidden"
+                    navItemStyles="text-white hover:text-gray-300 sm:hidden lg:hidden xl:hidden"
                     NavLink="/login"
                   >
                     Sign In/Up
@@ -109,7 +109,7 @@ const Navbar = () => {
                 <a
                   onClick={onLogout}
                   href="/"
-                  className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
+                  className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
                 >
                   Logout
                 </a>
@@ -119,14 +119,14 @@ const Navbar = () => {
 
                 <a
                   href="/login"
-                  className="py-3 text-base font-medium px-7 text-white hover:text-[#00A3FF]"
+                  className="py-3 text-base font-medium px-7 text-white hover:text-gray-300"
                 >
                   Sign in
                 </a>
 
                 <a
                   href="/register"
-                  className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
+                  className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
                 >
                   Sign Up
                 </a>
