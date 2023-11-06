@@ -17,10 +17,7 @@ const Navbar = () => {
 const onLogout = async () => {
 
   try {
- 
-   
       const response =  axios.get("/api/users/logout");
-      
       setUser(null);
       Swal.fire('Success!', 'Successfully logged out', 'success');
       
@@ -54,7 +51,7 @@ axios.get("/api/users/profile").then((response) => {
                 src="/Group.png"
                 alt="logo"
                 width={1000}
-                height={1000}
+                height={200}
                 // className="w-14 "
               />
             </a>
