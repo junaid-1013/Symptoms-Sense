@@ -40,7 +40,6 @@ console.log('user')
      }
      if(response.data.mess == 0){
       setUser(null)
-
      }
      
   } catch (error: any) {
@@ -56,7 +55,7 @@ useEffect(() => {
       check();
       
  
-},[]);
+});
 
   return (
     <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
