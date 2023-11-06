@@ -31,31 +31,32 @@ const onLogout = async () => {
 
   }
 }
+const check = async () => {
+  try {
+      const response = await axios.get("/api/users/user");
+     if(response.data.mess == 1){
+      setUser({ username: 'exampleUser' });
+console.log('user')
+     }
+     if(response.data.mess == 0){
+      setUser(null)
+
+     }
+     
+  } catch (error: any) {
+      console.log("Failed", error.message);
+  } finally {
+
+  }
+}
 
 useEffect(() => {
-  const check = async () => {
-    try {
-        const response = await axios.get("/api/users/user");
-       if(response.data.mess == 1){
-        setUser({ username: 'exampleUser' });
-console.log('user')
-       }
-       if(response.data.mess == 0){
-        setUser(null)
-
-       }
-       
-    } catch (error: any) {
-        console.log("Failed", error.message);
-    } finally {
-  
-    }
-  }
+ 
  
       check();
       
  
-});
+},[]);
 
   return (
     <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
@@ -95,12 +96,19 @@ console.log('user')
                 } `}
               >
                 <ul className="block lg:flex">
-                  <ListItem
-                    navItemStyles="text-white hover:text-[#00A3FF]"
-                    NavLink="/"
-                  >
-                    Home
-                  </ListItem>
+                 
+                  <>
+      <li>
+        <a
+          href="/"
+          onClick={check}
+          className={`flex py-2 text-base font-medium lg:ml-12 lg:inline-flex text-white hover:text-[#00A3FF]`}
+        >
+           Home
+        </a>
+      </li>
+    </>
+                  
                   <ListItem
                     navItemStyles="text-white hover:text-[#00A3FF]"
                     NavLink="/#feedback"
@@ -174,6 +182,7 @@ const ListItem = ({ children, navItemStyles, NavLink }:any) => {
       <li>
         <a
           href={NavLink}
+      
           className={`flex py-2 text-base font-medium lg:ml-12 lg:inline-flex ${navItemStyles}`}
         >
           {children}
