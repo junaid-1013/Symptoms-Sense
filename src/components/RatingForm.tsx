@@ -1,20 +1,19 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react"
-import { useRouter } from "next/navigation";
 import Swal from 'sweetalert2';
 import axios from "axios";
 const RatingForm = () => {
-    const router = useRouter();
     const [modalOpen, setModalOpen] = useState(false);
     const trigger = useRef<HTMLButtonElement | null>(null);
     const modal = useRef<HTMLDivElement | null>(null);
     const [rating, setRating] = useState(1);
     const [message, setMessage] = useState('');
+
     const handleStarClick = (newRating: number) => {
         setRating(newRating);
     };
-   
+
     const onSubmit = async () => {
         try {
             const fed = {
@@ -25,22 +24,18 @@ const RatingForm = () => {
             console.log("Login Success", response.data);
             Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
             setMessage('');
-            router.push("/");
-
         } catch (error: any) {
+            setMessage('');
             console.log("Login Failed", error.message);
             Swal.fire('Failed!', 'Please Login to share Feedback', 'error');
-        } finally {
-
         }
     }
-    
+
     // close on click outside
     useEffect(() => {
         const clickHandler = ({ target }: MouseEvent) => {
             if (!modal.current) return;
             if (
-
                 !modalOpen ||
                 modal.current.contains(target as Node) ||
                 trigger.current?.contains(target as Node)
@@ -64,7 +59,7 @@ const RatingForm = () => {
 
     return (
         <>
-            <div  className="flex container mx-auto justify-center">
+            <div className="flex container mx-auto justify-center">
                 <button
                     ref={trigger}
                     onClick={() => setModalOpen(true)}
@@ -114,16 +109,15 @@ const RatingForm = () => {
                                 />
                             </div>
                             <textarea className="flex w-full p-4 text-gray-500 rounded-xl resize-none border"
-                              value={message}
-                              onChange={(e) => setMessage( e.target.value )}
-                              placeholder="Let us Know here"
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                placeholder="Let us Know here"
                             ></textarea>
                             <button
-                             onClick={onSubmit}
-                            className="rounded-md border border-green-600 bg-green-600 p-3 text-center 
+                                onClick={onSubmit}
+                                className="rounded-md border border-green-600 bg-green-600 p-3 text-center 
                                     text-base font-medium text-white transition hover:bg-green-600/90 w-1/3 self-center"
-                                    
-                                    >
+                            >
                                 Submit
                             </button>
                         </div>
