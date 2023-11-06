@@ -1,45 +1,39 @@
 'use client';
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import axios from "axios";
-import { useRouter } from "next/navigation";
 import Swal from 'sweetalert2';
 import { useUser } from '@/helpers/UserContext';
-import { AnyARecord } from "dns";
 const Navbar = () => {
-  const router = useRouter();
-  
   const { user, setUser } = useUser();
   const [open, setOpen] = useState(false);
 
+  const onLogout = async () => {
 
-
-const onLogout = async () => {
-
-  try {
-      const response =  axios.get("/api/users/logout");
+    try {
+      const response = axios.get("/api/users/logout");
       setUser(null);
       Swal.fire('Success!', 'Successfully logged out', 'success');
-      
-      }
-   catch (error: any) {
+    }
+    catch (error: any) {
       console.log("Logging out Failed", error.message);
-  } finally {
+    } finally {
 
+    }
   }
-}
 
-useEffect(() => {
-axios.get("/api/users/profile").then((response) => {
-  let ress = response.data;
+  useEffect(() => {
+    axios.get("/api/users/profile").then((response) => {
+      let ress = response.data;
 
-  setUser({ username: 'User' });
+      setUser({ username: 'User' });
 
-}).catch((error) => {
-  setUser(null);
-  console.error("Error fetching user data:", error);
-});
-},[]);
+    }).catch((error) => {
+      setUser(null);
+      console.error("Error fetching user data:", error);
+    });
+  }, []);
 
   return (
     <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
@@ -52,7 +46,6 @@ axios.get("/api/users/profile").then((response) => {
                 alt="logo"
                 width={1000}
                 height={200}
-                // className="w-14 "
               />
             </a>
           </div>
@@ -63,9 +56,8 @@ axios.get("/api/users/profile").then((response) => {
                 onClick={() => setOpen(!open)}
                 // :className="navbarOpen && 'navbarTogglerActive' "
                 id="navbarToggler"
-                className={` ${
-                  open && "navbarTogglerActive"
-                } absolute right-4 top-1/2 block -translate-y-1/2 rounded-lg px-3 py-[6px] ring-white focus:ring-2 lg:hidden`}
+                className={` ${open && "navbarTogglerActive"
+                  } absolute right-4 top-1/2 block -translate-y-1/2 rounded-lg px-3 py-[6px] ring-white focus:ring-2 lg:hidden`}
               >
                 <span className="relative my-[6px] block h-[2px] w-[30px] bg-white"></span>
                 <span className="relative my-[6px] block h-[2px] w-[30px] bg-white"></span>
@@ -74,82 +66,72 @@ axios.get("/api/users/profile").then((response) => {
               <nav
                 // :className="!navbarOpen && 'hidden' "
                 id="navbarCollapse"
-                className={`bg-green-600 z-20 absolute right-4 top-full w-full max-w-[250px] rounded-lg py-5 px-6 shadow-lg lg:static lg:block lg:w-full lg:max-w-full lg:shadow-none ${
-                  !open && "hidden"
-                } `}
+                className={`bg-green-600 z-20 absolute right-4 top-full w-full max-w-[250px] rounded-lg py-5 px-6 shadow-lg lg:static lg:block lg:w-full lg:max-w-full lg:shadow-none ${!open && "hidden"
+                  } `}
               >
                 <ul className="block lg:flex">
-                 
-                  <>
-      <li>
-        <a
-          href="/#"
-          
-          className={`flex py-2 text-base font-medium lg:ml-12 lg:inline-flex text-white hover:text-[#00A3FF]`}
-        >
-           Home
-        </a>
-      </li>
-    </>
-                  
                   <ListItem
                     navItemStyles="text-white hover:text-[#00A3FF]"
-                    NavLink="/#feedback"
+                    NavLink="/"
+                  >
+                    Home
+                  </ListItem>
+
+                  <ListItem
+                    navItemStyles="text-white hover:text-[#00A3FF]"
+                    NavLink="#feedback"
                   >
                     Feedback
                   </ListItem>
                   <ListItem
-                  
                     navItemStyles="text-white hover:text-[#00A3FF]"
-                 
                     NavLink="/profile"
-                    
                   >
                     Profile
                   </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-[#00A3FF]"
-                    NavLink="/#contact-us"
+                    NavLink="#contact-us"
                   >
                     Contact Us
+                  </ListItem>
+                  <ListItem
+                    navItemStyles="text-white hover:text-[#00A3FF] sm:hidden lg:hidden xl:hidden"
+                    NavLink="/login"
+                  >
+                    Sign In/Up
                   </ListItem>
                 </ul>
               </nav>
             </div>
             {user ? (
+              <div className="justify-end pr-16 flex lg:pr-0">
+                <a
+                  onClick={onLogout}
+                  href="/"
+                  className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
+                >
+                  Logout
+                </a>
+              </div>
+            ) : (
               <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
-        <a
-          onClick={onLogout}
-          href="/"
-          className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
-        >
-          Logout
-        </a>
-      </div>
 
+                <a
+                  href="/login"
+                  className="py-3 text-base font-medium px-7 text-white hover:text-[#00A3FF]"
+                >
+                  Sign in
+                </a>
 
-        
-      ) : (
-        <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
-              
-        <a
-          href="/login"
-          className="py-3 text-base font-medium px-7 text-white hover:text-[#00A3FF]"
-        >
-          Sign in
-        </a>
-
-        <a
-          href="/register"
-          className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
-        >
-          Sign Up
-        </a>
-      </div>
-      )}
-
-           
-
+                <a
+                  href="/register"
+                  className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
+                >
+                  Sign Up
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -159,17 +141,16 @@ axios.get("/api/users/profile").then((response) => {
 
 export default Navbar;
 
-const ListItem = ({ children, navItemStyles, NavLink }:any) => {
+const ListItem = ({ children, navItemStyles, NavLink }: any) => {
   return (
     <>
       <li>
-        <a
+        <Link
           href={NavLink}
-      
           className={`flex py-2 text-base font-medium lg:ml-12 lg:inline-flex ${navItemStyles}`}
         >
           {children}
-        </a>
+        </Link>
       </li>
     </>
   );
