@@ -31,31 +31,17 @@ const onLogout = async () => {
 
   }
 }
-const check = async () => {
-  try {
-    console.log('entered check')
-      const response = await axios.get("/api/users/user");
-     if(response.data.mess == 1){
-      setUser({ username: 'User' });
-console.log('user')
-     }
-     if(response.data.mess == 0){
-      setUser(null)
-     }
-     
-  } catch (error: any) {
-      console.log("Failed", error.message);
-  } finally {
-
-  }
-}
 
 useEffect(() => {
- 
- 
-      check();
-      
- 
+axios.get("/api/users/profile").then((response) => {
+  let ress = response.data;
+
+  setUser({ username: 'User' });
+
+}).catch((error) => {
+  setUser(null);
+  console.error("Error fetching user data:", error);
+});
 },[]);
 
   return (

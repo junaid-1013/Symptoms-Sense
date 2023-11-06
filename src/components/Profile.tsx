@@ -14,7 +14,7 @@ const Profile = () => {
     axios.get("/api/users/profile").then((response) => {
       let ress = response.data;
 
-      setUser({ username: 'exampleUser' });
+      setUser({ username: 'User' });
       setemail(ress.email)
       setname(ress.username)
     }).catch((error) => {
