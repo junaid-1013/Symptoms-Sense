@@ -21,7 +21,7 @@ const onLogout = async () => {
    
       const response =  axios.get("/api/users/logout");
       
-
+      const respo =  axios.get("/api/users/logout");
       setUser(null);
       Swal.fire('Success!', 'Successfully logged out', 'success');
       
