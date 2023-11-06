@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { MapPin } from "lucide-react";
-
+import { useUser } from '@/helpers/UserContext';
 const Profile = () => {
-
+  const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
   useEffect(() => {
@@ -14,11 +14,11 @@ const Profile = () => {
     axios.get("/api/users/profile").then((response) => {
       let ress = response.data;
 
-
+      setUser({ username: 'exampleUser' });
       setemail(ress.email)
       setname(ress.username)
     }).catch((error) => {
-      
+      setUser(null);
       console.error("Error fetching user data:", error);
     });
   }, []);
@@ -82,7 +82,7 @@ const Profile = () => {
                   </div>
                 </div>
               ) : (
-                <p>Loading user data...</p>
+                <h1>Please Sign in to view User Profile.........</h1>
               )}
               <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
                 <div className="flex flex-wrap justify-center">

@@ -4,41 +4,45 @@ import Image from "next/image";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Swal from 'sweetalert2';
+import { useUser } from '@/helpers/UserContext';
 import { AnyARecord } from "dns";
 const Navbar = () => {
   const router = useRouter();
-
+  
+  const { user, setUser } = useUser();
   const [open, setOpen] = useState(false);
-const [isEnabled, setIsEnabled] = useState(true);
+
+
 
 const onLogout = async () => {
 
   try {
  
-    
-      const response = await axios.get("/api/users/logout");
-      setTimeout(() => {
-      console.log('hello')
+   
+      const response =  axios.get("/api/users/logout");
       
-      
-}, 5000); 
-setIsEnabled(true)
-      router.push("/");
+
+      setUser(null);
       Swal.fire('Success!', 'Successfully logged out', 'success');
       
       }
    catch (error: any) {
-      console.log("Login Failed", error.message);
+      console.log("Logging out Failed", error.message);
   } finally {
 
   }
 }
+
 useEffect(() => {
   const check = async () => {
     try {
         const response = await axios.get("/api/users/user");
        if(response.data.mess == 1){
-        setIsEnabled(false)
+        setUser({ username: 'exampleUser' });
+
+       }
+       if(response.data.mess == 0){
+        setUser(null)
 
        }
        
@@ -52,7 +56,7 @@ useEffect(() => {
       check();
       
  
-});
+},[]);
 
   return (
     <header className={`flex items-center w-full bg-green-600 md:px-16 px-4`}>
@@ -122,31 +126,34 @@ useEffect(() => {
                 </ul>
               </nav>
             </div>
-            {isEnabled ? (
-         <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
-              
-         <a
-           href="/login"
-           className="py-3 text-base font-medium px-7 text-white hover:text-[#00A3FF]"
-         >
-           Sign in
-         </a>
-
-         <a
-           href="/register"
-           className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
-         >
-           Sign Up
-         </a>
-       </div>
-      ) : (
-        <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
+            {user ? (
+              <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
         <a
           onClick={onLogout}
           href="/"
           className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
         >
           Logout
+        </a>
+      </div>
+
+
+        
+      ) : (
+        <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
+              
+        <a
+          href="/login"
+          className="py-3 text-base font-medium px-7 text-white hover:text-[#00A3FF]"
+        >
+          Sign in
+        </a>
+
+        <a
+          href="/register"
+          className="py-3 text-base font-medium text-white rounded-lg bg-[#00A3FF] px-7 hover:bg-opacity-80"
+        >
+          Sign Up
         </a>
       </div>
       )}

@@ -1,3 +1,4 @@
+'use client';
 import Hero from "@/components/Hero"
 import { Testimonials } from "@/components/Testimonials"
 import ContactUs from "@/components/ContactUs"
