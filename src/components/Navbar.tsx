@@ -79,7 +79,7 @@ const Navbar = () => {
 
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
-                    NavLink="#feedback"
+                    NavLink="/#feedback"
                   >
                     Feedback
                   </ListItem>
@@ -91,7 +91,7 @@ const Navbar = () => {
                   </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
-                    NavLink="#contact-us"
+                    NavLink="/#contact-us"
                   >
                     Contact Us
                   </ListItem>
