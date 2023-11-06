@@ -171,7 +171,7 @@ const ContactUs = () => {
                       type="submit"
                       disabled={!isFormValid}
                       onClick={handleSubmit}
-                      className="w-full p-3 text-white transition border rounded border-green-600 bg-green-600 hover:bg-opacity-90"
+                      className="w-full p-3 text-white transition border rounded border-[#192a56] bg-[#192a56] hover:bg-opacity-90"
                     >
                       Send Message
                     </button>

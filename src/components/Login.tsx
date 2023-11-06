@@ -19,7 +19,7 @@ const Login = () => {
             const response = await axios.post("/api/users/login", users);
             console.log("Login Success", response.data);
             setUser({ username: 'exampleUser' });
-            router.push("/");
+            router.push("/profile");
             Swal.fire('Success!', 'Sign in Successful', 'success');
 
         } catch (error: any) {
@@ -66,7 +66,7 @@ const Login = () => {
                     <div className="mt-8">
                         <button
                             onClick={onLogin}
-                            className="bg-green-600 text-white font-bold py-2 px-4 w-full rounded hover:bg-green-600/75">
+                            className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
                             Login
                         </button>
                     </div>
@@ -114,7 +114,7 @@ const Login = () => {
 
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Do not have an account?</p>
-                        <Link href="/register" className="text-xs text-green-600 uppercase hover:underline">Sign up</Link>
+                        <Link href="/register" className="text-xs text-[#192a56] uppercase hover:underline">Sign up</Link>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 object-contain pb-8">
