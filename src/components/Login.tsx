@@ -17,8 +17,10 @@ const Login = () => {
     const onLogin = async () => {
         try {
             const response = await axios.post("/api/users/login", users);
+            router.push("/");
+            window.location.reload();
             console.log("Login Success", response.data);
-            router.push("/profile");
+          
             setUser({ username: 'exampleUser' });
             Swal.fire('Success!', 'Sign in Successful', 'success');
 
