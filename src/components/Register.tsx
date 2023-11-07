@@ -62,7 +62,7 @@ const Register = () => {
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            <a href="#" className="text-xs text-gray-500">Forget Password?</a>
+                         {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
                         </div>
                         <input
                             value={user.password}
@@ -83,6 +83,7 @@ const Register = () => {
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>
                         <span className="border-b w-full"></span>
                     </div>
+                    {/*
                     <div className="flex items-center justify-center gap-x-4 mt-4">
                         <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
                             <div className="px-4 py-3">
@@ -119,7 +120,7 @@ const Register = () => {
                         </Link>
 
                     </div>
-
+    */}
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
