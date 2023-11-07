@@ -11,7 +11,7 @@ const Services = () => {
                 </div>
                 <div className="w-full lg:w-6/12 px-4 pt-8">
                     <p className="text-gray-700 text-lg font-light">
-                    "Transforming Healthcare: Our Comprehensive Services"
+                    &quot;Transforming Healthcare: Our Comprehensive Services&quot;
                     </p>
                 </div>
             </div>
