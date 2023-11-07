@@ -2,7 +2,7 @@ import { Stethoscope, Workflow, Bot } from "lucide-react"
 
 const Services = () => {
     return (
-        <>
+        <div id="service">
             <div id="services" className="flex flex-wrap justify-center text-center mt-12">
                 <div className="inline-flex items-center justify-center w-full px-8 md:px-12 xl:px-32 lg:px-20">
                     <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
@@ -65,7 +65,7 @@ const Services = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 

@@ -10,8 +10,8 @@ const Chatbot = () => {
 
     script.onload = () => {
       window.botpressWebChat.init({
-        "composerPlaceholder": "Chat with bot",
-        "botConversationDescription": "This chatbot was built surprisingly fast with Botpress",
+        "composerPlaceholder": "Chat with your medical assistant.",
+        "botConversationDescription": "This is a disease diagnosis and recommendation bot.",
         "botId": "f4cdf2af-02e9-4850-9693-866d07c10102",
         "hostUrl": "https://cdn.botpress.cloud/webchat/v1",
         "messagingUrl": "https://messaging.botpress.cloud",
@@ -19,10 +19,13 @@ const Chatbot = () => {
         "webhookId": "127b823e-4a15-4280-b972-eb0943c1305a",
         "lazySocket": true,
         "themeName": "prism",
+        "botName": "Symptoms Sense",
         "frontendVersion": "v1",
+        "useSessionStorage": true,
+        "enableConversationDeletion": true,
         "theme": "prism",
-        "themeColor": "#2563eb",
-      });
+        "themeColor": "#2563eb"
+    });
     }
   }, [])
 

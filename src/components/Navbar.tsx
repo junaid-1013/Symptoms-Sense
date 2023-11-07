@@ -76,7 +76,12 @@ const Navbar = () => {
                   >
                     Home
                   </ListItem>
-
+                  <ListItem
+                    navItemStyles="text-white hover:text-gray-300"
+                    NavLink="/#service"
+                  >
+                    Services
+                  </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#feedback"
