@@ -3,7 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import { Star } from "lucide-react"
 import Swal from 'sweetalert2';
 import axios from "axios";
+import { useRouter } from "next/navigation";
+
 const RatingForm = () => {
+    const router = useRouter();
+
     const [modalOpen, setModalOpen] = useState(false);
     const trigger = useRef<HTMLButtonElement | null>(null);
     const modal = useRef<HTMLDivElement | null>(null);
@@ -22,6 +26,7 @@ const RatingForm = () => {
             }
             const response = await axios.post("/api/users/feedback", fed);
             console.log("Login Success", response.data);
+            router.push("/");
             Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
             setMessage('');
         } catch (error: any) {

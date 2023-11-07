@@ -33,7 +33,7 @@ const Login = () => {
         <div className="py-6">
             <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
                 <div className="w-full p-8 lg:w-1/2">
-                    <div className="flex justify-center mb-2">
+                    <div className="flex justify-center mb-2 ">
                         <Image
                             src="/logo-green.png"
                             alt="green logo"
@@ -54,7 +54,7 @@ const Login = () => {
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            <a href="#" className="text-xs text-gray-500">Forget Password?</a>
+                          {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
                         </div>
                         <input
                             value={users.password}
@@ -75,6 +75,7 @@ const Login = () => {
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>
                         <span className="border-b w-full"></span>
                     </div>
+                    {/*
                     <div className="flex items-center justify-center gap-x-4 mt-4">
                         <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
                             <div className="px-4 py-3">
@@ -111,7 +112,7 @@ const Login = () => {
                         </Link>
 
                     </div>
-
+    */}
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Do not have an account?</p>
                         <Link href="/register" className="text-xs text-[#192a56] uppercase hover:underline">Sign up</Link>

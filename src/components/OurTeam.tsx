@@ -2,31 +2,25 @@ const members = [
     {
         id: 1,
         name: "Khubaib Mashood",
-        title: "Full Stack Web Developer",
+        title: "CFO",
         imageSrc:
             "https://images.unsplash.com/photo-1634926878768-2a5b3c42f139?fit=clamp&w=400&h=400&q=80",
     },
     {
         id: 2,
-        name: "Muhammad Muzammil",
-        title: "AI Engineer",
+        name: "Asadullah Rind",
+        title: "CEO",
         imageSrc:
             "https://images.unsplash.com/photo-1635003913011-95971abba560?fit=clamp&w=400&h=400&q=80",
     },
     {
         id: 3,
-        name: "Asadullah Rind",
-        title: "ML Engineer",
+        name: "Muhammad Muzammil",
+        title: "CTO",
         imageSrc:
             "https://images.unsplash.com/photo-1634193295627-1cdddf751ebf?fit=clamp&w=400&h=400&q=80",
     },
-    // {
-    //     id: 4,
-    //     name: "Junaid Ali Bhatti",
-    //     title: "IoT, AI Team Lead",
-    //     imageSrc:
-    //         "https://images.unsplash.com/photo-1635003913011-95971abba560?fit=clamp&w=400&h=400&q=80",
-    // },
+   
 ];
 
 
