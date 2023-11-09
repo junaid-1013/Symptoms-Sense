@@ -12,7 +12,7 @@ interface docSchema {
 
 const DoctorCard = ({ name, img, specialization, education, experience, satisfiedPatients }: docSchema) => {
     return (
-        <Link href="#"
+        <Link href="/doctorDetail"
             className="relative block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 
             hover:shadow-xl hover:-translate-y-2 cursor-pointer transition-all ease-in-out duration-100"
         >
