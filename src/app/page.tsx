@@ -6,6 +6,7 @@ import RatingForm from "@/components/RatingForm";
 import Chatbot from "@/components/Chatbot"
 import Services from "@/components/Services";
 import OurTeam from "@/components/OurTeam";
+import Doctors from "@/components/Doctors";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <Hero />
       <Services />
       <Chatbot />
+      <Doctors />
       <Testimonials />
       <RatingForm />
       <OurTeam />
