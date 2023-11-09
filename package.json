@@ -20,7 +20,10 @@
     "nodemailer": "^6.9.7",
     "react": "^18",
     "react-dom": "^18",
-    "sweetalert2": "^11.9.0"
+    "react-icons": "^4.11.0",
+    "react-spinners": "^0.13.8",
+    "sweetalert2": "^11.9.0",
+    "swiper": "^11.0.4"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.5",

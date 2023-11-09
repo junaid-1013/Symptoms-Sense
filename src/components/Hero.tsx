@@ -19,55 +19,6 @@ const Hero = () => {
                                     you can access data-driven insights to stay ahead of potential health risks
                                     and make informed choices.
                                 </p>
-                                {/*
-                                <ul className="flex flex-wrap items-center">
-                                    <li>
-                                        <a
-                                            href="/#"
-                                            className="inline-flex items-center justify-center px-6 py-4 text-base font-normal text-center text-white rounded-lg bg-primary hover:bg-opacity-90 sm:px-10 lg:px-8 xl:px-10"
-                                        >
-                                            Get Started
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a
-                                            href="/#"
-                                            className="inline-flex items-center justify-center px-6 py-4 text-base font-normal text-center text-body-color hover:text-primary sm:px-10 lg:px-8 xl:px-10"
-                                        >
-                                            <span className="mr-2">
-                                                <svg
-                                                    width="22"
-                                                    height="22"
-                                                    viewBox="0 0 22 22"
-                                                    fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                    <circle cx="11" cy="11" r="11" fill="#3056D3" />
-                                                    <rect
-                                                        x="6.90906"
-                                                        y="13.3636"
-                                                        width="8.18182"
-                                                        height="1.63636"
-                                                        fill="white"
-                                                    />
-                                                    <rect
-                                                        x="10.1818"
-                                                        y="6"
-                                                        width="1.63636"
-                                                        height="4.09091"
-                                                        fill="white"
-                                                    />
-                                                    <path
-                                                        d="M11 12.5454L13.8343 9.47726H8.16576L11 12.5454Z"
-                                                        fill="white"
-                                                    />
-                                                </svg>
-                                            </span>
-                                            Download App
-                                        </a>
-                                    </li>
-                                </ul>
-    */}
                                 <div className="pt-16 clients">
                                     <h6 className="flex items-center mb-3 text-xs font-normal text-body-color">
                                         Some Of Our Clients
@@ -104,11 +55,6 @@ const Hero = () => {
                                         width="491"
                                         height="515"
                                     />
-                                    {/* <img
-                                        src="https://cdn.tailgrids.com/1.0/assets/images/hero/hero-image-01.png"
-                                        alt="hero"
-                                        className="max-w-full lg:ml-auto"
-                                    /> */}
                                     <span className="absolute -left-8 -bottom-8 z-[-1]">
                                         <svg
                                             width="93"
