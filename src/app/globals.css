@@ -2,3 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+.box {
+    position: relative;
+    z-index: 0;
+    overflow: hidden;
+  }
+  
+  .box::before {
+    content: "";
+    position: absolute;
+    z-index: -2;
+    left: -50%;
+    top: -50%;
+    width: 200%;
+    height: 200%;
+    background-color: #ebebf3;
+    background-repeat: no-repeat;
+    background-size: 100%100%, 50%50%;
+    background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+    background-image: linear-gradient(#192a56, #273c75);
+    animation: bgRotate 4s linear infinite;
+  }
+  
+  .box::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 1px;
+    top: 1px;
+    width: calc(100% - 2px);
+    height: calc(100% - 2px);
+    background: linear-gradient(#ebebf3, #ebebf3);
+    border-radius: 4px;
+  }
+  
+  @keyframes bgRotate {
+    100% {
+      transform: rotate(1turn);
+    }
+  }
+  
