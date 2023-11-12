@@ -1,0 +1,572 @@
+    [
+    {
+        "id": 1,
+        "name": "Dr. Sara Rasul",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1693395725_IMG-20230822-WA0009.webp?t=1693395726",
+        "services": [
+            "Amenorrhoea",
+            "Antenatal Care",
+            " Antenatal Checkup",
+            " Caesarean (C-Section)"
+        ],
+        "education": [
+            "MBBS - The University of Lahore 2012",
+            "FCPS (Gynecology and Obstetrics) - College of Physicians and Surgeons, 2020"
+        ],
+        "specialization": [
+            "Gynecologist",
+            "Obstetrician"
+        ],
+        "exprience": [
+            10,
+            "Dr. Sara Rasul has over 10 years of experience in her field."
+        ],
+        "about": "Dr. Sara Rasul is a top Gynecologist with 10 years of experience. You can book an appointment with Dr. Sara Rasul through Symptoms Sense",
+        "category": "Gynecologist"
+    },
+    {
+        "id": 2,
+        "name": "Assist. Prof. Dr. Maryam Raana",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1597330578_40765427-f904-4b3b-92a2-8cb195ee25d3.webp?t=1606549651",
+        "services": [
+            " Caesarean (C-Section) ",
+            "Antenatal Care",
+            " Contraceptive Advice",
+            " Cosmetic And Reconstruction Surgery"
+        ],
+        "education": [
+            "M.B.B.S. - Punjab Medical College, Pakistan, 2009",
+            "F.C.P.S (Obsterics) - College of Physicians and Surgeons Pakistan, Pakistan, 2015",
+            "MRCOG - Royal College of Obstetricians & Gynaecology , United Kingdom, 2018"
+        ],
+        "specialization": [
+            "Obstetrician",
+            "Gynecologist"
+        ],
+        "exprience": [
+            12,
+            "2010 - Present, senior Registrar , Lady Willingdon hoapital"
+        ],
+        "about": "Dedicated, devoted and caring",
+        "category": "Gynecologist"
+    },
+    {
+        "id": 3,
+        "name": "Assist. Prof. Dr. Sadia Ahmad",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1550563265_sadia-ahmad.webp?t=1605642624",
+        "services": [
+            "Aesthetic Gynecology for Vaginal Laxity",
+            "Caesarean Section/ C-Section",
+            " Microsurgery"
+        ],
+        "education": [
+            "FCPS (Gynecology & Obstetrics)",
+            "MBBS",
+            "Fellowship in Aesthetic Genital Surgery & Cosmetic Gynaecology"
+        ],
+        "specialization": [
+            "Gynecologist",
+            "Fertility Consultant",
+            "Obstetrician"
+        ],
+        "exprience": [
+            22,
+            "Present, Assistant Professor, Jinnah Hospital, Lahore"
+        ],
+        "about": "Assist. Prof. Dr. Sadia Ahmad is a top Gynecologist with 22 years of experience currently practicing at Doctors Hospital, Lahore. You can book an in-person appointment or an online video consultation with Assist. Prof. Dr. Sadia Ahmad",
+        "category": "Gynecologist"
+    },
+    {
+        "id": 4,
+        "name": "Dr. Waqar Malik",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1698045336_d054aaee-9ba9-4647-b856-cdb8d2647bac.webp?t=1698379696",
+        "services": [
+            " Acne Treatment",
+            " Alopecia",
+            " Antihistamine Treatment",
+            " Body Contouring"
+        ],
+        "education": [
+            "M.B.B.S. - Khyber Medical College, Pakistan, 2017",
+            "M.Sc Clinical Dermatology - University Of Hertfordshire , Pakistan, 2020"
+        ],
+        "specialization": [
+            "Dermatologist",
+            "Cosmetologist"
+        ],
+        "exprience": [
+            6,
+            "Dr. Waqar Malik has over 6 years of experience in his field."
+        ],
+        "about": "Dr. Waqar Malik is a Dermatologist with 6 years of experience currently practicing at Cosmothetics - Aesthetic & Dental, Lahore. You can book an in-person appointment with Dr. Waqar Malik",
+        "category": "Skin Specialist"
+    },
+    {
+        "id": 5,
+        "name": "Dr. Sana Naz",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1692697933_SanaNaz.webp?t=1692697934",
+        "services": [
+            " Acne Scars",
+            " Acne Treatment",
+            " Alopecia",
+            "Fungal Infections"
+        ],
+        "education": [
+            "MBBS - University Of Balochistan, 2014",
+            "PGD in Dermatology (UK) - University of South Wales, 2021",
+            "MSc (Dermatology)"
+        ],
+        "specialization": [
+            "Dermatologist",
+            "Cosmetologist"
+        ],
+        "exprience": [
+            8,
+            "Dr. Sana Naz has over 8 years of experience in his field."
+        ],
+        "about": "Dr. Sana Naz is a Dermatologist with 8 years of experience. You can book an in-person appointment with Dr. Sana Naz",
+        "category": "Skin Specialist"
+    },
+    {
+        "id": 6,
+        "name": "Dr. Shahzad Khurram",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1657172310_shahzad_khurram-removebg-preview.webp?t=1657172564",
+        "services": [
+            " Adolesent Medicine",
+            " Allergy Treatment",
+            " Biliary Stone Treatment",
+            " Blood Tests "
+        ],
+        "education": [
+            "M.B.B.S - UNI.OF HEALTH SCIENCES LHR, 2013",
+            "F.C.P.S (Peads) - College of Physician & Surgeon Pakistan, 2022"
+        ],
+        "specialization": [
+            "Pediatrician"
+        ],
+        "exprience": [
+            10,
+            "2014 - 2022, SMO, CRAMTH",
+            "2018 - 2021, PGR , Hameed Latif Hospital",
+            "2014 - 2018, SMO , Continental Medical College",
+            "2022 - Present, PGR, Children Hospital Lahore"
+        ],
+        "about": "Standard Health Services For All.",
+        "category": "Child Specialist"
+    },
+    {
+        "id": 7,
+        "name": "Brig. (R) Prof. Dr. Tanveer Ashraf",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1697019394_Prof._Brig.__Rtd__Dr._Tanveer_Ashraf-removebg-preview.webp?t=1697019396",
+        "services": [
+            " Abdominal Pain",
+            "Hepatitis",
+            " Allergy Treatment",
+            " All Types of Childhood Diseases"
+        ],
+        "education": [
+            "MBBS - Quaid-i-Azam University, 1988",
+            "MRCP (Ireland) - Royal College of Physician",
+            "FCPS (Pediatrics) - College of Physicians and Surgeons, 1998"
+        ],
+        "specialization": [
+            "Pediatrician"
+        ],
+        "exprience": [
+            30,
+            "Brig. (R) Prof. Dr. Tanveer Ashraf has over 30 years of experience in his field."
+        ],
+        "about": "Brig. (R) Prof. Dr. Tanveer Ashraf is a top Pediatrician with 30 years of experience.",
+        "category": "Child Specialist"
+    },
+    {
+        "id": 8,
+        "name": "Dr. Zafar Iqbal",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1698408749_5b01fc7d-bc21-4f64-a86e-5029354a0f11.webp?t=1698408750",
+        "services": [
+            " Allergy Treatment ",
+            " Blood in Vomiting and Stool",
+            "Chronic Diarrhea",
+            " Child Dietary Consultation "
+        ],
+        "education": [
+            "MBBS",
+            "FCPS (Pediatrics)"
+        ],
+        "specialization": [
+            "Pediatrician"
+        ],
+        "exprience": [
+            15,
+            "Dr. Zafar Iqbal has over 15 years of experience in his field."
+        ],
+        "about": "Dr. Zafar Iqbal is a top Pediatrician with 15 years of experience",
+        "category": "Child Specialist"
+    },
+    {
+        "id": 9,
+        "name": "Dr. Naghmi Shirin",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1576298398_dr--naghmi-shirin.webp?t=1605653399",
+        "services": [
+            " Joint issues",
+            "Knee Pain Management",
+            "Knee Replacement",
+            "Lower Back Pain"
+        ],
+        "education": [
+            "L.M.C.C - Canadian Medical Council , Canada, 2015",
+            "M.C.P.S - College of Physicians & Surgeons Pakistan (CPSP), Pakistan, 1989",
+            "M.B.B.S. - King Edward Medical University, Pakistan, 1986"
+        ],
+        "specialization": [
+            "Pain Management Specialist",
+            "Orthopedic Surgeon"
+        ],
+        "exprience": [
+            30,
+            "Dr. Naghmi Shirin has over 30 years of experience in her field."
+        ],
+        "about": "Experienced interventionist in pain management.",
+        "category": "Orthopedic Surgeon"
+    },
+    {
+        "id": 10,
+        "name": "Dr. Ahmed Tariq Malik",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1672811407_Pic-removebg-preview.webp?t=1672811408",
+        "services": [
+            " Arthritis",
+            "Arthroplasties And Trauma Surgeries",
+            " Hip Replacement Surgery",
+            "Joint Injuries"
+        ],
+        "education": [
+            "M.B.B.S. - University of Health Sciences, 2014",
+            "F.C.P.S. (Orthopedic Surgery) - College of Physicians and Surgeons, 2022"
+        ],
+        "specialization": [
+            "Orthopedic Surgeon",
+            "Sports Medicine Specialist"
+        ],
+        "exprience": [
+            9,
+            "Dr. Ahmed Tariq Malik has over 9 years of experience in his field."
+        ],
+        "about": "Dr. Ahmed Tariq Malik is a Orthopedic Surgeon with 9 years of experience currently practicing at Doctors Hospital, Lahore.",
+        "category": "Orthopedic Surgeon"
+    },
+    {
+        "id": 11,
+        "name": "Dr. Muhammad Bilal Nasir",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1662367246_b621f03e-84f6-44f1-9459-5f96a39aec58.webp?t=1662646396",
+        "services": [
+            "ACL Reconstruction Surgery",
+            "Arthroscopic Surgery",
+            "Hip Replacement Surgery",
+            " Knee Replacement Surgery"
+        ],
+        "education": [
+            "M.B.B.S. - University of Health Sciences, 2014",
+            "F.C.P.S. (Orthopedic Surgery) - University of Health Sciences, 2022"
+        ],
+        "specialization": [
+            "Orthopedic Surgeon"
+        ],
+        "exprience": [
+            8,
+            "Dr. Muhammad Bilal Nasir has over 8 years of experience in his field."
+        ],
+        "about": "Dr. Muhammad Bilal Nasir is a Orthopedic Surgeon with 8 years of experience currently practicing at Prime Care Hospital (Lahore), Lahore",
+        "category": "Orthopedic Surgeon"
+    },
+    {
+        "id": 12,
+        "name": "Prof. Dr. Babar Hussain Khan",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1564039034_babar-hussain.webp?t=1605618676",
+        "services": [
+            " Diagnostic Endoscopy Of Nose And Throat",
+            " Ear Cleaning",
+            " Ear Lobe Repairs",
+            " Ear Wax Removal"
+        ],
+        "education": [
+            "MBBS - Army Medical College, Pakistan, 1994",
+            "DLO - AFPGMI, Pakistan, 2001",
+            "MCPS - College of Physicians & Surgeons Pakistan (CPSP), Pakistan, 2002"
+        ],
+        "specialization": [
+            "ENT Specialist",
+            "ENT Surgeon"
+        ],
+        "exprience": [
+            28,
+            "2021 - 2023, Head of ENT Department, ANMC",
+            "2015 - 2021, Head of ENT Department, Rashid Latif Medical College",
+            "2010 - 2014, Head of ENT Department, Shalamar Medical College"
+        ],
+        "about": "Prof. Dr. Babar Hussain Khan is a top ENT Specialist with 28 years of experience currently practicing at Hameed Latif Hospital, Lahore. ",
+        "category": "ENT Specialist"
+    },
+    {
+        "id": 13,
+        "name": "Prof. Dr. Muhammad Riaz Chaudhary",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1550554424_riaz-chaudhary.webp?t=1605631501",
+        "services": [
+            "Cosmetic Surgery Of Nose",
+            "Ear Discharge",
+            "Hearing Problems",
+            " Nasal Allergy"
+        ],
+        "education": [
+            "MBBS",
+            "FCPS (ENT)"
+        ],
+        "specialization": [
+            "ENT Specialist",
+            "ENT Surgeon"
+        ],
+        "exprience": [
+            32,
+            "Prof. Dr. Muhammad Riaz Chaudhary has over 32 years of experience in his field."
+        ],
+        "about": "Prof. Dr. Muhammad Riaz Chaudhary is a ENT Specialist and ENT Surgeon. He has a MBBS and FCPS (ENT) degree along with an experience of 32 years. He is also a member of Pakistan Medical and Dental Council (PMDC). Prof. Dr. Muhammad Riaz Chaudhary practices as a ENT Specialist at Chughtai Medical Center (Johar Town) and Online Video Consultation and charges 2000 and 2000 respectively.",
+        "category": "ENT Specialist"
+    },
+    {
+        "id": 14,
+        "name": "Diabetes specialist",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1674717597_0d7eb775-abab-4efc-a0be-fb594a2604c4.webp?t=1684134082",
+        "services": [
+            " Biliary Stone Treatment",
+            " Biopsy",
+            " Cardiac Patient Management",
+            " Colonoscopy"
+        ],
+        "education": [
+            "MBBS - King Edward Medical University, Pakistan, 2005",
+            "FRACGP (Australia) - Royal Australian College Of General Practitioner, Australia, 2017"
+        ],
+        "specialization": [
+            "General Physician",
+            "Family Physician",
+            "Internal Medicine Specialist",
+            "Consultant Physician"
+        ],
+        "exprience": [
+            17,
+            "Dr. Sadaf Sarwar has over 17 years of experience in her field."
+        ],
+        "about": "Dr. Sadaf Sarwar is a top General Physician with 17 years of experience currently practicing at Australian Polyclinic, Lahore.",
+        "category": "Diabetes specialist"
+    },
+    {
+        "id": 15,
+        "name": "Assist. Prof. Dr. Shazia Siddique",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1630071622_shaziasiddiqi.webp?t=1630071637",
+        "services": [
+            " Anaemia",
+            " Biliary Stone Treatment",
+            " COVID-19 / Corona Virus Treatment",
+            " Diabetes Management"
+        ],
+        "education": [
+            "MBBS - Fatima Jinnah Medical College, 2000",
+            "M.R.C.P (UK) - Royal College Of Physician, 2011"
+        ],
+        "specialization": [
+            "Internal Medicine Specialist",
+            "Consultant Physician",
+            "Diabetologist"
+        ],
+        "exprience": [
+            21,
+            "2015 - 2017, Assistant Professor of Medicine, Jinnah Hospital, Lahore",
+            "2018 - Present, Assistant Professor of Medicine, Sir Ganga Ram Hospital, Lahore"
+        ],
+        "about": "Assist. Prof. Dr. Shazia Siddique is a top Internal Medicine Specialist with 21 years of experience.",
+        "category": "Diabetes specialist"
+    },
+    {
+        "id": 16,
+        "name": "Assist. Prof. Dr. Shazia Siddique",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1630071622_shaziasiddiqi.webp?t=1630071637",
+        "services": [
+            " Biliary Stone Treatment",
+            " COVID-19 / Corona Virus Treatment",
+            " Dementia",
+            " Diabetes Management"
+        ],
+        "education": [
+            "MBBS - Fatima Jinnah Medical College, 2000",
+            "M.R.C.P (UK) - Royal College Of Physician, 2011"
+        ],
+        "specialization": [
+            "Internal Medicine Specialist",
+            "Consultant Physician",
+            "Gastroenterologist",
+            "Diabetologist"
+        ],
+        "exprience": [
+            8,
+            "2015 - 2017, Assistant Professor of Medicine, Jinnah Hospital, Lahore",
+            "2018 - Present, Assistant Professor of Medicine, Sir Ganga Ram Hospital, Lahore"
+        ],
+        "about": "",
+        "category": "Diabetes specialist"
+    },
+    {
+        "id": 17,
+        "name": "Dr. Hafiz Abdul Rauf",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1582362638_dr-hafizabdulrauf.webp?t=1610450506",
+        "services": [
+            " Biliary Stone Treatment",
+            " Constipation Treatment",
+            " COVID-19 / Corona Virus Treatment",
+            " Diabetes Management"
+        ],
+        "education": [
+            "MBBS - Bahauddin Zakariya University, Multan, 1994",
+            "FCPS - College of Physician And Surgeon, 2006",
+            "MRCP (Ireland), 2013",
+            "MRCP (Glasgow), 2013"
+        ],
+        "specialization": [
+            "Internal Medicine Specialist",
+            "Consultant Physician",
+            "Diabetologist"
+        ],
+        "exprience": [
+            14,
+            "Dr. Hafiz Abdul Rauf has over 14 years of experience in his field."
+        ],
+        "about": "Dr. Hafiz Abdul Rauf is a top Internal Medicine Specialist with 14 years of experience currently practicing at Evercare Hospital , Lahore",
+        "category": "Diabetes specialist"
+    },
+    {
+        "id": 18,
+        "name": "Dr. Saad Aziz",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1642664127_WhatsAppImage2022-01-18at7.44.04PM.webp?t=1693374542",
+        "services": [
+            " Cataract Eye Surgery ",
+            " Color Blind Test",
+            " Comprehensive Eye Care",
+            " Corneal Surgery"
+        ],
+        "education": [
+            "M.B.B.S, 2013",
+            "F.C.P.S (Ophthalmology), 2021",
+            "FICO (UK)"
+        ],
+        "specialization": [
+            "Eye Specialist",
+            "Eye Surgeon"
+        ],
+        "exprience": [
+            8,
+            "Dr. Saad Aziz has over 8 years of experience in his field."
+        ],
+        "about": "Dr. Saad Aziz is a Eye Specialist with 8 years of experience. ",
+        "category": "Eye Specialist"
+    },
+    {
+        "id": 19,
+        "name": "Dr. Mohammad Zakir",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1617859546_WhatsAppImage2021-03-31at10.12.47AM.jpeg?t=1668058562",
+        "services": [
+            " Cataract Eye Surgery",
+            "Color Blind Test",
+            "Comprehensive Eye Care",
+            " Corneal Surgery"
+        ],
+        "education": [
+            "M.B.B.S",
+            "M.C.P.S - College of Physicians & Surgeons Pakistan (CPSP), Pakistan",
+            "F.R.C.S (UK)"
+        ],
+        "specialization": [
+            "Eye Specialist",
+            "Eye Surgeon"
+        ],
+        "exprience": [
+            35,
+            "Dr. Mohammad Zakir has over 35 years of experience in his field."
+        ],
+        "about": "Dr. Mohammad Zakir is a top Eye Specialist with 35 years of experience.",
+        "category": "Eye Specialist"
+    },
+    {
+        "id": 20,
+        "name": "Dr. M. Awaid Abid",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1654065776_whatsappimage2022-05-24at8-22-54pm-removebg-preview-min.webp?t=1654065783",
+        "services": [
+            " Argon Laser Treatment",
+            " Cataract Eye Surgery",
+            " Comprehensive Eye Care",
+            " Correction Of Eye Bags"
+        ],
+        "education": [
+            "M.B.B.S. - University of Health Sciences Lahore, 2013",
+            "F.C.P.S. (Ophthalmology) - College of Physicians and Surgeons, 2021",
+            "F.I.C.O."
+        ],
+        "specialization": [
+            "Eye Specialist",
+            "Eye Surgeon"
+        ],
+        "exprience": [
+            9,
+            "Dr. M. Awaid Abid has over 9 years of experience in his field."
+        ],
+        "about": "Dr. M. Awaid Abid is a Eye Specialist with 9 years of experience.",
+        "category": "Eye Specialist"
+    },
+    {
+        "id": 21,
+        "name": "Dr. Syed Qasim Ali Jafri",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1628773325_fb141c19-412f-4258-9749-453aec1c9b78.webp?t=1630310633",
+        "services": [
+            " Allergy Treatment",
+            " Ear Cleaning",
+            " Ear Lobe Repairs",
+            " Ear Wax Removal"
+        ],
+        "education": [
+            "M.B.B.S. - University of Health Sciences Lahore, Pakistan, 2009",
+            "F.C.P.S. - College of Physicians & Surgeons, 2021"
+        ],
+        "specialization": [
+            "ENT Specialist",
+            "ENT Surgeon"
+        ],
+        "exprience": [
+            10,
+            "Dr. Syed Qasim Ali Jafri has over 10 years of experience in his field."
+        ],
+        "about": "Dr. Syed Qasim Ali Jafri is an expert ENT Specialist with 10 years of experience.",
+        "category": "ENT Specialist"
+    },
+    {
+        "id": 22,
+        "name": "Dr. Abeed Ur Rahman Ihsan",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1655982567_2cc6e0f3-5feb-473c-8782-519f432b98b1.webp?t=1655983263",
+        "services": [
+            " Arthroscopic Surgery",
+            "Backache",
+            "Fractures",
+            " Hip Replacement Surgery"
+        ],
+        "education": [
+            "MBBS (KE) - King Edward Medical University, 1984",
+            "M.Ch. (Orthopedics) - University of Dundee, Scotland, 1994",
+            "MS (Orthopedic Surgery) - Post Graduate Medical Institute, Lahore, 1995"
+        ],
+        "specialization": [
+            "Orthopedic Surgeon"
+        ],
+        "exprience": [
+            29,
+            "Dr. Abeed Ur Rahman Ihsan has over 29 years of experience in his field."
+        ],
+        "about": "Dr. Abeed Ur Rahman Ihsan is an expert Orthopedic Surgeon with 29 years of experience",
+        "category": "Orthopedic Surgeon"
+    }
+]
