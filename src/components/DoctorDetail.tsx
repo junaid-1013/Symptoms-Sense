@@ -1,9 +1,24 @@
+'use client';
 import { Clock4 } from "lucide-react"
 import Link from "next/link"
 import { FaHospitalAlt } from "react-icons/fa"
 import { MdOutlineLocationOn } from "react-icons/md"
-
+import { useSearchParams } from "next/navigation";
 const DoctorDetail = () => {
+    const searchParams = useSearchParams();
+    console.log(searchParams.get("specialization"))
+   let name = searchParams.get("name");
+let img = searchParams.get("img");
+let spec = searchParams.get("specialization");
+console.log(spec)
+const specialization: string[] = spec!.split('*');
+let educ = searchParams.get("education");
+const education: string[] = educ!.split('*');
+let exp = searchParams.get("experience");
+const experience: string[] = exp!.split('*');
+let ser = searchParams.get("services");
+const services: string[] = ser!.split('*');
+let about = searchParams.get("about");
     return (
         <section>
             <div className="max-w-[1170px] px-5 mx-auto grid grid-cols-5 gap-8 py-8">
@@ -12,36 +27,42 @@ const DoctorDetail = () => {
                     md:col-span-3 col-span-5 shadow-lg">
                         <div className="flex gap-5">
                             <div className="block shrink-0">
-                                <img
-                                    alt="Dr. Imad ud din Yousaf Butt"
-                                    src="https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451"
-                                    className="h-28 w-28 rounded-full object-cover shadow-lg"
-                                />
+                            {img && (
+      <img
+      alt="Dr. Imad ud din Yousaf Butt"
+      src={img}
+      className="h-28 w-28 rounded-full object-cover shadow-lg"
+  />
+    )}
+                                
                             </div>
+                            {specialization&&education&&experience&&(
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    Dr. Imad ud din Yousaf Butt
+                                    {name}
                                 </h3>
 
-                                <p className="mt-1 text-xs font-medium text-gray-600">Neurologist</p>
+                                <p className="mt-1 text-xs font-medium text-gray-600">{specialization[0]}</p>
                                 <div className="mt-4">
                                     <p className="max-w-[40ch] text-sm text-gray-500">
-                                        MBBS (K.E), F.C.P.S. (Neurology)
+                                        {education[0]}
                                     </p>
                                 </div>
 
                                 <dl className="mt-6 flex gap-4 sm:gap-6">
                                     <div className="flex flex-col-reverse">
                                         <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                                        <dd className="text-xs text-gray-500">9 Years</dd>
+                                        <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
                                     </div>
-
+                             {/*
                                     <div className="flex flex-col-reverse">
                                         <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
                                         <dd className="text-xs text-gray-500">2913</dd>
                                     </div>
+                            */}
                                 </dl>
                             </div>
+                            )}
                         </div>
                     </div>
                     {/* Appointment booking divs */}
@@ -144,21 +165,13 @@ const DoctorDetail = () => {
                                     Services
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm columns-2 " style={{ "columnGap": "130px" }}>
+                               {
+                                services.map((data, index) => (
                                     <li>
-                                        ALS / Motor Neuron Disease
+                                        {data}
                                     </li>
-                                    <li>
-                                        ALS Treatment (ALS علاج)
-                                    </li>
-                                    <li>
-                                        Alzheimer Disease
-                                    </li>
-                                    <li>
-                                        Back Pain
-                                    </li>
-                                    <li>
-                                        Bells Palsy
-                                    </li>
+                                    ))
+                                }
                                 </ul>
                             </div>
                         </div>
@@ -173,12 +186,13 @@ const DoctorDetail = () => {
                                     Education
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                {
+                                education.map((data, index) => (
                                     <li>
-                                        MBBS (K.E) - King Edward Medical University,Lahore, Pakistan, 2013
+                                        {data}
                                     </li>
-                                    <li>
-                                        F.C.P.S. (Neurology) - College of Physicians & Surgeons
-                                    </li>
+                                    ))
+                                }
                                 </ul>
                             </div>
                         </div>
@@ -193,9 +207,13 @@ const DoctorDetail = () => {
                                     Specialization
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                {
+                                specialization.map((data, index) => (
                                     <li>
-                                        Neurologist
+                                        {data}
                                     </li>
+                                    ))
+                                }
                                 </ul>
                             </div>
                         </div>
@@ -210,9 +228,13 @@ const DoctorDetail = () => {
                                     Experience
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                {
+                                experience.slice(1).map((data, index) => (
                                     <li>
-                                        2021 - Present, Senior Registrar Neurology, Central Park Teaching, Hospital
+                                        {data}
                                     </li>
+                                    ))
+                                }
                                 </ul>
                             </div>
                         </div>
@@ -224,11 +246,11 @@ const DoctorDetail = () => {
                         <div className="flex gap-5 text-sm">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    About Dr. Imad ud din Yousaf Butt
+                                    About 
                                 </h3>
 
-                                <p className="mt-8 my-4">Dr. Imad ud din Yousaf Butt is a Neurologist with 9 years of experience currently practicing at Fatima Memorial Hospital, Lahore. You can book an in-person appointment or an online video consultation with Dr. Imad ud din Yousaf Butt through Symptoms Sense or by calling at 04238900939.</p>
-
+                                <p className="mt-8 my-4">{about}</p>
+{/*
                                 <div className="mb-6">
                                     <h2 className="font-semibold mb-2">Experience</h2>
                                     <p>Dr. Imad ud din Yousaf Butt has over 9 years of experience in his field.</p>
@@ -299,6 +321,7 @@ const DoctorDetail = () => {
                                         <li>Facial Pain</li>
                                     </ul>
                                 </div>
+                                */}
                             </div>
                         </div>
                     </div>

@@ -1,18 +1,25 @@
 import Link from "next/link"
-
+import queryString from 'query-string';
 interface docSchema {
     name: string,
     img: string,
-    specialization: string,
-    education: string,
-    experience: number,
-    satisfiedPatients: number
+    specialization: string[],
+    education: string[],
+    experience: (string | number)[],
+    services:string[]
+    about:string
+    //satisfiedPatients: number
 }
 
 
-const DoctorCard = ({ name, img, specialization, education, experience, satisfiedPatients }: docSchema) => {
+const DoctorCard = ({ name, img, specialization, education, experience,services,about }: docSchema) => {
+    const details = { name:name,img:img,specialization:specialization,education:education,experience:experience,
+    services:services,about:about
+    };
+    const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (
-        <Link href="/doctorDetail"
+        <Link href={{ pathname: '/doctorDetail', query: query }} 
+        
             className="relative block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 
             hover:shadow-xl hover:-translate-y-2 cursor-pointer transition-all ease-in-out duration-100"
         >
@@ -23,7 +30,7 @@ const DoctorCard = ({ name, img, specialization, education, experience, satisfie
                         {name}
                     </h3>
 
-                    <p className="mt-1 text-xs font-medium text-gray-600">{specialization}</p>
+                    <p className="mt-1 text-xs font-medium text-gray-600">{specialization[0]}</p>
                 </div>
 
                 <div className="block shrink-0">
@@ -37,20 +44,20 @@ const DoctorCard = ({ name, img, specialization, education, experience, satisfie
 
             <div className="mt-4">
                 <p className="max-w-[40ch] text-sm text-gray-500">
-                    {education}
+                    {education[0]}
                 </p>
             </div>
 
             <dl className="mt-6 flex gap-4 sm:gap-6">
                 <div className="flex flex-col-reverse">
                     <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                    <dd className="text-xs text-gray-500">{experience} Years</dd>
+                    <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
                 </div>
 
-                <div className="flex flex-col-reverse">
+                {/*<div className="flex flex-col-reverse">
                     <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
                     <dd className="text-xs text-gray-500">{satisfiedPatients}</dd>
-                </div>
+    </div>*/}
             </dl>
         </Link>
     )

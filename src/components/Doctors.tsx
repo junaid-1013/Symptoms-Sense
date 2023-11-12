@@ -1,58 +1,48 @@
+
+'use client'
+import React, {  useState, useEffect } from "react";
 import DoctorCard from "@/components/DoctorCard";
-
-const DoctorData = [
-    {
-        name: "Dr. Imad ud din Yousaf Butt",
-        img: "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-    {
-        name: "Dr. Junaid Ali Bhatti",
-        img: "https://media.licdn.com/dms/image/D4D03AQGIXb7VZQ3jxw/profile-displayphoto-shrink_400_400/0/1695925170699?e=1704931200&v=beta&t=uiP6W9OwLAGIoxMeg5k1tzFzaSKstL4VpfX_FDIAg7E",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-    {
-        name: "Dr. Imad ud din Yousaf Butt",
-        img: "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-    {
-        name: "Dr. Imad ud din Yousaf Butt",
-        img: "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-    {
-        name: "Dr. Imad ud din Yousaf Butt",
-        img: "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-    {
-        name: "Dr. Imad ud din Yousaf Butt",
-        img: "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1615822541_f601c147-98f5-4e9a-92e6-44f3a490993f.webp?t=1657800451",
-        specialization: "Neurologist",
-        education: "MBBS (K.E), F.C.P.S. (Neurology)",
-        experience: 9,
-        satisfiedPatients: 2913
-    },
-]
-
-
 const Doctors = () => {
+    const [DocData, setData] = useState([{
+        "id": 1,
+        "name": "Dr. Sara Rasul",
+        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1693395725_IMG-20230822-WA0009.webp?t=1693395726",
+        "services": [
+            "Amenorrhoea",
+            "Antenatal Care",
+            " Antenatal Checkup",
+            " Caesarean (C-Section)"
+        ],
+        "education": [
+            "MBBS - The University of Lahore 2012",
+            "FCPS (Gynecology and Obstetrics) - College of Physicians and Surgeons, 2020"
+        ],
+        "specialization": [
+            "Gynecologist",
+            "Obstetrician"
+        ],
+        "exprience": [
+            10,
+            "Dr. Sara Rasul has over 10 years of experience in her field."
+        ],
+        "about": "Dr. Sara Rasul is a top Gynecologist with 10 years of experience. You can book an appointment with Dr. Sara Rasul through Symptoms Sense",
+        "category": "Gynecologist"
+    }]);
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            
+            
+            const response = await fetch('/doctorProfiles.json');
+            const jsonData = await response.json();
+            setData(jsonData);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          }
+        };
+    
+        fetchData();
+      }, []);
     return (
         <div className="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
             <div className="flex flex-wrap justify-center text-center mt-12">
@@ -69,15 +59,19 @@ const Doctors = () => {
             </div>
             <ul className="grid gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-3">
                 {
-                    DoctorData.map((data, index) => (
+
+                    
+                    DocData.map((data, index) => (
                         <li key={index}>
                             <DoctorCard
                                 name={data.name}
-                                img={data.img}
+                                img={data.image}
                                 specialization={data.specialization}
                                 education={data.education}
-                                experience={data.experience}
-                                satisfiedPatients={data.satisfiedPatients}
+                                experience={data.exprience}
+                                services={data.services}
+                                about={data.about}
+                             //   satisfiedPatients={data.satisfiedPatients}
                             />
                         </li>
                     ))
