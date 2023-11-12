@@ -167,7 +167,7 @@ let about = searchParams.get("about");
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm columns-2 " style={{ "columnGap": "130px" }}>
                                {
                                 services.map((data, index) => (
-                                    <li>
+                                    <li key={index}>
                                         {data}
                                     </li>
                                     ))
@@ -188,7 +188,7 @@ let about = searchParams.get("about");
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
                                 {
                                 education.map((data, index) => (
-                                    <li>
+                                    <li key={index}>
                                         {data}
                                     </li>
                                     ))
@@ -209,7 +209,7 @@ let about = searchParams.get("about");
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
                                 {
                                 specialization.map((data, index) => (
-                                    <li>
+                                    <li key={index}>
                                         {data}
                                     </li>
                                     ))
@@ -230,7 +230,7 @@ let about = searchParams.get("about");
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
                                 {
                                 experience.slice(1).map((data, index) => (
-                                    <li>
+                                    <li key={index}>
                                         {data}
                                     </li>
                                     ))
