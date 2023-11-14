@@ -24,6 +24,13 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
+    appointments: [
+        {
+          
+          doctor: String,
+          time: Date,
+        }
+      ],
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,

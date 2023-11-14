@@ -385,36 +385,9 @@
         "about": "Assist. Prof. Dr. Shazia Siddique is a top Internal Medicine Specialist with 21 years of experience.",
         "category": "Diabetes specialist"
     },
+   
     {
         "id": 16,
-        "name": "Assist. Prof. Dr. Shazia Siddique",
-        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1630071622_shaziasiddiqi.webp?t=1630071637",
-        "services": [
-            " Biliary Stone Treatment",
-            " COVID-19 / Corona Virus Treatment",
-            " Dementia",
-            " Diabetes Management"
-        ],
-        "education": [
-            "MBBS - Fatima Jinnah Medical College, 2000",
-            "M.R.C.P (UK) - Royal College Of Physician, 2011"
-        ],
-        "specialization": [
-            "Internal Medicine Specialist",
-            "Consultant Physician",
-            "Gastroenterologist",
-            "Diabetologist"
-        ],
-        "exprience": [
-            8,
-            "2015 - 2017, Assistant Professor of Medicine, Jinnah Hospital, Lahore",
-            "2018 - Present, Assistant Professor of Medicine, Sir Ganga Ram Hospital, Lahore"
-        ],
-        "about": "",
-        "category": "Diabetes specialist"
-    },
-    {
-        "id": 17,
         "name": "Dr. Hafiz Abdul Rauf",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1582362638_dr-hafizabdulrauf.webp?t=1610450506",
         "services": [
@@ -442,7 +415,7 @@
         "category": "Diabetes specialist"
     },
     {
-        "id": 18,
+        "id": 17,
         "name": "Dr. Saad Aziz",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1642664127_WhatsAppImage2022-01-18at7.44.04PM.webp?t=1693374542",
         "services": [
@@ -468,7 +441,7 @@
         "category": "Eye Specialist"
     },
     {
-        "id": 19,
+        "id": 18,
         "name": "Dr. Mohammad Zakir",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1617859546_WhatsAppImage2021-03-31at10.12.47AM.jpeg?t=1668058562",
         "services": [
@@ -494,7 +467,7 @@
         "category": "Eye Specialist"
     },
     {
-        "id": 20,
+        "id": 19,
         "name": "Dr. M. Awaid Abid",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1654065776_whatsappimage2022-05-24at8-22-54pm-removebg-preview-min.webp?t=1654065783",
         "services": [
@@ -520,7 +493,7 @@
         "category": "Eye Specialist"
     },
     {
-        "id": 21,
+        "id": 20,
         "name": "Dr. Syed Qasim Ali Jafri",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1628773325_fb141c19-412f-4258-9749-453aec1c9b78.webp?t=1630310633",
         "services": [
@@ -545,7 +518,7 @@
         "category": "ENT Specialist"
     },
     {
-        "id": 22,
+        "id": 21,
         "name": "Dr. Abeed Ur Rahman Ihsan",
         "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1655982567_2cc6e0f3-5feb-473c-8782-519f432b98b1.webp?t=1655983263",
         "services": [
