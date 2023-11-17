@@ -9,8 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-icons": "^1.3.0",
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
     "cookies-next": "^4.0.0",
     "date-fns-tz": "^2.0.0",
     "fs": "^0.0.1-security",
@@ -29,7 +33,8 @@
     "react-time-picker": "^6.5.2",
     "sweetalert2": "^11.9.0",
     "swiper": "^11.0.4",
-    "tailwind-merge": "^2.0.0"
+    "tailwind-merge": "^2.0.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.5",
