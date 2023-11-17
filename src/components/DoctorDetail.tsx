@@ -1,26 +1,29 @@
 'use client';
-
+import { Clock4 } from "lucide-react"
+import Link from "next/link"
+import { FaHospitalAlt } from "react-icons/fa"
+import { MdOutlineLocationOn } from "react-icons/md"
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useMemo, useState } from 'react';
 import { Calendar } from 'react-date-range';
 import Swal from 'sweetalert2';
 import {
-  addDays,
-  addHours,
-  eachDayOfInterval,
-  eachMinuteOfInterval,
-  endOfDay,
-  endOfMonth,
-  endOfWeek,
-  format,
-  isSameMinute,
-  parse,
-  parseISO,
-  set,
-  startOfDay,
-  startOfToday,
-  startOfWeek,
+    addDays,
+    addHours,
+    eachDayOfInterval,
+    eachMinuteOfInterval,
+    endOfDay,
+    endOfMonth,
+    endOfWeek,
+    format,
+    isSameMinute,
+    parse,
+    parseISO,
+    set,
+    startOfDay,
+    startOfToday,
+    startOfWeek,
 } from 'date-fns';
 
 import 'react-date-range/dist/styles.css';
@@ -33,90 +36,90 @@ import { useSearchParams } from "next/navigation";
 const DoctorDetail = () => {
     const router = useRouter();
     const [selectedDate, setSelectedDate] = useState(new Date());
-    
-  const [selectedTime, setSelectedTime] = useState(new Date());
-  const [selectedD, setSelectedD] = useState("");
-  const [selectedT, setSelectedT] = useState("");
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    setSelectedD('s');
-  };
-  const isFormValid = selectedD && selectedT;
-  const minSelectableDate = addDays(new Date(), 0);
 
-  let today = startOfToday();
-  let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'));
-  let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', selectedDate);
-  let days = eachDayOfInterval({
-    start: startOfWeek(firstDayCurrentMonth, { weekStartsOn: 1 }),
-    end: endOfWeek(endOfMonth(firstDayCurrentMonth), { weekStartsOn: 1 }),
-  });
- 
-  const handleTimeClick = (time: Date) => {
-    setSelectedTime(time);
-    setSelectedT("t");
-  };
+    const [selectedTime, setSelectedTime] = useState(new Date());
+    const [selectedD, setSelectedD] = useState("");
+    const [selectedT, setSelectedT] = useState("");
+    const handleDateSelect = (date: Date) => {
+        setSelectedDate(date);
+        setSelectedD('s');
+    };
+    const isFormValid = selectedD && selectedT;
+    const minSelectableDate = addDays(new Date(), 0);
+
+    let today = startOfToday();
+    let [currentMonth, setCurrentMonth] = useState(format(today, 'MMM-yyyy'));
+    let firstDayCurrentMonth = parse(currentMonth, 'MMM-yyyy', selectedDate);
+    let days = eachDayOfInterval({
+        start: startOfWeek(firstDayCurrentMonth, { weekStartsOn: 1 }),
+        end: endOfWeek(endOfMonth(firstDayCurrentMonth), { weekStartsOn: 1 }),
+    });
+
+    const handleTimeClick = (time: Date) => {
+        setSelectedTime(time);
+        setSelectedT("t");
+    };
     let [freeTimes, setFreeTimes] = useState<Date[]>([]);
-     const reservations = [
-    
-    
-    addHours(today, 13).toString(),
-    
-    addDays(new Date(addHours(today, 4)), 3).toString(),
-  ];
+    const reservations = [
+
+
+        addHours(today, 13).toString(),
+
+        addDays(new Date(addHours(today, 4)), 3).toString(),
+    ];
     useMemo(() => {
-      const StartOfToday = startOfDay(selectedDate);
-      const endOfToday = endOfDay(selectedDate);
-      const startHour = set(StartOfToday, { hours: 9 });
-      const endHour = set(endOfToday, { hours: 20, minutes: 15 });
-      let hoursInDay = eachMinuteOfInterval(
-        {
-          start: startHour,
-          end: endHour,
-        },
-        { step: 60 }
-      );
-  
-      let freeTimes = hoursInDay.filter(
-        (hour) => !reservations.includes(parseISO(hour.toISOString()).toString())
-      );
-      setFreeTimes(freeTimes);
+        const StartOfToday = startOfDay(selectedDate);
+        const endOfToday = endOfDay(selectedDate);
+        const startHour = set(StartOfToday, { hours: 9 });
+        const endHour = set(endOfToday, { hours: 20, minutes: 15 });
+        let hoursInDay = eachMinuteOfInterval(
+            {
+                start: startHour,
+                end: endHour,
+            },
+            { step: 60 }
+        );
+
+        let freeTimes = hoursInDay.filter(
+            (hour) => !reservations.includes(parseISO(hour.toISOString()).toString())
+        );
+        setFreeTimes(freeTimes);
     }, [selectedDate]);
-   
+
     const searchParams = useSearchParams();
-   let name = searchParams.get("name");
-let img = searchParams.get("img");
-let spec = searchParams.get("specialization");
-console.log(spec)
-const specialization: string[] = spec!.split('*');
-let educ = searchParams.get("education");
-const education: string[] = educ!.split('*');
-let exp = searchParams.get("experience");
-const experience: string[] = exp!.split('*');
-let ser = searchParams.get("services");
-const services: string[] = ser!.split('*');
-let about = searchParams.get("about");
-interface AppointmentData {
-    time: Date;
-    doctor: string|null;
-  }
-const onSubmit=()=>{
-    console.log(selectedTime)
-    const data: AppointmentData = {
-        time: selectedTime, 
-        doctor: name, 
-      };
-    axios.post("/api/appointment",data).then((response) => {
-        let ress = response.data;
-        Swal.fire('Success!', 'Appointment booked successfully!', 'success');
-        router.push('/profile')
-      }).catch((error) => {
-        
-        console.error("Error fetching user data:", error);
-      });
+    let name = searchParams.get("name");
+    let img = searchParams.get("img");
+    let spec = searchParams.get("specialization");
+    console.log(spec)
+    const specialization: string[] = spec!.split('*');
+    let educ = searchParams.get("education");
+    const education: string[] = educ!.split('*');
+    let exp = searchParams.get("experience");
+    const experience: string[] = exp!.split('*');
+    let ser = searchParams.get("services");
+    const services: string[] = ser!.split('*');
+    let about = searchParams.get("about");
+    interface AppointmentData {
+        time: Date;
+        doctor: string | null;
+    }
+    const onSubmit = () => {
+        console.log(selectedTime)
+        const data: AppointmentData = {
+            time: selectedTime,
+            doctor: name,
+        };
+        axios.post("/api/appointment", data).then((response) => {
+            let ress = response.data;
+            Swal.fire('Success!', 'Appointment booked successfully!', 'success');
+            router.push('/profile')
+        }).catch((error) => {
+
+            console.error("Error fetching user data:", error);
+        });
 
 
-}
+    }
     return (
         <section>
             <div className="max-w-[1170px] px-5 mx-auto grid grid-cols-5 gap-8 py-8">
@@ -125,45 +128,43 @@ const onSubmit=()=>{
                     md:col-span-3 col-span-5 shadow-lg">
                         <div className="flex gap-5">
                             <div className="block shrink-0">
-                            {img && (
-      <img
-      alt="Dr. Imad ud din Yousaf Butt"
-      src={img}
-      className="h-28 w-28 rounded-full object-cover shadow-lg"
-  />
-    )}
-                                
-                            </div>
-                            {specialization&&education&&experience&&(
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    {name}
-                                </h3>
+                                {img && (
+                                    <img
+                                        alt="Dr. Imad ud din Yousaf Butt"
+                                        src={img}
+                                        className="h-28 w-28 rounded-full object-cover shadow-lg"
+                                    />
+                                )}
 
-                                <p className="mt-1 text-xs font-medium text-gray-600">{specialization[0]}</p>
-                                <div className="mt-4">
-                                    <p className="max-w-[40ch] text-sm text-gray-500">
-                                        {education[0]}
-                                    </p>
+                            </div>
+                            {specialization && education && experience && (
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        {name}
+                                    </h3>
+
+                                    <p className="mt-1 text-xs font-medium text-gray-600">{specialization[0]}</p>
+                                    <div className="mt-4">
+                                        <p className="max-w-[40ch] text-sm text-gray-500">
+                                            {education[0]}
+                                        </p>
+                                    </div>
+
+                                    <dl className="mt-6 flex gap-4 sm:gap-6">
+                                        <div className="flex flex-col-reverse">
+                                            <dt className="text-sm font-medium text-gray-600">Experience</dt>
+                                            <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
+                                        </div>
+                                        <div className="flex flex-col-reverse">
+                                            <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
+                                            <dd className="text-xs text-gray-500">2913</dd>
+                                        </div>
+                                    </dl>
                                 </div>
-
-                                <dl className="mt-6 flex gap-4 sm:gap-6">
-                                    <div className="flex flex-col-reverse">
-                                        <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                                        <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
-                                    </div>
-                             {/*
-                                    <div className="flex flex-col-reverse">
-                                        <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
-                                        <dd className="text-xs text-gray-500">2913</dd>
-                                    </div>
-                            */}
-                                </dl>
-                            </div>
                             )}
                         </div>
                     </div>
-                   
+
                     <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
                     md:col-span-3 col-span-5 shadow-lg md:shadow-none">
                         <div className="flex gap-5">
@@ -172,13 +173,13 @@ const onSubmit=()=>{
                                     Services
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm columns-2 " style={{ "columnGap": "130px" }}>
-                               {
-                                services.map((data, index) => (
-                                    <li key={index}>
-                                        {data}
-                                    </li>
-                                    ))
-                                }
+                                    {
+                                        services.map((data, index) => (
+                                            <li key={index}>
+                                                {data}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -193,13 +194,13 @@ const onSubmit=()=>{
                                     Education
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                {
-                                education.map((data, index) => (
-                                    <li key={index}>
-                                        {data}
-                                    </li>
-                                    ))
-                                }
+                                    {
+                                        education.map((data, index) => (
+                                            <li key={index}>
+                                                {data}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -214,13 +215,13 @@ const onSubmit=()=>{
                                     Specialization
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                {
-                                specialization.map((data, index) => (
-                                    <li key={index}>
-                                        {data}
-                                    </li>
-                                    ))
-                                }
+                                    {
+                                        specialization.map((data, index) => (
+                                            <li key={index}>
+                                                {data}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -235,13 +236,13 @@ const onSubmit=()=>{
                                     Experience
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                {
-                                experience.slice(1).map((data, index) => (
-                                    <li key={index}>
-                                        {data}
-                                    </li>
-                                    ))
-                                }
+                                    {
+                                        experience.slice(1).map((data, index) => (
+                                            <li key={index}>
+                                                {data}
+                                            </li>
+                                        ))
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -253,11 +254,11 @@ const onSubmit=()=>{
                         <div className="flex gap-5 text-sm">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    About 
+                                    About
                                 </h3>
 
                                 <p className="mt-8 my-4">{about}</p>
-{/*
+                                {/*
                                 <div className="mb-6">
                                     <h2 className="font-semibold mb-2">Experience</h2>
                                     <p>Dr. Imad ud din Yousaf Butt has over 9 years of experience in his field.</p>
@@ -335,7 +336,7 @@ const onSubmit=()=>{
                 </div>
                 {/* Appointment booking divs */}
                 <div className="relative block md:col-span-2 col-span-5 space-y-6">
-                    {/*<div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
+                    <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center">
@@ -423,70 +424,70 @@ const onSubmit=()=>{
                                 Book Appointment
                             </button>
                         </div>
-                        */}
-                        <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
-      <div className="flex flex-row items-center gap-1 p-4">
-        <div className="text-2xl font-semibold ">Book Appointment with {name}</div>
-      </div>
-      <hr />
-      <Calendar
-        color="#000"
-        minDate={minSelectableDate}
-        date={selectedDate}
-        onChange={handleDateSelect}
-      />
-      <hr />
+                    </div>
+                    <div className="bg-white rounded-xl border-[1px] border-neutral-200 overflow-hidden">
+                        <div className="flex flex-row items-center gap-1 p-4">
+                            <div className="text-2xl font-semibold ">Book Appointment with {name}</div>
+                        </div>
+                        <hr />
+                        <Calendar
+                            color="#000"
+                            minDate={minSelectableDate}
+                            date={selectedDate}
+                            onChange={handleDateSelect}
+                        />
+                        <hr />
 
-      <div>
-        <div className="flex flex-col items-center gap-2 mt-4 p-4">
-          <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6  text-md gap-2">
-            {
-            freeTimes.map((hour, hourIdx) => {
-             
+                        <div>
+                            <div className="flex flex-col items-center gap-2 mt-4 p-4">
+                                <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6  text-md gap-2">
+                                    {
+                                        freeTimes.map((hour, hourIdx) => {
 
-              return (
-                
-        
-                <div key={hourIdx}>
-                    
-                  <button
-                    type="button"
-                    className={cn(
-                      'bg-green-200 rounded-lg px-2 text-gray-800 relative hover:border hover:border-green-400 w-[60px] h-[26px]',
-                      selectedTime &&
-                        isSameMinute(selectedTime, hour) &&
-                        'bg-black text-white',
-                     // isDisabled && 'bg-gray-400 cursor-not-allowed'
-                    )}
-                    onClick={() => handleTimeClick(hour)}
-                  >
-                    {format(hour, 'HH:mm')}
-                  </button>
-                </div>
-                
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <hr />
-      <div className="flex flex-col p-2">
-        
 
-        <div className="p-4 flex flex-row items-center justify-between font-semibold text-lg ">
-          <div>Total</div>
-          <div>Rs: 2000</div>
-        </div>
-        <button className="py-4 bg-[#ff9e15] text-white justify-center rounded hover:bg-[#ff9e15]/90 font-semibold"
-        onClick={onSubmit}
-        disabled={!isFormValid}
-        >
+                                            return (
+
+
+                                                <div key={hourIdx}>
+
+                                                    <button
+                                                        type="button"
+                                                        className={cn(
+                                                            'bg-green-200 rounded-lg px-2 text-gray-800 relative hover:border hover:border-green-400 w-[60px] h-[26px]',
+                                                            selectedTime &&
+                                                            isSameMinute(selectedTime, hour) &&
+                                                            'bg-black text-white',
+                                                            // isDisabled && 'bg-gray-400 cursor-not-allowed'
+                                                        )}
+                                                        onClick={() => handleTimeClick(hour)}
+                                                    >
+                                                        {format(hour, 'HH:mm')}
+                                                    </button>
+                                                </div>
+
+                                            );
+                                        })}
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div className="flex flex-col p-2">
+
+
+                            <div className="p-4 flex flex-row items-center justify-between font-semibold text-lg ">
+                                <div>Total</div>
+                                <div>Rs: 2000</div>
+                            </div>
+                            <button className="py-4 bg-[#ff9e15] text-white justify-center rounded hover:bg-[#ff9e15]/90 font-semibold"
+                                onClick={onSubmit}
+                                disabled={!isFormValid}
+                            >
                                 Book Appointment
                             </button>
-      
-      </div>
-    </div>
-                    
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </section>
