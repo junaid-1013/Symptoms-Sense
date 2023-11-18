@@ -135,6 +135,12 @@ const Navbar = () => {
                 >
                   Sign Up
                 </a>
+                <a
+                  href="/doctorRegistration"
+                  className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
+                >
+                  Register
+                </a>
               </div>
             )}
           </div>
