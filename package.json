@@ -13,12 +13,9 @@
     "@radix-ui/react-icons": "^1.3.0",
     "axios": "^1.6.0",
     "bcryptjs": "^2.4.3",
-<<<<<<< Updated upstream
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
-=======
     "cloudinary": "^1.41.0",
->>>>>>> Stashed changes
     "cookies-next": "^4.0.0",
     "date-fns-tz": "^2.0.0",
     "fs": "^0.0.1-security",
