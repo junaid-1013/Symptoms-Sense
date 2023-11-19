@@ -120,13 +120,12 @@ const Navbar = () => {
                 </a>
               </div>
             ) : (
-              <div className="justify-end hidden pr-16 sm:flex lg:pr-0">
-
+              <div className="justify-end hidden pr-16 sm:flex lg:pr-0 gap-x-2">
                 <a
                   href="/login"
-                  className="py-3 text-base font-medium px-7 text-white hover:text-gray-300"
+                  className="py-3 text-base font-medium px-7 text-white hover:text-gray-300 border border-[#273c75] rounded-lg"
                 >
-                  Sign in
+                  Sign In
                 </a>
 
                 <a
@@ -134,12 +133,6 @@ const Navbar = () => {
                   className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
                 >
                   Sign Up
-                </a>
-                <a
-                  href="/doctorRegistration"
-                  className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
-                >
-                  Register
                 </a>
               </div>
             )}
