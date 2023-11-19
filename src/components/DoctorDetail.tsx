@@ -109,6 +109,7 @@ const DoctorDetail = () => {
     let ser = searchParams.get("services");
     const services: string[] = ser!.split('*');
     let about = searchParams.get("about");
+    let experienceYears = searchParams.get("experienceYears");
     interface AppointmentData {
         time: Date;
         doctor: string | null;
@@ -124,7 +125,8 @@ const DoctorDetail = () => {
             Swal.fire('Success!', 'Appointment booked successfully!', 'success');
             router.push('/profile')
         }).catch((error) => {
-
+            router.push('/login')
+            Swal.fire('Failed !', "Please Login to Book appointment", 'error');
             console.error("Error fetching user data:", error);
         });
 
@@ -147,7 +149,7 @@ const DoctorDetail = () => {
                                 )}
 
                             </div>
-                            {specialization && education && experience && (
+                            {specialization && education && experience && experienceYears &&(
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
                                         {name}
@@ -163,7 +165,7 @@ const DoctorDetail = () => {
                                     <dl className="mt-6 flex gap-4 sm:gap-6">
                                         <div className="flex flex-col-reverse">
                                             <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                                            <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
+                                            <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
                                         </div>
                                         <div className="flex flex-col-reverse">
                                             <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
@@ -247,7 +249,7 @@ const DoctorDetail = () => {
                                 </h3>
                                 <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
                                     {
-                                        experience.slice(1).map((data, index) => (
+                                        experience.map((data, index) => (
                                             <li key={index}>
                                                 {data}
                                             </li>

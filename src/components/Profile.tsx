@@ -1,13 +1,34 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
+
 import { useUser } from '@/helpers/UserContext';
 const Profile = () => {
+  const router = useRouter();
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
   const [appointment, setAppointment] = useState([{time:'',doctor:''}]);
+  const cancelAppointment = async (data :any) => {
+    try {
+      const response = await axios.post("/api/cancelAppointment", data);
+      router.push("/profile");
+      window.location.reload();
+      console.log("Login Success", response.data);
+    
+      
+      
+
+  } catch (error: any) {
+      
+  } finally {
+
+  }
+
+
+  }
   useEffect(() => {
     
 
@@ -119,7 +140,13 @@ const Profile = () => {
                                       </p>
                                   </div>
                       
-                                  
+                                  <div className="mt-8">
+                        <button
+                            onClick={()=>cancelAppointment(data)}
+                            className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
+                            Cancel Appointment
+                        </button>
+                    </div>
                               </div>
                                     
                                     ))

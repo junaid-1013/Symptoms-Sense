@@ -7,16 +7,12 @@ export const Testimonials = () => {
     { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." },
     { "name": "Loading...", "message": "Loading...." },]);
 
-    async function getData() {
-        const res = await fetch("/api/users/feedback", { cache: "no-store" });
-        return res.json();
-    }
     const post = async () => {
         try {
-            await axios.get("/api/users/feedback");
-            const data = await getData();
-            setJsonData(data);
-            return data;
+           const response = await axios.get("/api/users/feedback");
+            
+            setJsonData(response.data);
+            
         } catch (error: any) {
             console.log(" Failed", error.message);
         } finally {
