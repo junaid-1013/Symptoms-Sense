@@ -70,7 +70,7 @@ const ContactUs = () => {
                 We&apos;d love to hear from you! Whether you have questions, need assistance, or simply want to chat, our team is here to help. Feel free to reach out, and we&apos;ll get back to you promptly. Your feedback and inquiries matter to us, and we look forward to connecting with you.
                 </p>
                 <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:max-w-[70px]">
+                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  text-primary sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width={24}
                       height={24}
@@ -90,7 +90,7 @@ const ContactUs = () => {
                   </div>
                 </div>
                 <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:max-w-[70px]">
+                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  text-primary sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width={24}
                       height={26}
@@ -112,7 +112,7 @@ const ContactUs = () => {
                   </div>
                 </div>
                 <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-primary bg-opacity-5 text-primary sm:h-[70px] sm:max-w-[70px]">
+                  <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  text-primary sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width={28}
                       height={19}
