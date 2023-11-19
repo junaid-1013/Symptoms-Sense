@@ -8,13 +8,13 @@ interface docSchema {
     experience: (string | number)[],
     services:string[]
     about:string
-    //satisfiedPatients: number
+    experienceYears: number
 }
 
 
-const DoctorCard = ({ name, img, specialization, education, experience,services,about }: docSchema) => {
+const DoctorCard = ({ name, img, specialization, education, experience,services,about ,experienceYears}: docSchema) => {
     const details = { name:name,img:img,specialization:specialization,education:education,experience:experience,
-    services:services,about:about
+    services:services,about:about,experienceYears:experienceYears
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (
@@ -51,7 +51,7 @@ const DoctorCard = ({ name, img, specialization, education, experience,services,
             <dl className="mt-6 flex gap-4 sm:gap-6">
                 <div className="flex flex-col-reverse">
                     <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                    <dd className="text-xs text-gray-500">{experience[0]} Years</dd>
+                    <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
                 </div>
 
                 {/*<div className="flex flex-col-reverse">

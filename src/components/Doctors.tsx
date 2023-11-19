@@ -1,13 +1,14 @@
 
 'use client'
+import axios from "axios";
 import React, {  useState, useEffect } from "react";
 import DoctorCard from "@/components/DoctorCard";
 const Doctors = () => {
     const [DocData, setData] = useState([{
         "id": 1,
         "name": "Dr. Sara Rasul",
-        "image": "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1693395725_IMG-20230822-WA0009.webp?t=1693395726",
-        "services": [
+        "image": {'url':"https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1693395725_IMG-20230822-WA0009.webp?t=1693395726"}
+        ,"services": [
             "Amenorrhoea",
             "Antenatal Care",
             " Antenatal Checkup",
@@ -21,21 +22,21 @@ const Doctors = () => {
             "Gynecologist",
             "Obstetrician"
         ],
-        "exprience": [
-            10,
+        "experienceDetails": [
+            
             "Dr. Sara Rasul has over 10 years of experience in her field."
         ],
         "about": "Dr. Sara Rasul is a top Gynecologist with 10 years of experience. You can book an appointment with Dr. Sara Rasul through Symptoms Sense",
-        "category": "Gynecologist"
+        "category": "Gynecologist",
+        "experienceYears":1
     }]);
     useEffect(() => {
         const fetchData = async () => {
           try {
             
-            
-            const response = await fetch('/doctorProfiles.json');
-            const jsonData = await response.json();
-            setData(jsonData);
+            const response = await axios.get("/api/regDoctor");
+            console.log(response.data)
+            setData(response.data);
           } catch (error) {
             console.error('Error fetching data:', error);
           }
@@ -65,12 +66,13 @@ const Doctors = () => {
                         <li key={index}>
                             <DoctorCard
                                 name={data.name}
-                                img={data.image}
+                                img={data.image.url}
                                 specialization={data.specialization}
                                 education={data.education}
-                                experience={data.exprience}
+                                experience={data.experienceDetails}
                                 services={data.services}
                                 about={data.about}
+                               experienceYears={data.experienceYears}
                              //   satisfiedPatients={data.satisfiedPatients}
                             />
                         </li>

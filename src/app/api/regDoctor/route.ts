@@ -5,7 +5,15 @@ import cloudinary from "@/helpers/cloudinary";
 
 connect()
 
-
+export async function GET(request: NextRequest) {
+    try{
+const doctors= await Doctor.find();
+return new NextResponse(JSON.stringify(doctors),{status:200});
+    }
+    catch(error){
+        return new NextResponse("Error in fetching feedbacks"+error,{status:500});
+    }
+}
 export async function POST(request: NextRequest) {
 
     try {
