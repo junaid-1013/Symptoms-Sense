@@ -4,7 +4,9 @@ import axios from "axios";
 import React, { useState, useEffect } from "react";
 import DoctorCard from "@/components/DoctorCard";
 import Link from "next/link";
+import Loading from "@/components/Loading";
 const Doctors = () => {
+    const [loading, setLoading] = useState(true);
     const [DocData, setData] = useState([{
         "id": 1,
         "name": "Dr. Sara Rasul",
@@ -36,8 +38,9 @@ const Doctors = () => {
             try {
 
                 const response = await axios.get("/api/regDoctor");
-                console.log(response.data)
+               
                 setData(response.data);
+                setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
@@ -46,6 +49,12 @@ const Doctors = () => {
         fetchData();
     }, []);
     return (
+        <div>
+    {loading ? (
+      <div>
+      <Loading />
+      </div> // Display loading component while data is being fetched
+    ) : (
         <div className="max-w-screen-xl px-4 py-8 mx-auto sm:px-6 sm:py-12 lg:px-8">
             <div className="flex flex-wrap justify-center text-center mt-12">
                 <div className="inline-flex items-center justify-center w-full px-8 md:px-12 xl:px-32 lg:px-20">
@@ -87,6 +96,8 @@ const Doctors = () => {
                 </Link>
             </div>
         </div>
+    )}
+    </div>
     )
 }
 

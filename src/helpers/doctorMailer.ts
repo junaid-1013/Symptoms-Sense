@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-export const sendEmail = async ({ title,name, userEmail,time,  email}: any) => {
+export const sendEmail = async ({ title,name, userEmail,time,  email,meeting}: any) => {
     try {
         const transporter = nodemailer.createTransport({
             service: "Gmail",
@@ -14,7 +14,7 @@ export const sendEmail = async ({ title,name, userEmail,time,  email}: any) => {
             from: "muzzitts56@gmail.com",
             to: email,
             subject: title,
-            text: `Patient's Name: ${name}\nPatient's Email: ${userEmail}\nAppointment Time: ${time}\n`,
+            text: `Patient's Name: ${name}\nPatient's Email: ${userEmail}\nAppointment Time: ${time}\n\n${meeting}`,
         };
 
         const mailResponse = await transporter.sendMail(mailOptions);

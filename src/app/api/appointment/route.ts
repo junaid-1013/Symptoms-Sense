@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
      const userData =tokenData.payload
     // Fetch user data based on the userData (e.g., email) from your database
     const email=userData.email
+    const username:any=userData.username
         // Check if user already exists
         const updatedUser = await User.findOneAndUpdate(
             { email: email },
@@ -37,7 +38,8 @@ export async function POST(request: NextRequest) {
 
           const doc = await Doctor.findOne({name:doctor})
           const localTime = new Date(time).toLocaleString('en-US', { timeZone: 'Asia/Karachi' })
-          await sendEmail({title:"Appointment Booking",name:userData.username,userEmail: userData.email,time:localTime, email:doc.email})
+          const meetingLink = `https://meet.google.com/new?name=${username.replace(/\s/g, '-')}`; 
+          await sendEmail({title:"Appointment Booking",name:userData.username,userEmail: userData.email,time:localTime, email:doc.email,meeting:`Meeting Link =${meetingLink}`})
           return NextResponse.json({
             message: "User updated successfully",
             success: true,
