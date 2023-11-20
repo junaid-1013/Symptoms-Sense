@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
           );  
           const doc = await Doctor.findOne({name:doctor})
           const localTime = new Date(time).toLocaleString('en-US', { timeZone: 'Asia/Karachi' })
-          await sendEmail({title:"Appointment Cancelation",name:userData.username,userEmail: userData.email,time:localTime, email:doc.email})
+          await sendEmail({title:"Appointment Cancelation",name:userData.username,userEmail: userData.email,time:localTime, email:doc.email,meeting:""})
           return NextResponse.json({
             message: "User updated successfully",
             success: true,

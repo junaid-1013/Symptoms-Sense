@@ -1,8 +1,9 @@
 "use client"
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Loading from "@/components/Loading";
 export const Testimonials = () => {
-
+    const [loading, setLoading] = useState(true);
     const [jsonData, setJsonData] = useState([{ "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." },
     { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." },
     { "name": "Loading...", "message": "Loading...." },]);
@@ -12,7 +13,7 @@ export const Testimonials = () => {
            const response = await axios.get("/api/users/feedback");
             
             setJsonData(response.data);
-            
+            setLoading(false);
         } catch (error: any) {
             console.log(" Failed", error.message);
         } finally {
@@ -22,8 +23,15 @@ export const Testimonials = () => {
 
     useEffect(() => {
         post();
+        
     }, []);
     return (
+         <div>
+    {loading ? (
+      <div>
+      <Loading />
+      </div> // Display loading component while data is being fetched
+    ) : (
         <div id="feedback">
             < section className="bg-white" >
                 <div className="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
@@ -106,5 +114,9 @@ export const Testimonials = () => {
                 </div>
             </section >
         </div>
+
+    )}
+    </div>
+
     )
 }

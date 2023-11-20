@@ -3,10 +3,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
-
+import Swal from 'sweetalert2';
+import Loading from "@/components/Loading";
 import { useUser } from '@/helpers/UserContext';
 const Profile = () => {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
@@ -15,6 +17,7 @@ const Profile = () => {
     try {
       const response = await axios.post("/api/cancelAppointment", data);
       router.push("/profile");
+      Swal.fire('Success!', 'Appointment has been cancelled successfully', 'success');
       window.location.reload();
       console.log("Login Success", response.data);
     
@@ -40,7 +43,7 @@ const Profile = () => {
       setemail(ress.email)
       setname(ress.username)
       setAppointment(ress.appointments)
-      console.log(ress.appointments)
+      setLoading(false);
     }).catch((error) => {
       setUser(null);
       console.error("Error fetching user data:", error);
@@ -48,8 +51,16 @@ const Profile = () => {
   },[]);
 
   return (
-    <>
+    <div>
+    {loading ? (
+      <div>
+      <Loading />
+      </div> // Display loading component while data is being fetched
+    ) : (
+    <div>
+     
       <section className="relative block h-[500px]">
+     
         <div className="absolute top-0 w-full h-full bg-center bg-cover"
           style={{
             backgroundImage: "url('https://images.unsplash.com/photo-1499336315816-097655dcfbda?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=2710&amp;q=80')"
@@ -93,6 +104,10 @@ const Profile = () => {
                  
                 </div>
               </div>
+              
+
+
+              
               {username ? (
                 <div className="text-center mt-12">
                   <h3 className="text-xl font-semibold text-red-600 leading-normal mb-2">
@@ -174,9 +189,14 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        
       </section>
-    </>
-  );
+     
+    </div>
+    )
+  }
+  </div>
+  )
 };
 
 export default Profile;
