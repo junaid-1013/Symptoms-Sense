@@ -31,6 +31,16 @@ const userSchema = new mongoose.Schema({
           time: Date,
         }
       ],
+      reminders: [
+        {
+          
+          medicineName: String,
+          dosage: Number,
+          selectedDays:[String],
+          reminderTime:String,
+          medicineType: String
+        }
+      ],
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,
