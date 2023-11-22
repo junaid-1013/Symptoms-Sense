@@ -94,6 +94,7 @@ const Navbar = () => {
                   >
                     Profile
                   </ListItem>
+                  
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#contact-us"

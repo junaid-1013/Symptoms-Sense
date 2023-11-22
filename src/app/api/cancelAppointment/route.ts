@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }   
     const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
      const userData =tokenData.payload
-    // Fetch user data based on the userData (e.g., email) from your database
+   
     const email=userData.email
         // Check if user already exists
         const updatedUser = await User.findOneAndUpdate(
