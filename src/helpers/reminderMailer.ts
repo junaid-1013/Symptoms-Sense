@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import cron from 'node-cron';
+import { Cron,scheduledJobs } from "croner";
 export const sendEmail = async ({ userEmail, medicineName, medicineType, dosage, reminderTime, selectedDays, type }: any) => {
  
 
@@ -17,11 +17,11 @@ export const sendEmail = async ({ userEmail, medicineName, medicineType, dosage,
       });
 
       const jobKey = generateJobKey(userEmail, medicineName);
-      const cronExpression = `${reminderTime.split(':')[1]} ${reminderTime.split(':')[0]} * * ${selectedDays
+      const cronExpression = `0 ${reminderTime.split(':')[1]} ${reminderTime.split(':')[0]} * * ${selectedDays
         .map((day: string) => ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'].indexOf(day))
         .join(',')}`;
 
-      const job = cron.schedule(cronExpression, () => {
+      const job = Cron(cronExpression, { name: jobKey } , () => {
         const mailOptions = {
           from: 'muzzitts56@gmail.com',
           to: userEmail,
@@ -36,8 +36,8 @@ export const sendEmail = async ({ userEmail, medicineName, medicineType, dosage,
             console.log('Reminder email sent:', info.response);
           }
         });
-      }, { name: jobKey } );
-      console.log(cron.getTasks())
+      });
+      console.log(scheduledJobs)
    
    
     } catch (error: any) {
@@ -49,21 +49,12 @@ export const sendEmail = async ({ userEmail, medicineName, medicineType, dosage,
       
       const jobKey = generateJobKey(userEmail, medicineName);
       const desiredTaskName = jobKey;
-const runningTasks = cron.getTasks();
+      const job = scheduledJobs.find(j => j.name === desiredTaskName);
+if(job){
+job.stop();
+
+}
      
-      for (const [name, runningTask] of runningTasks) {
-        if (name === desiredTaskName) {
-          runningTask.stop()
-          runningTask.removeAllListeners() 
-
-          
-
-        }
-      }
-      
-      cron.getTasks().delete(jobKey)
-      
-      console.log(cron.getTasks())
      
     } catch (error: any) {
       throw new Error(error.message);
