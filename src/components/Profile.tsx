@@ -4,6 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MapPin } from "lucide-react";
+import RatingForm from "@/components/RatingForm";
 import Swal from 'sweetalert2';
 import Loading from "@/components/Loading";
 import { useUser } from '@/helpers/UserContext';
@@ -15,7 +16,9 @@ const Profile = () => {
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
   const [appointment, setAppointment] = useState([{time:'',doctor:''}]);
+  const [compAppointment, setCompAppointment] = useState([{time:'',doctor:''}]);
   const [reminder, setReminder] = useState([{medicineName: '',dosage: 1,selectedDays: [ ],reminderTime: '',medicineType: ''}]);
+  const [image,setImage]=useState("")
   const cancelAppointment = async (data :any) => {
     try {
       const response = await axios.post("/api/cancelAppointment", data);
@@ -51,9 +54,37 @@ const Profile = () => {
 
 
   }
+  const completeAppointment = async (data :any) => {
+    try {
+      const response = await axios.post("/api/completedAppointment", data);
+      
+      window.location.reload();      
+      
+
+  } catch (error: any) {
+      
+  } finally {
+
+  }
+
+
+  }
+  const checkAppointments = () => {
+   
+    const currentTime = new Date();
+
+    appointment.forEach(app => {
+      const appointmentTime = new Date(app.time);
+      console.log(currentTime)
+      if (appointmentTime < currentTime) {
+        console.log('hello1')
+        completeAppointment(app)
+      }
+    });
+  };
   useEffect(() => {
     
-    
+   
     axios.get("/api/users/profile").then((response) => {
       let ress = response.data;
 
@@ -62,12 +93,20 @@ const Profile = () => {
       setname(ress.username)
       setAppointment(ress.appointments)
       setReminder(ress.reminders)
+      setCompAppointment(ress.CompletedAppointments)
+        setImage(ress.image.url)
       setLoading(false);
+
     }).catch((error) => {
       setUser(null);
       console.error("Error fetching user data:", error);
     });
+    
   },[]);
+  useEffect(() => {
+    
+    checkAppointments();
+  }, [appointment]);
   return (
     <div>
       {loading ? (
@@ -94,7 +133,7 @@ const Profile = () => {
                   <div className="flex flex-wrap justify-center">
                     <div className="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
                       <div className="relative">
-                        <img alt="..." src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1180&q=80" className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-[150px]" />
+                        <img alt="..." src={image} className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-[150px]" />
                       </div>
                     </div>
                     <div className="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center">
@@ -201,14 +240,52 @@ const Profile = () => {
                       </div>
                       </div>
       )}
-
-<div className="mt-8">
+      <div className="mt-8">
   <Link href="/medicineReminder">
     <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">
       Add Reminder
     </button>
   </Link>
 </div>
+{compAppointment.length ==0? (
+         <div className="text-center mt-8">
+         <p className="text-gray-500 text-lg">No Completed appointments</p>
+         <span role="img" aria-label="Sad face">
+        😞
+      </span>
+       </div>
+      ) : (
+        <div>
+                      <h3 className="text-lg font-bold text-blue-900 sm:text-xl mt-4">
+                        Completed Appointments
+                      </h3>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
+                        {compAppointment.map((data, index) => (
+                          <div key={index} className="relative block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 hover:shadow-xl transition-all ease-in-out duration-100">
+                            <span className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600" />
+                            <div className="flex justify-between gap-4">
+                              <div>
+                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">{data.doctor}</h3>
+                              </div>
+                              <div className="block shrink-0">
+                                <img alt="..." src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1180&q=80" className="h-16 w-16 rounded-lg object-cover shadow-sm" />
+                              </div>
+                            </div>
+                            <div className="mt-4">
+                              <p className="max-w-[35ch] font-bold text-sm text-gray-500">
+                                Date/Time: {new Date(data.time).toLocaleString('en-US', { timeZone: 'Asia/Karachi' })}
+                              </p>
+                            </div>
+                            <div className="mt-8">
+                            <RatingForm doctorData={data}/>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      </div>
+      )}
+
                       <div className="text-sm leading-normal mt-8 text-gray-500 font-bold flex items-center justify-center">
                         <MapPin className="text-gray-500" />
                         Lahore, Pakistan

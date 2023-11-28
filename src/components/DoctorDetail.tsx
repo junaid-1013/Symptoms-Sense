@@ -80,8 +80,8 @@ const DoctorDetail = () => {
     useMemo(() => {
         const StartOfToday = startOfDay(selectedDate);
         const endOfToday = endOfDay(selectedDate);
-        const startHour = set(StartOfToday, { hours: 20 });
-        const endHour = set(endOfToday, { hours: 23, minutes: 15 });
+        const startHour = set(StartOfToday, { hours: 10 });
+        const endHour = set(endOfToday, { hours: 18, minutes: 15 });
         let hoursInDay = eachMinuteOfInterval(
             {
                 start: startHour,

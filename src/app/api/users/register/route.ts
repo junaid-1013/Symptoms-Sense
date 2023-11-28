@@ -2,6 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
+import cloudinary from "@/helpers/cloudinary";
 
 connect()
 
@@ -9,12 +10,16 @@ connect()
 export async function POST(request: NextRequest) {
 
     try {
+        console.log()
         const reqBody = await request.json()
-        const { username, email, password } = reqBody
+        const { username, email, password,image } = reqBody
+        
 
-        console.log(reqBody);
-
-        //check if user already exists
+        const result = await cloudinary.uploader.upload(image, {
+            folder: "Users",
+            // width: 300,
+            // crop: "scale"
+        })
         const user = await User.findOne({ email })
 
         if (user) {
@@ -24,18 +29,21 @@ export async function POST(request: NextRequest) {
         //hash password
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password, salt)
-
+        console.log(result.public_id)
+        console.log(result.secure_url)
         const newUser = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+             image: {
+                public_id: result.public_id,
+                url: result.secure_url
+            },
         })
-  
-        const savedUser = await newUser.save()
-        console.log(savedUser);
 
-        //send verification email
-        // await sendEmail({email, emailType: "VERIFY", userId: savedUser._id})
+        const savedUser = await newUser.save()
+
+       
 
         return NextResponse.json({
             message: "User Created Succcessfully",
@@ -44,6 +52,7 @@ export async function POST(request: NextRequest) {
         })
 
     } catch (error: any) {
+        console.log(error.message)
         return NextResponse.json({ error: error.message },
             { status: 500 })
     }

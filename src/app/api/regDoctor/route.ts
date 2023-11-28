@@ -21,14 +21,12 @@ export async function POST(request: NextRequest) {
        
         const reqBody = await request.json()
         const { name, email, phone, image,services, education, specialization,experienceYears,experienceDetails,about,img } = reqBody
-        console.log(reqBody)
         const result = await cloudinary.uploader.upload(img, {
-            folder: "products",
+            folder: "Doctors",
             // width: 300,
             // crop: "scale"
         })
         
-console.log('cr7')
         //check if user already exists
         const user = await Doctor.findOne({ email })
 
@@ -36,8 +34,7 @@ console.log('cr7')
             return NextResponse.json({ error: "Doctor already exists" }, { status: 400 })
         }
 
-        console.log(result.public_id)
-        console.log(result.secure_url)
+       
         const newDoctor = new Doctor({
             name,
             email,
