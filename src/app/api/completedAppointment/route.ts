@@ -1,43 +1,33 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
-import Doctor from "@/models/doctorModel"
-import { sendEmail } from "@/helpers/doctorMailer";
 import { NextRequest, NextResponse } from "next/server";
 import {jwtVerify} from 'jose'
 connect();
 
 export async function POST(request: NextRequest) {
     try {
-
+console.log("entered...")
         const reqBody = await request.json();
-        const { time,  doctor } = reqBody;
-      
-
-
+        const { time,  doctor,_id } = reqBody;
         const newAppointment = { doctor:doctor, time: time }; 
-
         console.log(reqBody);
     const token = request.cookies.get("token")?.value; 
-
     if (!token) {
       return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
-    }
-    
+    }   
     const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
      const userData =tokenData.payload
+   
     const email=userData.email
-    const username:any=userData.username
-        
         const updatedUser = await User.findOneAndUpdate(
             { email: email },
-            { $push: { appointments: newAppointment } },
+            { $pull: { appointments: { _id: _id } } },
+          );  
+          const upddUser = await User.findOneAndUpdate(
+            { email: email },
+            { $push: { CompletedAppointments: newAppointment } },
             { new: true }
           );
-
-          const doc = await Doctor.findOne({name:doctor})
-          const localTime = new Date(time).toLocaleString('en-US', { timeZone: 'Asia/Karachi' })
-          const meetingLink = `https://meet.google.com/new?name=${username.replace(/\s/g, '-')}`; 
-          await sendEmail({title:"Appointment Booking",name:userData.username,userEmail: userData.email,time:localTime, email:doc.email,meeting:`Meeting Link =${meetingLink}`})
           return NextResponse.json({
             message: "User updated successfully",
             success: true,

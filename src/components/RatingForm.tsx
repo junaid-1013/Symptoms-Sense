@@ -4,8 +4,10 @@ import { Star } from "lucide-react"
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
-const RatingForm = () => {
+interface ChildProps {
+    doctorData?: any; 
+  }
+const RatingForm : React.FC<ChildProps> = ({ doctorData }) => {
     const router = useRouter();
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -20,15 +22,33 @@ const RatingForm = () => {
 
     const onSubmit = async () => {
         try {
-            const fed = {
-                rat: rating,
-                mess: message,
+           
+            if(doctorData){
+
+                const fed = {
+                    rat: rating,
+                    mess: message,
+                   
+                    doctor:doctorData.doctor
+                }
+                
+                const response = await axios.post("/api/doctorReview", fed);
+                router.push("/profile");
+                Swal.fire('Success!', 'Thank you for sharing your feedback', 'success');
+                setMessage('');
             }
-            const response = await axios.post("/api/users/feedback", fed);
-            console.log("Login Success", response.data);
-            router.push("/");
-            Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
-            setMessage('');
+            else{
+              
+                const fed = {
+                    rat: rating,
+                    mess: message,
+                }
+                const response = await axios.post("/api/users/feedback", fed);
+                router.push("/");
+                Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
+                setMessage('');
+            }
+           
         } catch (error: any) {
             setMessage('');
             console.log("Login Failed", error.message);

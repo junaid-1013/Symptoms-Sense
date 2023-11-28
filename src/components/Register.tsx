@@ -11,11 +11,28 @@ const Register = () => {
         email: "",
         password: "",
         username: "",
+        image:""
     })
-
+    const [img, setImage] = useState('/user.png');
+    const handleImage = (e: any) => {
+        const file = e.target.files[0];
+        setFileToBase(file);
+      }
+    
+      const setFileToBase = (file: any) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = () => {
+          setImage(reader.result as any);
+          
+        }
+        
+      }
     const onRegister = async () => {
         try {
-            const response = await axios.post("/api/users/register", user);
+            const user1={email:user.email,password:user.password,username:user.username,image:img}
+           
+            const response = await axios.post("/api/users/register", user1);
             console.log("Signup Success", response.data);
 
             router.push("/login");
@@ -40,9 +57,25 @@ const Register = () => {
                             className="w-36"
                         />
                     </div>
-                    <p className="text-lg text-gray-500 text-center font-semibold">Hellow! Welcome back!</p>
+                    <p className="text-lg text-gray-500 text-center font-semibold">Hellow! Welcome !</p>
+                    <div className="flex items-center py-6">
+                    <div className="w-40 h-40 mr-4 flex-none rounded-xl overflow-hidden">
+                      <img
+                        className="w-40 h-40 mr-4 object-cover"
+                        src={img}
+                        alt="Avatar Upload" />
+                    </div>
+                    <label className="cursor-pointer ">
+                      <span className="focus:outline-none text-white text-sm py-2 px-4 rounded-full bg-[#273c75] hover:bg-opacity-80 hover:shadow-lg">Browse</span>
+                      <input
+                        type="file"
+                        onChange={handleImage}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                     <div className="mt-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
                         <input
                             value={user.username}
                             onChange={(e) => setUser({ ...user, username: e.target.value })}
@@ -126,7 +159,7 @@ const Register = () => {
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
-                <div className="hidden lg:block lg:w-1/2 object-contain pb-8">
+                <div className="hidden lg:block lg:w-1/2 object-contain pb-8" style={{ marginTop: '80px' }}>
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "

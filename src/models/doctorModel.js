@@ -49,6 +49,13 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required : [true, 'Please add an about'],
     },
+    feedbacks: [
+        {
+        review: String,
+      username:String,
+      useremail:String
+        }
+    ],
 
 })
 

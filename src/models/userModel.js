@@ -16,6 +16,16 @@ const userSchema = new mongoose.Schema({
         required: [true, "Please provide a password"],
         unique: true,
     },
+    image: {
+      public_id: {
+          type: String,
+          required: [true, "Please provide"]
+      },
+      url: {
+          type: String,
+          required:  [true, "Please provide"]
+      }
+  },
     isVerified: {
         type: Boolean,
         default: false,
@@ -25,6 +35,13 @@ const userSchema = new mongoose.Schema({
         default: false,
     },
     appointments: [
+        {
+          
+          doctor: String,
+          time: Date,
+        }
+      ],
+      CompletedAppointments: [
         {
           
           doctor: String,
@@ -41,6 +58,7 @@ const userSchema = new mongoose.Schema({
           medicineType: String
         }
       ],
+      
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,
