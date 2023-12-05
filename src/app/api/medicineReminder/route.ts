@@ -15,7 +15,18 @@ export async function POST(request: NextRequest) {
             selectedDays,
             reminderTime,
             medicineType, } = reqBody;
-      
+            if (selectedDays.length == 0) {
+                return NextResponse.json({ error: "Please select atleast one day for reminder" }, { status: 400 });
+    
+            }
+            if (reminderTime == '') {
+                return NextResponse.json({ error: "Please select reminder time" }, { status: 400 });
+    
+            }
+            if (medicineType == '') {
+                return NextResponse.json({ error: "Please select medicine type" }, { status: 400 });
+    
+            }
 
 
         
@@ -25,7 +36,7 @@ export async function POST(request: NextRequest) {
                 selectedDays,
                 reminderTime,
                 medicineType, }; 
-        console.log(reqBody);
+        
  
     const token = request.cookies.get("token")?.value; 
 

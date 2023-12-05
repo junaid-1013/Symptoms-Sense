@@ -22,14 +22,16 @@ export async function POST(request: NextRequest) {
             const token = request.cookies.get("token")?.value; 
         
             if (!token) {
-              return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
+              return NextResponse.json({ error: "Please Login to give Feedback" }, { status: 401 });
             }
             const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
      const userData =tokenData.payload
      const name=userData.username 
      
         const reqBody = await request.json()
-        
+        if(reqBody.mess.length<10 || reqBody.mess.length>100){
+            return NextResponse.json({ error: "Feedback message must be between 10 and 100 characters." }, { status: 400 });
+        }
       
         const newFeedback = new Feedback({
          
@@ -37,8 +39,7 @@ export async function POST(request: NextRequest) {
             name:userData.username,
             
         })
-        console.log(reqBody);
-        console.log(newFeedback);
+        
 
         try {
             const savedFeedback = await newFeedback.save()
@@ -47,7 +48,6 @@ export async function POST(request: NextRequest) {
             console.error('Error:', error);
           }
       
-        console.log(reqBody);
 
         return NextResponse.json({
             message: "Feedback Saved Succcessfully",

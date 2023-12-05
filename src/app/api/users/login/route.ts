@@ -12,8 +12,11 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json()
         const {email, password } = reqBody;
-
-        console.log(reqBody);
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
+        }
+        
 
         //check if user exists
         const user = await User.findOne({email})
@@ -24,15 +27,12 @@ export async function POST(request: NextRequest) {
         }
         console.log("user exists");
 
-        //check if password is correct
         const validPassword = await bcryptjs.compare(password, user.password)
         if (!validPassword) {
             console.log("Your Password is Wrong");
             return NextResponse.json({ error: "Invalid Password" }, { status: 400 })
         }
 
-        console.log(user);
-        //create token Data
         const tokenData = {
             id: user._id,
             username: user.username,
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
         }
 
         //create token 
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1d" })
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1h" })
 
         const response = NextResponse.json({
             message: "Login successfull",

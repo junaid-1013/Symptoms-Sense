@@ -18,7 +18,7 @@ const Profile = () => {
   const [appointment, setAppointment] = useState([{time:'',doctor:''}]);
   const [compAppointment, setCompAppointment] = useState([{time:'',doctor:''}]);
   const [reminder, setReminder] = useState([{medicineName: '',dosage: 1,selectedDays: [ ],reminderTime: '',medicineType: ''}]);
-  const [image,setImage]=useState("")
+  const [image,setImage]=useState('/user.png');
   const cancelAppointment = async (data :any) => {
     try {
       const response = await axios.post("/api/cancelAppointment", data);
@@ -94,7 +94,7 @@ const Profile = () => {
       setAppointment(ress.appointments)
       setReminder(ress.reminders)
       setCompAppointment(ress.CompletedAppointments)
-        setImage(ress.image.url)
+        //setImage(ress.image.url)
       setLoading(false);
 
     }).catch((error) => {

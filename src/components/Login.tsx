@@ -24,8 +24,12 @@ const Login = () => {
             setUser({ username: 'exampleUser' });
             Swal.fire('Success!', 'Sign in Successful', 'success');
 
-        } catch (error: any) {
-            Swal.fire('Failed!', 'Invalid Username or Password', 'error');
+        } catch (error:any) {
+            if (error.response && error.response.data && error.response.data.error) {
+                Swal.fire('Failed!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Failed!', 'An error occurred during Login.', 'error');
+            }
         } finally {
 
         }
@@ -44,7 +48,7 @@ const Login = () => {
                             className="w-36"
                         />
                     </div>
-                    <p className="text-lg text-gray-500 text-center font-semibold">Hellow! Welcome back!</p>
+                    <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input

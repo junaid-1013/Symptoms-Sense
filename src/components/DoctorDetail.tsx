@@ -48,13 +48,12 @@ const DoctorDetail = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const [selectedTime, setSelectedTime] = useState(new Date());
-    const [selectedD, setSelectedD] = useState("");
-    const [selectedT, setSelectedT] = useState("");
+    const [selected,setSelected]=useState('')
     const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
-        setSelectedD('s');
+       
     };
-    const isFormValid = selectedD && selectedT;
+  
     const minSelectableDate = addDays(new Date(), 0);
 
     let today = startOfToday();
@@ -67,14 +66,11 @@ const DoctorDetail = () => {
 
     const handleTimeClick = (time: Date) => {
         setSelectedTime(time);
-        setSelectedT("t");
+       setSelected('s');
     };
     let [freeTimes, setFreeTimes] = useState<Date[]>([]);
     const reservations = [
-
-
         addHours(today, 13).toString(),
-
         addDays(new Date(addHours(today, 4)), 3).toString(),
     ];
     useMemo(() => {
@@ -100,7 +96,6 @@ const DoctorDetail = () => {
     let name = searchParams.get("name");
     let img = searchParams.get("img");
     let spec = searchParams.get("specialization");
-    console.log(spec)
     const specialization: string[] = spec!.split('*');
     let educ = searchParams.get("education");
     const education: string[] = educ!.split('*');
@@ -114,24 +109,37 @@ const DoctorDetail = () => {
         time: Date;
         doctor: string | null;
     }
-    const onSubmit = () => {
-        console.log(selectedTime)
-        const data: AppointmentData = {
-            time: selectedTime,
-            doctor: name,
-        };
-        axios.post("/api/appointment", data).then((response) => {
-            let ress = response.data;
+    const onSubmit = async () => {
+        try {
+            const data: AppointmentData = {
+                time: selectedTime,
+                doctor: name,
+            };
+          if(selected != 's'){
+            throw new Error('Please select the time for the appointment');
+          }
+          const response = await axios.post("/api/appointment", data);
             Swal.fire('Success!', 'Appointment booked successfully!', 'success');
             router.push('/profile')
-        }).catch((error) => {
-            router.push('/login')
-            Swal.fire('Failed !', "Please Login to Book appointment", 'error');
-            console.error("Error fetching user data:", error);
-        });
-
-
-    }
+  
+        } catch (error:any) {
+            if (error.response && error.response.data && error.response.data.error) {
+                Swal.fire('Failed!', error.response.data.error, 'error');
+                router.push('/login')
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'please select time for the appointment',
+                    showConfirmButton: false,  // Hide the "OK" button
+                    timer: 2000  // Automatically close after 2000 milliseconds (2 seconds)
+                  });
+            }
+            
+      }  finally {
+  
+        } 
+      }
+   
     return (
         <section>
             <div className="max-w-[1170px] px-5 mx-auto grid grid-cols-5 gap-8 py-8">
@@ -447,7 +455,7 @@ const DoctorDetail = () => {
                                             type="submit"
                                             className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80 cursor-pointer"
                                             onClick={onSubmit}
-                                            disabled={!isFormValid}
+                                            
                                         >
                                             Book Appointment
                                         </button>
