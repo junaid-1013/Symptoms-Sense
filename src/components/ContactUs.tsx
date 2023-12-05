@@ -11,7 +11,7 @@ const ContactUs = () => {
   const [phone ,setphone]=useState('')
   const [message ,setmessage]=useState('')
   
-  const isFormValid = name && email &&phone && message;
+  //const isFormValid = name && email &&phone && message;
 
   const handleChange1 = (newName: string) => {
    setname(newName)
@@ -44,10 +44,16 @@ const ContactUs = () => {
       setemail('')
       setphone('')
       setmessage('')
-      router.push("/");
-    } catch (error: any) {
-      Swal.fire('Failed!', 'Failed to Submit Form', 'error');
-    } finally {
+      
+      window.location.reload();      
+
+    } catch (error:any) {
+      if (error.response && error.response.data && error.response.data.error) {
+          Swal.fire('Failed!', error.response.data.error, 'error');
+      } else {
+          Swal.fire('Failed!', 'An error occurred during form submission', 'error');
+      }
+  } finally {
 
     }
   }
@@ -169,7 +175,7 @@ const ContactUs = () => {
                   <div>
                     <button
                       type="submit"
-                      disabled={!isFormValid}
+                      //disabled={!isFormValid}
                       onClick={handleSubmit}
                       className="w-full p-3 text-white transition border rounded border-[#192a56] bg-[#192a56] hover:bg-opacity-90"
                     >

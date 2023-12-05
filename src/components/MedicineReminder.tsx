@@ -33,6 +33,7 @@ const MedicineForm = () => {
   };
 
   const handleSubmit = async(e :any) => {
+    try{
     e.preventDefault();
 const data={
 
@@ -46,6 +47,16 @@ const data={
     const response = await axios.post("/api/medicineReminder", data);
     router.push("/profile");
       Swal.fire('Success!', 'Reminder has been added successfully', 'success');
+}
+catch (error:any) {
+  if (error.response && error.response.data && error.response.data.error) {
+      Swal.fire('Failed!', error.response.data.error, 'error');
+  } else {
+      Swal.fire('Failed!', 'An error occurred during signup.', 'error');
+  }
+} finally {
+
+}
   };
 
   return (
@@ -56,6 +67,7 @@ const data={
         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         placeholder="Enter medicine name"
         value={medicineName}
+        required
         onChange={(e) => setMedicineName(e.target.value)}
       />
 
@@ -65,6 +77,8 @@ const data={
         className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
         placeholder="Enter dosage"
         value={dosage}
+        min="1"
+        required
         onChange={(e:any) => setDosage(e.target.value)}
       />
 
@@ -120,7 +134,7 @@ const data={
         <option value="inhaler">Inhaler</option>
         <option value="injection">Injection</option>
         <option value="emulsion">Emulsion</option>
-      </select>
+        </select>
 
       <button
         type="submit"

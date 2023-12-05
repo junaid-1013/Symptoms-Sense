@@ -37,8 +37,12 @@ const Register = () => {
 
             router.push("/login");
             Swal.fire('Success!', 'Signup Success. Please Sign in..', 'success');
-        } catch (error: any) {
-            Swal.fire('Failed!', 'Email/username already exist.', 'error');
+        } catch (error:any) {
+            if (error.response && error.response.data && error.response.data.error) {
+                Swal.fire('Failed!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Failed!', 'An error occurred during signup.', 'error');
+            }
         } finally {
 
         }
@@ -56,8 +60,10 @@ const Register = () => {
                             width={1000}
                             className="w-36"
                         />
+
                     </div>
-                    <p className="text-lg text-gray-500 text-center font-semibold">Hellow! Welcome !</p>
+                    <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome !</p>
+                    {/*
                     <div className="flex items-center py-6">
                     <div className="w-40 h-40 mr-4 flex-none rounded-xl overflow-hidden">
                       <img
@@ -74,6 +80,7 @@ const Register = () => {
                       />
                     </label>
                   </div>
+    */}
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
                         <input
@@ -159,7 +166,7 @@ const Register = () => {
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
-                <div className="hidden lg:block lg:w-1/2 object-contain pb-8" style={{ marginTop: '80px' }}>
+                <div className="hidden lg:block lg:w-1/2 object-contain pb-8" >
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "

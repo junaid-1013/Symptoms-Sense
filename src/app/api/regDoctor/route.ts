@@ -21,6 +21,25 @@ export async function POST(request: NextRequest) {
        
         const reqBody = await request.json()
         const { name, email, phone, image,services, education, specialization,experienceYears,experienceDetails,about,img } = reqBody
+        if (!/^[a-zA-Z\s]+$/.test(name)) {
+            return NextResponse.json({ error: "Please enter a valid name." }, { status: 400 });
+
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
+
+        }
+        if (!/^[\d\s\-]+$/.test(phone)) {
+            return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
+
+        }
+        if(about.length<10 || about.length>200){
+            return NextResponse.json({ error: "About must be between 10 and 200 characters." }, { status: 400 });
+        }
+        
+        
+        
+        
         const result = await cloudinary.uploader.upload(img, {
             folder: "Doctors",
             // width: 300,

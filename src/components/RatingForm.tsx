@@ -22,39 +22,28 @@ const RatingForm : React.FC<ChildProps> = ({ doctorData }) => {
 
     const onSubmit = async () => {
         try {
-           
-            if(doctorData){
-
-                const fed = {
-                    rat: rating,
-                    mess: message,
-                   
-                    doctor:doctorData.doctor
-                }
-                
-                const response = await axios.post("/api/doctorReview", fed);
-                router.push("/profile");
-                Swal.fire('Success!', 'Thank you for sharing your feedback', 'success');
-                setMessage('');
-            }
-            else{
-              
-                const fed = {
-                    rat: rating,
-                    mess: message,
-                }
-                const response = await axios.post("/api/users/feedback", fed);
-                router.push("/");
-                Swal.fire('Success!', 'Thank you for sharing your feedback with us! Your valuable insights help us improve our services and provide you with even better health recommendations', 'success');
-                setMessage('');
-            }
-           
-        } catch (error: any) {
+            const fed = {
+                rat: rating,
+                mess: message,
+                doctor: doctorData ? doctorData.doctor : undefined,
+            };
+    
+            const response = await axios.post(doctorData ? "/api/doctorReview" : "/api/users/feedback", fed);
+    
+            router.push(doctorData ? "/profile" : "/");
+            Swal.fire('Success!', 'Thank you for sharing your feedback', 'success');
             setMessage('');
-            console.log("Login Failed", error.message);
-            Swal.fire('Failed!', 'Please Login to share Feedback', 'error');
+           
+        } catch (error:any) {
+            if (error.response && error.response.data && error.response.data.error) {
+                
+                Swal.fire('Failed!', error.response.data.error, 'error');
+            } else {
+                
+                Swal.fire('Failed!', 'An error occurred during feedback', 'error');
+            }
         }
-    }
+    };
 
     // close on click outside
     useEffect(() => {
@@ -101,7 +90,7 @@ const RatingForm : React.FC<ChildProps> = ({ doctorData }) => {
                     <div
                         ref={modal}
                         onFocus={() => setModalOpen(true)}
-                        onBlur={() => setModalOpen(false)}
+                        //onBlur={() => setModalOpen(false)}
                         className="w-full max-w-[570px] rounded-[20px] bg-white px-8 py-12 text-center md:px-[70px] md:py-[60px]">
                         <h3 className="pb-[18px] text-xl font-semibold text-black  sm:text-2xl">Rate your experience</h3>
                         <span className={`mx-auto mb-4 inline-block h-1 w-[90px] rounded bg-[#192a56]`}></span>

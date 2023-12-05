@@ -19,11 +19,11 @@ const userSchema = new mongoose.Schema({
     image: {
       public_id: {
           type: String,
-          required: [true, "Please provide"]
+          
       },
       url: {
           type: String,
-          required:  [true, "Please provide"]
+          
       }
   },
     isVerified: {
