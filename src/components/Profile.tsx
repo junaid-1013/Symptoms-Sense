@@ -15,7 +15,7 @@ const Profile = () => {
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
-  const [appointment, setAppointment] = useState([{time:'',doctor:''}]);
+  const [appointment, setAppointment] = useState([{time:'',doctor:'',doctor_id:''}]);
   const [compAppointment, setCompAppointment] = useState([{time:'',doctor:''}]);
   const [reminder, setReminder] = useState([{medicineName: '',dosage: 1,selectedDays: [ ],reminderTime: '',medicineType: ''}]);
   const [image,setImage]=useState('/user.png');
@@ -25,11 +25,7 @@ const Profile = () => {
       router.push("/profile");
       Swal.fire('Success!', 'Appointment has been cancelled successfully', 'success');
       window.location.reload();
-      console.log("Login Success", response.data);
-    
-      
-      
-
+     
   } catch (error: any) {
       
   } finally {
@@ -47,7 +43,11 @@ const Profile = () => {
       
 
   } catch (error: any) {
-      
+    if (error.response && error.response.data && error.response.data.error) {
+      Swal.fire('Failed!', error.response.data.error, 'error');
+  } else {
+      Swal.fire('Failed!', 'An error occurred ', 'error');
+  }
   } finally {
 
   }
@@ -62,7 +62,11 @@ const Profile = () => {
       
 
   } catch (error: any) {
-      
+    if (error.response && error.response.data && error.response.data.error) {
+      Swal.fire('Failed!', error.response.data.error, 'error');
+  } else {
+      Swal.fire('Failed!', 'An error occurred ', 'error');
+  }
   } finally {
 
   }
@@ -77,7 +81,7 @@ const Profile = () => {
       const appointmentTime = new Date(app.time);
       console.log(currentTime)
       if (appointmentTime < currentTime) {
-        console.log('hello1')
+        
         completeAppointment(app)
       }
     });

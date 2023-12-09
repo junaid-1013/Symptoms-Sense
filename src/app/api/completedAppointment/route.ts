@@ -1,15 +1,15 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
+import Doctor from "@/models/doctorModel"
+
 import { NextRequest, NextResponse } from "next/server";
 import {jwtVerify} from 'jose'
 connect();
-
 export async function POST(request: NextRequest) {
     try {
-console.log("entered...")
         const reqBody = await request.json();
-        const { time,  doctor,_id } = reqBody;
-        const newAppointment = { doctor:doctor, time: time }; 
+        const { time,  doctor,doctor_id,_id } = reqBody;
+        const newAppointment = { doctor:doctor,doctor_id:doctor_id, time: time }; 
         console.log(reqBody);
     const token = request.cookies.get("token")?.value; 
     if (!token) {
@@ -23,9 +23,19 @@ console.log("entered...")
             { email: email },
             { $pull: { appointments: { _id: _id } } },
           );  
+          const updatedDoctor = await Doctor.findOneAndUpdate(
+            { _id:doctor_id },
+            { $pull: { appointments: { _id: _id } } },
+          ); 
           const upddUser = await User.findOneAndUpdate(
             { email: email },
             { $push: { CompletedAppointments: newAppointment } },
+            { new: true }
+          );
+          const newDocAppointment = { username:userData.username, time: time }; 
+          const upddDoc = await Doctor.findOneAndUpdate(
+            { _id:doctor_id },
+            { $push: { CompletedAppointments: newDocAppointment } },
             { new: true }
           );
           return NextResponse.json({

@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image"
-import Link from "next/link"
+import Image from "next/image";
+import Link from "next/link";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { useUser } from '@/helpers/UserContext';
@@ -13,7 +13,6 @@ const Login = () => {
         email: "",
         password: "",
     })
-
     const onLogin = async () => {
         try {
             const response = await axios.post("/api/users/login", users);
@@ -29,6 +28,27 @@ const Login = () => {
                 Swal.fire('Failed!', error.response.data.error, 'error');
             } else {
                 Swal.fire('Failed!', 'An error occurred during Login.', 'error');
+            }
+        } finally {
+
+        }
+    }
+    const forgotPass = async () => {
+        try {
+            const { protocol, host } = window.location;
+            const url =  `${protocol}//${host}`;
+            const data = {
+                email:users.email,
+                url : url,
+            }
+            const response = await axios.post("/api/forgot_password", data);          
+            Swal.fire('Success!', 'An email containing the link to reset your password has been dispatched to your inbox.', 'success');
+
+        } catch (error:any) {
+            if (error.response && error.response.data && error.response.data.error) {
+                Swal.fire('Failed!', error.response.data.error, 'error');
+            } else {
+                Swal.fire('Failed!', 'An error occurred .', 'error');
             }
         } finally {
 
@@ -60,7 +80,10 @@ const Login = () => {
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                          {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
+                            <a 
+                            href="#"
+                            onClick={forgotPass}
+                             className="text-xs text-gray-500">Forget Password?</a>
                         </div>
                         <input
                             value={users.password}

@@ -45,10 +45,25 @@ const doctorSchema = new mongoose.Schema({
         type: [String],
         required: true
     },
+
     about: {
         type: String,
         required : [true, 'Please add an about'],
     },
+    appointments: [
+        {
+        
+          username: String,
+          time: Date,
+        }
+      ],
+      CompletedAppointments: [
+        {
+          
+          username: String,
+          time: Date,
+        }
+      ],
     feedbacks: [
         {
         review: String,

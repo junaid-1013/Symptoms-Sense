@@ -93,6 +93,7 @@ const DoctorDetail = () => {
     }, [selectedDate]);
 
     const searchParams = useSearchParams();
+    let id = searchParams.get("id");
     let name = searchParams.get("name");
     let img = searchParams.get("img");
     let spec = searchParams.get("specialization");
@@ -107,12 +108,14 @@ const DoctorDetail = () => {
     let experienceYears = searchParams.get("experienceYears");
     interface AppointmentData {
         time: Date;
+        id:string | null;
         doctor: string | null;
     }
     const onSubmit = async () => {
         try {
             const data: AppointmentData = {
                 time: selectedTime,
+                id:id,
                 doctor: name,
             };
           if(selected != 's'){
