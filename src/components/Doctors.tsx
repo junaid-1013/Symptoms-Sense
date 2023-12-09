@@ -8,7 +8,7 @@ import Loading from "@/components/Loading";
 const Doctors = () => {
     const [loading, setLoading] = useState(true);
     const [DocData, setData] = useState([{
-        "id": 1,
+        "_id": '1',
         "name": "Dr. Sara Rasul",
         "image": { 'url': "https://d1t78adged64l7.cloudfront.net/images/profile-pics/doctors/1693395725_IMG-20230822-WA0009.webp?t=1693395726" }
         , "services": [
@@ -73,6 +73,7 @@ const Doctors = () => {
                     DocData.map((data, index) => (
                         <li key={index}>
                             <DoctorCard
+                                id = {data._id}
                                 name={data.name}
                                 img={data.image.url}
                                 specialization={data.specialization}

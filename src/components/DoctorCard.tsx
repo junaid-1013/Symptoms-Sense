@@ -1,6 +1,7 @@
 import Link from "next/link"
 import queryString from 'query-string';
 interface docSchema {
+    id:string,
     name: string,
     img: string,
     specialization: string[],
@@ -12,8 +13,8 @@ interface docSchema {
 }
 
 
-const DoctorCard = ({ name, img, specialization, education, experience,services,about ,experienceYears}: docSchema) => {
-    const details = { name:name,img:img,specialization:specialization,education:education,experience:experience,
+const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears}: docSchema) => {
+    const details = { id:id,name:name,img:img,specialization:specialization,education:education,experience:experience,
     services:services,about:about,experienceYears:experienceYears
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });

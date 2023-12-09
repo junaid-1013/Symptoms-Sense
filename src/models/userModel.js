@@ -36,15 +36,15 @@ const userSchema = new mongoose.Schema({
     },
     appointments: [
         {
-          
-          doctor: String,
+          doctor:String,
+          doctor_id: String,
           time: Date,
         }
       ],
       CompletedAppointments: [
         {
-          
-          doctor: String,
+          doctor:String,
+          doctor_id: String,
           time: Date,
         }
       ],

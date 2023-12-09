@@ -12,7 +12,6 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json()
         const { username, email, password,image } = reqBody
-
         const usernameRegex = /^[a-zA-Z][a-zA-Z0-9]*$/;
         if (!usernameRegex.test(username)) {
             return NextResponse.json({ error: "Name must start with a character and may contain numbers" }, { status: 400 });
@@ -24,11 +23,10 @@ if (!emailRegex.test(email)) {
 
 
 
-const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
 if (!passwordRegex.test(password)) {
-    return NextResponse.json({ error: "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number." }, { status: 400 });
+    return NextResponse.json({ error: "Password must be at least 8 characters long and include at least one letter and one number." }, { status: 400 });
 }
-
 
 
 
@@ -39,10 +37,13 @@ if (!passwordRegex.test(password)) {
             // crop: "scale"
         })
     */
-        const user = await User.findOne({ email }) ||  await User.findOne({ username })
-
+        const user =   await User.findOne({ username })
+        const userEmail = await User.findOne({ email }) 
         if (user) {
-            return NextResponse.json({ error: "Username/email already exists" }, { status: 400 })
+            return NextResponse.json({ error: "Username already exists" }, { status: 400 })
+        }
+        if (userEmail) {
+            return NextResponse.json({ error: "Email already registered" }, { status: 400 })
         }
 
         //hash password
