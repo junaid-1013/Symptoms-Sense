@@ -9,17 +9,17 @@ const ResetPasswordPage = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   let token = searchParams.get("token");
-let role = searchParams.get("role")
+
   const handleResetPassword = async (newPassword: string) => {
     try {
       const data={
-token,role,newPassword
+token,newPassword
 
       }
-      const response = await axios.put("/api/forgot_password", data);
+      const response = await axios.put("/api/doctorPasswordSetup", data);
       router.push("/login");
     
-      Swal.fire('Success!', 'Password changed. please login with new password.', 'success');
+      Swal.fire('Success!', 'Your password has been successfully set up. Please log in to access your dashboard.', 'success');
       
     } catch (error:any) {
       if (error.response && error.response.data && error.response.data.error) {
@@ -33,7 +33,7 @@ token,role,newPassword
   return (
     <div>
      
-      <ResetPasswordForm onSubmit={handleResetPassword} title="Reset Password" />
+      <ResetPasswordForm onSubmit={handleResetPassword} title= " Password Setup" />
     </div>
   );
 };

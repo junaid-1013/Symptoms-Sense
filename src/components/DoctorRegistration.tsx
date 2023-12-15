@@ -74,8 +74,14 @@ const DoctorProfileForm: React.FC = () => {
         }
         
         const response = await axios.post("/api/regDoctor", data);
-
-        Swal.fire('Success!', 'Congratulations! You have successfully registered as a doctor. You can now log in and explore your account', 'success');
+        const { protocol, host } = window.location;
+        const url =  `${protocol}//${host}`;
+        const data1 = {
+            email:data.email,
+            url : url,
+        }
+        const res = await axios.post("/api/doctorPasswordSetup", data1);
+        Swal.fire('Success!', 'Congratulations! You have successfully registered as a doctor. We have emailed you instructions to set up your password. To activate your account and gain access to your dashboard, please proceed to set up your password.', 'success');
         router.push("/");
 
       } catch (error:any) {

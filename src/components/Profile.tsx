@@ -11,6 +11,7 @@ import { useUser } from '@/helpers/UserContext';
 const Profile = () => {
 
   const router = useRouter();
+  const [appCheck,setApp] = useState('');
   const [loading, setLoading] = useState(true);
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
@@ -100,7 +101,7 @@ const Profile = () => {
       setCompAppointment(ress.CompletedAppointments)
         //setImage(ress.image.url)
       setLoading(false);
-
+setApp('hello')
     }).catch((error) => {
       setUser(null);
       console.error("Error fetching user data:", error);
@@ -108,9 +109,9 @@ const Profile = () => {
     
   },[]);
   useEffect(() => {
-    
+    console.log(appointment)
     checkAppointments();
-  }, [appointment]);
+  }, [appCheck]);
   return (
     <div>
       {loading ? (

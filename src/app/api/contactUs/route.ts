@@ -16,12 +16,11 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
 
         }
-        if (!/^[\d\s\-]+$/.test(phone)) {
-            return NextResponse.json({ error: "Please enter a valid phone number." }, { status: 400 });
-
-        }
-        if (message.trim() === "") {
-            return NextResponse.json({ error: "Please enter a message." }, { status: 400 });
+        if (!/^03\d{9}$/.test(phone)) {
+            return NextResponse.json({ error: "Kindly input a valid phone number in the format 03XXXXXXXXX " }, { status: 400 });
+          }
+          if(message.length<20 || message.length>100){
+            return NextResponse.json({ error: "Your Message must be between 20 and 100 characters." }, { status: 400 });
         }
     
 

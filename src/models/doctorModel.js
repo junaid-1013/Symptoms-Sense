@@ -71,6 +71,11 @@ const doctorSchema = new mongoose.Schema({
       useremail:String
         }
     ],
+    password: {
+        type: String,
+    },
+    forgotPasswordToken: String,
+    forgotPasswordTokenExpiry: Date,
 
 })
 

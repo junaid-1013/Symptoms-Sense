@@ -13,7 +13,7 @@ const Footer = () => {
                             className="w-56 "
                         />
                     </div>
-
+                    
                     <p className="mx-auto mt-6 max-w-md text-center leading-relaxed text-white">
                     © [Symptoms Sense] – Empowering Healthy Lives
                     </p>
@@ -26,19 +26,19 @@ const Footer = () => {
                         </li>
 
                         <li>
-                            <a className="text-white transition hover:text-white/75" href="/">
-                                Careers
+                            <a className="text-white transition hover:text-white/75" href="/#contact-us">
+                                Contact Us
                             </a>
                         </li>
 
                         <li>
-                            <a className="text-white transition hover:text-white/75" href="/">
-                                History
+                            <a className="text-white transition hover:text-white/75"  href="/#feedback">
+                                Feedback
                             </a>
                         </li>
 
                         <li>
-                            <a className="text-white transition hover:text-white/75" href="/">
+                            <a className="text-white transition hover:text-white/75" href="/#service">
                                 Services
                             </a>
                         </li>

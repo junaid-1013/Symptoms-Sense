@@ -47,3 +47,47 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
+export async function PUT(request: NextRequest) {
+  try {
+      const reqBody = await request.json();
+      const { time,  username,_id } = reqBody;
+      const newAppointment = { username:username, time: time }; 
+      console.log(reqBody);
+  const token = request.cookies.get("token")?.value; 
+  if (!token) {
+    return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
+  }   
+  const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
+   const userData =tokenData.payload
+ 
+  const email=userData.email
+      const updatedUser = await User.findOneAndUpdate(
+          { username:username },
+          { $pull: { appointments: { _id: _id } } },
+        );  
+        const updatedDoctor = await Doctor.findOneAndUpdate(
+          { email:email },
+          { $pull: { appointments: { _id: _id } } },
+        ); 
+        const user = await Doctor.findOne({ email });
+        const newUserAppointment = { doctor:user.name,doctor_id:user._id, time: time }; 
+        const upddUser = await User.findOneAndUpdate(
+          { username:username },
+          { $push: { CompletedAppointments: newUserAppointment } },
+          { new: true }
+        );
+       
+        const upddDoc = await Doctor.findOneAndUpdate(
+          { email:email },
+          { $push: { CompletedAppointments: newAppointment } },
+          { new: true }
+        );
+        return NextResponse.json({
+          message: "User updated successfully",
+          success: true,
+          
+      });
+  } catch (error: any) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

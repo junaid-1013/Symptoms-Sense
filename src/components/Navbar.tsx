@@ -8,12 +8,14 @@ import { useUser } from '@/helpers/UserContext';
 const Navbar = () => {
   const { user, setUser } = useUser();
   const [open, setOpen] = useState(false);
+ const [profilePath,setPath] =useState("/profile" );
 
   const onLogout = async () => {
 
     try {
       const response = axios.get("/api/users/logout");
       setUser(null);
+     setPath( "/profile")
       Swal.fire('Success!', 'Successfully logged out', 'success');
     }
     catch (error: any) {
@@ -22,16 +24,21 @@ const Navbar = () => {
 
     }
   }
+  useEffect(() => { 
+    axios.post("/api/users/profile").then((response) => {
+    let ress = response.data;
+    if(ress.role == 'doctor'){
+setPath("/doctorProfile")
+    }else{
+      setPath("/profile")
 
-  useEffect(() => {
-    axios.get("/api/users/profile").then((response) => {
-      let ress = response.data;
-
-      setUser({ username: 'User' });
-
+    }
+   
+    
+    setUser({ username: 'User' });
     }).catch((error) => {
       setUser(null);
-      console.error("Error fetching user data:", error);
+      console.error("Error fetching user data:", error.message);
     });
   }, []);
 
@@ -86,13 +93,13 @@ const Navbar = () => {
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#feedback"
                   >
-                    Feedback
+                    Testimonials
                   </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
-                    NavLink="/profile"
+                    NavLink={profilePath}
                   >
-                    Profile
+                     {profilePath==='/doctorProfile' ? "Doctor Profile" : "Profile"}
                   </ListItem>
                   
                   <ListItem
