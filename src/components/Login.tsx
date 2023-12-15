@@ -8,14 +8,23 @@ import Swal from 'sweetalert2';
 import { useUser } from '@/helpers/UserContext';
 const Login = () => {
     const router = useRouter();
+    const [role, setRole] = useState('patient');
     const { user, setUser } = useUser();
-    const [users, setUsers] = useState({
+    const [users  , setUsers] = useState({
         email: "",
         password: "",
     })
+   
     const onLogin = async () => {
+        
         try {
-            const response = await axios.post("/api/users/login", users);
+            const data = {
+email:users.email,
+password:users.password,
+role:role
+
+            }
+            const response = await axios.post("/api/users/login", data);
             router.push("/");
             window.location.reload();
             console.log("Login Success", response.data);
@@ -40,6 +49,7 @@ const Login = () => {
             const data = {
                 email:users.email,
                 url : url,
+                role:role
             }
             const response = await axios.post("/api/forgot_password", data);          
             Swal.fire('Success!', 'An email containing the link to reset your password has been dispatched to your inbox.', 'success');
@@ -70,6 +80,29 @@ const Login = () => {
                     </div>
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
                     <div className="mt-4">
+                    <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
+      <div className="flex mb-4">
+        <label className="mr-4">
+          <input
+            type="radio"
+            value="patient"
+            checked={role === 'patient'}
+            onChange={() => setRole('patient')}
+            className="mr-2"
+          />
+          Patient
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="doctor"
+            checked={role === 'doctor'}
+            onChange={() => setRole('doctor')}
+            className="mr-2"
+          />
+          Doctor
+        </label>
+      </div>
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
                             value={users.email}

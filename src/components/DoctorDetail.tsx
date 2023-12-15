@@ -281,78 +281,7 @@ const DoctorDetail = () => {
                                 </h3>
 
                                 <p className="mt-8 my-4">{about}</p>
-                                {/*
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Experience</h2>
-                                    <p>Dr. Imad ud din Yousaf Butt has over 9 years of experience in his field.</p>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Qualifications</h2>
-                                    <ul className="list-disc list-inside pl-6">
-                                        <li>MBBS (K.E)</li>
-                                        <li>F.C.P.S. (Neurology)</li>
-                                    </ul>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Appointment Details</h2>
-                                    <p>In order to book an appointment with Dr. Imad ud din Yousaf Butt, you can call 04238900939 or click the Book Appointment button. You can also book an online video consultation with Dr. Imad ud din Yousaf Butt by clicking the Video Consultation button.</p>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Fees</h2>
-                                    <p>The fee for Dr. Imad ud din Yousaf Butt ranges from Rs. 1,500 - 2,500 for appointments and video consultations.</p>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Practice Locations</h2>
-                                    <ul className="list-disc list-inside pl-6">
-                                        <li>Online Video Consultation</li>
-                                        <p className="font-semibold pl-5">Availability</p>
-                                        <ul className="list-[circle] list-inside pl-12">
-                                            <li>Days: M, Tu, W, Th, F, Sa, Su</li>
-                                            <li>Time: 10:00 PM - 11:00 PM</li>
-                                        </ul>
-                                        <li>Fatima Memorial Hospital</li>
-                                        <p className="font-semibold pl-5">Availability</p>
-                                        <ul className="list-[circle] list-inside pl-12">
-                                            <li>Days: M, Tu, W, F, Sa</li>
-                                            <li>Time: 07:30 PM - 09:15 PM</li>
-                                        </ul>
-                                        <li>Central Park Teaching Hospital</li>
-                                    </ul>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Patient Feedback</h2>
-                                    <p>Dr. Imad ud din Yousaf Butt has a 100% patient satisfaction score with 2913 verified patient reviews on oladoc.</p>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Services Offered</h2>
-                                    Following are some of the services offered by Dr. Imad ud din Yousaf Butt:
-                                    <ul className="list-disc list-inside pl-6">
-                                        <li>ALS / Motor Neuron Disease</li>
-                                        <li>ALS Treatment</li>
-                                        <li>Alzheimer Disease</li>
-                                        <li>Back Pain</li>
-                                        <li>Bells Palsy</li>
-                                    </ul>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h2 className="font-semibold mb-2">Conditions Treated</h2>
-                                    Following are some of the conditions treated by Dr. Imad ud din Yousaf Butt:
-                                    <ul className="list-disc list-inside pl-6">
-                                        <li>ALS</li>
-                                        <li>Dementia</li>
-                                        <li>Dizziness</li>
-                                        <li>Epilepsy</li>
-                                        <li>Facial Pain</li>
-                                    </ul>
-                                </div>
-                                */}
+                        
                             </div>
                         </div>
                     </div>
@@ -373,9 +302,11 @@ const DoctorDetail = () => {
                                         Online Video Consultation
                                     </h3>
                                 </div>
+                                
                                 <span className="box w-[30%] p-2 text-[10px] font-semibold text-[#232426] text-center rounded bg-[#000066]/10">
-                                    Pay Online & Get Rs. 400 OFF
+                                Expert Care from Any Place
                                 </span>
+                                
                             </div>
                             <div className="flex justify-between">
                                 <p className="text-sm">Fee:</p>
@@ -391,7 +322,7 @@ const DoctorDetail = () => {
 
                             <div className="flex justify-between">
                                 <p className="flex gap-x-2 text-sm text-[#2a872e] font-semibold"><Clock4 className="w-5 h-5" />Online Hours</p>
-                                <p className="text-sm font-semibold">08:00 PM - 11:00 PM </p>
+                                <p className="text-sm font-semibold">10:00 AM - 7:00 PM </p>
                             </div>
                             <Dialog>
                                 <DialogTrigger asChild>
@@ -468,7 +399,7 @@ const DoctorDetail = () => {
                         </div>
                     </div>
 
-                    <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
+                 {/*   <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center gap-x-4">
@@ -510,6 +441,7 @@ const DoctorDetail = () => {
                             </button>
                         </div>
                     </div>
+                    */}
                 </div>
             </div>
         </section>

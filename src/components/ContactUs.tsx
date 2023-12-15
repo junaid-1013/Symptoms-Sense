@@ -160,7 +160,7 @@ const ContactUs = () => {
                   <ContactInputBox
                     type="text"
                     name="phone"
-                    placeholder="Your Phone"
+                    placeholder="Your Phone (03XXXXXXXXX)"
                     value={phone}
                     onChange={handleChange3}
                   />

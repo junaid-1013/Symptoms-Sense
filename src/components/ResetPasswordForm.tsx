@@ -4,9 +4,10 @@ import Swal from 'sweetalert2';
 
 interface ResetPasswordFormProps {
   onSubmit: (newPassword: string) => void;
+  title:string;
 }
 
-const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
+const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit,title }) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -20,8 +21,6 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
-
     
     if (password !== confirmPassword) {
       Swal.fire('Failed!', 'Passwords do not match', 'error');
@@ -46,7 +45,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
                     className="w-36"
                 />
             </div>
-            <p className="text-lg text-gray-500 text-center font-semibold">Reset Password</p>
+            <p className="text-lg text-gray-500 text-center font-semibold">{title}</p>
             <div className="mt-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">New Password</label>
                 <input
@@ -72,7 +71,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit }) => {
                 <button
                     type="submit"
                     className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
-                    Reset Password
+                    Save Password
                 </button>
             </div>
             

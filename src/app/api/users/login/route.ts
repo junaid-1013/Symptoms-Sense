@@ -1,5 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
+import Doctor from "@/models/doctorModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
 import jwt from "jsonwebtoken";
@@ -11,13 +12,19 @@ export async function POST(request: NextRequest) {
 
     try {
         const reqBody = await request.json()
-        const {email, password } = reqBody;
+        const {email, password,role } = reqBody;
+        if(email==""){
+            return NextResponse.json({ error: "Please provide email address for login " }, { status: 400 });
+        }
+        if(password==""){
+            return NextResponse.json({ error: "Please provide password for login" }, { status: 400 });
+        }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
         }
         
-
+if(role=='patient'){
         //check if user exists
         const user = await User.findOne({email})
 
@@ -25,23 +32,20 @@ export async function POST(request: NextRequest) {
             console.log("User does not exists");
             return NextResponse.json({ error: "User does not exists" }, { status: 400 })
         }
-        console.log("user exists");
+     
 
         const validPassword = await bcryptjs.compare(password, user.password)
         if (!validPassword) {
-            console.log("Your Password is Wrong");
-            return NextResponse.json({ error: "Invalid Password" }, { status: 400 })
+           
+            return NextResponse.json({ error: "The entered password is incorrect. Please provide the correct password." }, { status: 400 })
         }
-
         const tokenData = {
             id: user._id,
             username: user.username,
-            email: user.email
+            email: user.email,
+            role:role
         }
-
-        //create token 
         const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1h" })
-
         const response = NextResponse.json({
             message: "Login successfull",
             success: true,
@@ -51,6 +55,44 @@ export async function POST(request: NextRequest) {
             httpOnly: true,
         })
         return response;
+    }
+    else if(role=='doctor'){
+        const user = await Doctor.findOne({email})
+
+        if (!user) {
+            return NextResponse.json({ error: "Doctor does not exists" }, { status: 400 })
+        }
+        if(!user.password){
+            return NextResponse.json({ error: "Your password has not been configured yet. Please proceed to set up your password by following the link provided in the email in order to log in." }, { status: 400 })
+
+        }
+
+        const validPassword = await bcryptjs.compare(password, user.password)
+        if (!validPassword) {
+            return NextResponse.json({ error: "The entered password is incorrect. Please provide the correct password." }, { status: 400 })
+        }
+        const tokenData = {
+            id: user._id,
+            username: user.name,
+            email: user.email,
+            role:role
+        }
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1h" })
+        const response = NextResponse.json({
+            message: "Login successfull",
+            success: true,
+        })
+
+        response.cookies.set("token", token, {
+            httpOnly: true,
+        })
+        return response;
+    }
+       
+        //create token 
+       
+
+       
 
     } catch (error: any) {
         return NextResponse.json({ error: error.message },

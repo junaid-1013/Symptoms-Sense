@@ -1,5 +1,6 @@
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
+import Doctor from "@/models/doctorModel";
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/helpers/forgot_passMailer";
 import bcryptjs from "bcryptjs";
@@ -11,7 +12,7 @@ export async function POST(request: NextRequest) {
 
     try {
         const reqBody = await request.json()
-        const { email,url } = reqBody;
+        const { email,url ,role} = reqBody;
   
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (email=="") {
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
         const resetToken = crypto.randomBytes(20).toString('hex');
         // Set the expiration time for the token ( valid for 1 hour)
         const resetExpires = Date.now() + 3600000;
+        if(role=='patient'){
         const user = await User.findOneAndUpdate(
           { email },
           {
@@ -40,9 +42,29 @@ export async function POST(request: NextRequest) {
         if (!user) {
             return NextResponse.json({ error: "No user exists with the provided email address." }, { status: 400 })
         }
-        const resetLink = `${url}/reset-password/?token=${resetToken}`;
+        const resetLink = `${url}/reset-password/?token=${resetToken}/?role=${role}`;
         const emailText = `Click the following link to reset your password: ${resetLink}`;
         await sendEmail({email:user.email, title:'Password Reset', emailText});
+      }
+      else if (role=='doctor'){
+        const user = await Doctor.findOneAndUpdate(
+          { email },
+          {
+            $set: {
+                forgotPasswordToken: resetToken,
+                forgotPasswordTokenExpiry: resetExpires,
+            },
+          },
+          { new: true }
+        );
+        if (!user) {
+            return NextResponse.json({ error: "No Doctor exists with the provided email address." }, { status: 400 })
+        }
+        const resetLink = `${url}/reset-password/?token=${resetToken}&role=${role}`;
+        const emailText = `Click the following link to reset your password: ${resetLink}`;
+        await sendEmail({email:user.email, title:'Password Reset', emailText});
+      }
+      
         const response = NextResponse.json({
             message: "Login successfull",
             success: true,
@@ -58,11 +80,13 @@ export async function PUT(request: NextRequest) {
 
   try {
       const reqBody = await request.json()
-      const { token,newPassword } = reqBody;
+      const { token,role,newPassword } = reqBody;
+      console.log(role)
       const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
       if (!passwordRegex.test(newPassword)) {
           return NextResponse.json({ error: "Password must be at least 8 characters long and include at least one letter and one number." }, { status: 400 });
       }
+      if(role == 'patient'){
       const user = await User.findOne({
         forgotPasswordToken: token,
         forgotPasswordTokenExpiry: { $gt: Date.now() },
@@ -79,7 +103,25 @@ export async function PUT(request: NextRequest) {
       user.forgotPasswordTokenExpiry = undefined;
 
       await user.save();
-    
+      }
+      else if(role == 'doctor'){
+        const user = await Doctor.findOne({
+          forgotPasswordToken: token,
+          forgotPasswordTokenExpiry: { $gt: Date.now() },
+        });
+        if (!user) {
+            return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 })
+        }
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(newPassword, salt);
+        user.password = hashedPassword;
+  
+        // Clear the reset token and expiration time
+        user.forgotPasswordToken = undefined;
+        user.forgotPasswordTokenExpiry = undefined;
+  
+        await user.save();
+        }
       const response = NextResponse.json({
           message: "Login successfull",
           success: true,
