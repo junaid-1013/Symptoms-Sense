@@ -1,8 +1,5 @@
 'use client';
 import { Clock4 } from "lucide-react"
-import Link from "next/link"
-import { FaHospitalAlt } from "react-icons/fa"
-import { MdOutlineLocationOn } from "react-icons/md"
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useMemo, useState } from 'react';
@@ -45,6 +42,24 @@ import { cn } from './datepicker/libs/utils';
 import { useSearchParams } from "next/navigation";
 const DoctorDetail = () => {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    let id = searchParams.get("id");
+    let name = searchParams.get("name");
+    let img = searchParams.get("img");
+    let city = searchParams.get("city"); 
+    let address= searchParams.get("streetAddress"); 
+    let res:any= searchParams.get("reserveTime"); 
+    const reserveTime: string[] = res?res.split('*'):[];
+    let spec = searchParams.get("specialization");
+    const specialization: string[] = spec!.split('*');
+    let educ = searchParams.get("education");
+    const education: string[] = educ!.split('*');
+    let exp = searchParams.get("experience");
+    const experience: string[] = exp!.split('*');
+    let ser = searchParams.get("services");
+    const services: string[] = ser!.split('*');
+    let about = searchParams.get("about");
+    let experienceYears = searchParams.get("experienceYears");
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -68,11 +83,12 @@ const DoctorDetail = () => {
         setSelectedTime(time);
        setSelected('s');
     };
+    
     let [freeTimes, setFreeTimes] = useState<Date[]>([]);
-    const reservations = [
-        addHours(today, 13).toString(),
-        addDays(new Date(addHours(today, 4)), 3).toString(),
-    ];
+    const reservations = reserveTime.map(time => {
+        return addDays(addHours(new Date(time), 0), 0).toString();
+      });
+
     useMemo(() => {
         const StartOfToday = startOfDay(selectedDate);
         const endOfToday = endOfDay(selectedDate);
@@ -92,27 +108,16 @@ const DoctorDetail = () => {
         setFreeTimes(freeTimes);
     }, [selectedDate]);
 
-    const searchParams = useSearchParams();
-    let id = searchParams.get("id");
-    let name = searchParams.get("name");
-    let img = searchParams.get("img");
-    let spec = searchParams.get("specialization");
-    const specialization: string[] = spec!.split('*');
-    let educ = searchParams.get("education");
-    const education: string[] = educ!.split('*');
-    let exp = searchParams.get("experience");
-    const experience: string[] = exp!.split('*');
-    let ser = searchParams.get("services");
-    const services: string[] = ser!.split('*');
-    let about = searchParams.get("about");
-    let experienceYears = searchParams.get("experienceYears");
+    
     interface AppointmentData {
         time: Date;
         id:string | null;
         doctor: string | null;
     }
     const onSubmit = async () => {
+        
         try {
+          
             const data: AppointmentData = {
                 time: selectedTime,
                 id:id,
@@ -292,19 +297,14 @@ const DoctorDetail = () => {
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center">
-                                    <svg width="40" height="40" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
-                                        <path d="M11.7946 10.674L11.0279 10.1905V11.0969V12.2093H5.22527V7.79068H11.0279V8.90304V9.80943L11.7946 9.32598L13.7078 8.11963V11.8803L11.7946 10.674ZM3.12612 3.65957L3.12608 3.65961C1.43355 5.3525 0.5 7.60576 0.5 9.99997C0.5 11.5678 0.906841 13.0978 1.68063 14.4496L0.54293 17.8627L0.542666 17.8635C0.443076 18.1639 0.520753 18.4959 0.745674 18.7208C0.905694 18.8808 1.1199 18.9665 1.33866 18.9665C1.42779 18.9665 1.51694 18.9522 1.60241 18.924L1.60379 18.9236L5.0169 17.7859C6.36868 18.5596 7.89872 18.9665 9.46652 18.9665C11.8607 18.9665 14.114 18.0333 15.8069 16.3404C17.4999 14.6474 18.433 12.3941 18.433 9.99997C18.433 7.6058 17.4999 5.35251 15.8069 3.65957C14.114 1.96663 11.8607 1.03345 9.46652 1.03345C7.07236 1.03345 4.81906 1.96663 3.12612 3.65957Z"
-                                            fill="#192a56"
-                                            stroke="white">
-                                        </path>
-                                    </svg>
+                                    
                                     <h3 className="text-lg font-bold text-gray-900 sm:text-xl w-full">
-                                        Online Video Consultation
+                                    Appointment Booking
                                     </h3>
                                 </div>
                                 
                                 <span className="box w-[30%] p-2 text-[10px] font-semibold text-[#232426] text-center rounded bg-[#000066]/10">
-                                Expert Care from Any Place
+                                Receive Expert Care In-Person
                                 </span>
                                 
                             </div>
@@ -316,7 +316,7 @@ const DoctorDetail = () => {
 
                             <div className="flex justify-between">
                                 <p className="text-sm">Address:</p>
-                                <p className="text-sm font-semibold">Use phone/laptop for video call</p>
+                                <p className="text-sm font-semibold">{address+" , "}{city}</p>
                             </div>
                             <hr className="-mt-6" />
 
@@ -327,13 +327,8 @@ const DoctorDetail = () => {
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <button className="flex gap-x-2 py-4 bg-[#192a56] text-white font-semibold justify-center rounded items-center hover:bg-[#192a56]/90">
-                                        <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M11.7946 10.674L11.0279 10.1905V11.0969V12.2093H5.22527V7.79068H11.0279V8.90304V9.80943L11.7946 9.32598L13.7078 8.11963V11.8803L11.7946 10.674ZM3.12612 3.65957L3.12608 3.65961C1.43355 5.3525 0.5 7.60576 0.5 9.99997C0.5 11.5678 0.906841 13.0978 1.68063 14.4496L0.54293 17.8627L0.542666 17.8635C0.443076 18.1639 0.520753 18.4959 0.745674 18.7208C0.905694 18.8808 1.1199 18.9665 1.33866 18.9665C1.42779 18.9665 1.51694 18.9522 1.60241 18.924L1.60379 18.9236L5.0169 17.7859C6.36868 18.5596 7.89872 18.9665 9.46652 18.9665C11.8607 18.9665 14.114 18.0333 15.8069 16.3404C17.4999 14.6474 18.433 12.3941 18.433 9.99997C18.433 7.6058 17.4999 5.35251 15.8069 3.65957C14.114 1.96663 11.8607 1.03345 9.46652 1.03345C7.07236 1.03345 4.81906 1.96663 3.12612 3.65957Z"
-                                                fill="white"
-                                                stroke="#192a56">
-                                            </path>
-                                        </svg>
-                                        Book Video Consultation
+                                       
+                                        Book Appointment
                                     </button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-md">

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
        
         const reqBody = await request.json()
-        const { name, email, phone, image,services, education, specialization,experienceYears,experienceDetails,about,img } = reqBody
+        const { name, email, phone, image,services, education, specialization,experienceYears,experienceDetails,about,img,city,streetAddress } = reqBody
         if (!/^[a-zA-Z\s]+$/.test(name)) {
             return NextResponse.json({ error: "Please enter a valid name." }, { status: 400 });
 
@@ -36,10 +36,7 @@ export async function POST(request: NextRequest) {
         if(about.length<10 || about.length>200){
             return NextResponse.json({ error: "About must be between 10 and 200 characters." }, { status: 400 });
         }
-        
-        
-        
-        
+
         const result = await cloudinary.uploader.upload(img, {
             folder: "Doctors",
             // width: 300,
@@ -58,6 +55,8 @@ export async function POST(request: NextRequest) {
             name,
             email,
             phone,
+            city,
+            streetAddress,
             image: {
                 public_id: result.public_id,
                 url: result.secure_url

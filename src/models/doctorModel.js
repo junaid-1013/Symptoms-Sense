@@ -14,7 +14,14 @@ const doctorSchema = new mongoose.Schema({
         type: String,
         required : [true, 'Please add phone'],
     },
- 
+    city: {
+        type: String,
+        required : [true, 'Please add city'],
+    },
+    streetAddress: {
+        type: String,
+        required : [true, 'Please add address'],
+    },
     image: {
         public_id: {
             type: String,
@@ -74,6 +81,11 @@ const doctorSchema = new mongoose.Schema({
     password: {
         type: String,
     },
+    reservations: [
+        {
+          time: Date,
+        }
+      ],
     forgotPasswordToken: String,
     forgotPasswordTokenExpiry: Date,
 

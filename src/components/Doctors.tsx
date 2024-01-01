@@ -31,8 +31,10 @@ const Doctors = () => {
         ],
         "about": "Dr. Sara Rasul is a top Gynecologist with 10 years of experience. You can book an appointment with Dr. Sara Rasul through Symptoms Sense",
         "category": "Gynecologist",
-        "experienceYears": 1
-    }]);
+        "experienceYears": 1,
+        "city":"",
+        "streetAddress":"",
+        "reservations":[] }]);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -40,6 +42,7 @@ const Doctors = () => {
                 const response = await axios.get("/api/regDoctor");
                
                 setData(response.data);
+             
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -82,20 +85,16 @@ const Doctors = () => {
                                 services={data.services}
                                 about={data.about}
                                 experienceYears={data.experienceYears}
-                            //   satisfiedPatients={data.satisfiedPatients}
+                                city={data.city}
+                                streetAddress={data.streetAddress}
+                                reservations={data.reservations}
+                         
                             />
                         </li>
                     ))
                 }
             </ul>
-            <div className="flex mt-4 justify-center">
-                <Link
-                    href="/doctorRegistration"
-                    className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
-                >
-                    Register as a Doctor
-                </Link>
-            </div>
+           
         </div>
     )}
     </div>
