@@ -4,6 +4,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { useRouter } from "next/navigation";
+
 interface FormValues {
   img: any;
   name: string;
@@ -16,9 +17,12 @@ interface FormValues {
   experienceYears: number;
   experienceDetails: string[];
   about: string;
+  city: string;
+  streetAddress: string;
 }
 
 const DoctorProfileForm: React.FC = () => {
+
   const router = useRouter();
 
   const [image, setImage] = useState('/user.png');
@@ -162,6 +166,7 @@ const DoctorProfileForm: React.FC = () => {
                       />
                       {errors.name && <span className="text-red-500">{errors.name.message}</span>}
                     </div>
+               
                     <div className="mb-3 space-y-2 w-full text-xs">
                       <label className="font-semibold text-gray-600 py-2">Email </label>
                       <input
@@ -180,6 +185,25 @@ const DoctorProfileForm: React.FC = () => {
                       className="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
                     />
                     {errors.phone && <span className="text-red-500">{errors.phone.message}</span>}
+                  </div>
+                  <div className="mb-3 space-y-2 w-full text-xs">
+                    <label className="font-semibold text-gray-600 py-2">City</label>
+                    <input
+                      {...register('city', { required: 'City is required' })}
+                      placeholder='City'
+                      className="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
+                    />
+                    {errors.city && <span className="text-red-500">{errors.city.message}</span>}
+                  </div>
+
+                  <div className="mb-3 space-y-2 w-full text-xs">
+                    <label className="font-semibold text-gray-600 py-2">Clinic Address</label>
+                    <input
+                      {...register('streetAddress', { required: 'Clinic Address is required' })}
+                      placeholder='Clinic Address'
+                      className="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
+                    />
+                    {errors.streetAddress && <span className="text-red-500">{errors.streetAddress.message}</span>}
                   </div>
                   <div className="md:flex md:flex-row md:space-x-4 w-full text-xs">
                     <div className="w-full flex flex-col mb-3">
@@ -229,7 +253,6 @@ const DoctorProfileForm: React.FC = () => {
                       />
                     ))}
                   </div>
-
                   <div className="mb-3 space-y-2 w-full text-xs">
                     <label className=" font-semibold text-gray-600 py-2">Experience in Years</label>
                     <input

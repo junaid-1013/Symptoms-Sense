@@ -1,5 +1,6 @@
 import Link from "next/link"
 import queryString from 'query-string';
+import { useEffect,useState } from "react";
 interface docSchema {
     id:string,
     name: string,
@@ -9,13 +10,22 @@ interface docSchema {
     experience: (string | number)[],
     services:string[]
     about:string
-    experienceYears: number
+    experienceYears: number,
+    city:string,
+    streetAddress:string
+    reservations:(string | any)[] 
 }
 
 
-const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears}: docSchema) => {
+const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears,city,streetAddress,reservations}: docSchema) => {
+    const [reserveTime, setReserve] = useState(['k']);
+    useEffect(() => {
+        
+        const timeArray = reservations.map(obj => obj.time);
+        setReserve(timeArray)
+       }, []);
     const details = { id:id,name:name,img:img,specialization:specialization,education:education,experience:experience,
-    services:services,about:about,experienceYears:experienceYears
+    services:services,about:about,experienceYears:experienceYears,city,streetAddress,reserveTime
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (

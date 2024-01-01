@@ -161,19 +161,30 @@ const Register = () => {
 
                     </div>
     */}
+    
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 object-contain pb-8" >
+               
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "
-                        width={1000}
-                        height={1000}
+                        width={370}
+                        height={370}
                     />
+                     <div className="flex mt-2 mr-20 justify-center">
+                <Link
+                    href="/doctorRegistration"
+                    className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
+                >
+                    Register as a Doctor
+                </Link>
+            </div>
                 </div>
+                
             </div>
         </div>
     )
