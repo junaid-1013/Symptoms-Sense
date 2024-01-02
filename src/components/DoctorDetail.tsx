@@ -46,10 +46,10 @@ const DoctorDetail = () => {
     let id = searchParams.get("id");
     let name = searchParams.get("name");
     let img = searchParams.get("img");
-    let city = searchParams.get("city"); 
-    let address= searchParams.get("streetAddress"); 
-    let res:any= searchParams.get("reserveTime"); 
-    const reserveTime: string[] = res?res.split('*'):[];
+    let city = searchParams.get("city");
+    let address = searchParams.get("streetAddress");
+    let res: any = searchParams.get("reserveTime");
+    const reserveTime: string[] = res ? res.split('*') : [];
     let spec = searchParams.get("specialization");
     const specialization: string[] = spec!.split('*');
     let educ = searchParams.get("education");
@@ -63,12 +63,12 @@ const DoctorDetail = () => {
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const [selectedTime, setSelectedTime] = useState(new Date());
-    const [selected,setSelected]=useState('')
+    const [selected, setSelected] = useState('')
     const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
-       
+
     };
-  
+
     const minSelectableDate = addDays(new Date(), 0);
 
     let today = startOfToday();
@@ -81,13 +81,13 @@ const DoctorDetail = () => {
 
     const handleTimeClick = (time: Date) => {
         setSelectedTime(time);
-       setSelected('s');
+        setSelected('s');
     };
-    
+
     let [freeTimes, setFreeTimes] = useState<Date[]>([]);
     const reservations = reserveTime.map(time => {
         return addDays(addHours(new Date(time), 0), 0).toString();
-      });
+    });
 
     useMemo(() => {
         const StartOfToday = startOfDay(selectedDate);
@@ -108,29 +108,29 @@ const DoctorDetail = () => {
         setFreeTimes(freeTimes);
     }, [selectedDate]);
 
-    
+
     interface AppointmentData {
         time: Date;
-        id:string | null;
+        id: string | null;
         doctor: string | null;
     }
     const onSubmit = async () => {
-        
+
         try {
-          
+
             const data: AppointmentData = {
                 time: selectedTime,
-                id:id,
+                id: id,
                 doctor: name,
             };
-          if(selected != 's'){
-            throw new Error('Please select the time for the appointment');
-          }
-          const response = await axios.post("/api/appointment", data);
+            if (selected != 's') {
+                throw new Error('Please select the time for the appointment');
+            }
+            const response = await axios.post("/api/appointment", data);
             Swal.fire('Success!', 'Appointment booked successfully!', 'success');
             router.push('/profile')
-  
-        } catch (error:any) {
+
+        } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
                 Swal.fire('Failed!', error.response.data.error, 'error');
                 router.push('/login')
@@ -140,14 +140,14 @@ const DoctorDetail = () => {
                     title: 'please select time for the appointment',
                     showConfirmButton: false,  // Hide the "OK" button
                     timer: 2000  // Automatically close after 2000 milliseconds (2 seconds)
-                  });
+                });
             }
-            
-      }  finally {
-  
-        } 
-      }
-   
+
+        } finally {
+
+        }
+    }
+
     return (
         <section>
             <div className="max-w-[1170px] px-5 mx-auto grid grid-cols-5 gap-8 py-8">
@@ -165,7 +165,7 @@ const DoctorDetail = () => {
                                 )}
 
                             </div>
-                            {specialization && education && experience && experienceYears &&(
+                            {specialization && education && experience && experienceYears && (
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
                                         {name}
@@ -190,6 +190,109 @@ const DoctorDetail = () => {
                                     </dl>
                                 </div>
                             )}
+                        </div>
+                    </div>
+
+                    <div className="relative block md:col-span-2 col-span-5 space-y-6">
+                        <div className="md:hidden block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
+                            <div className="flex flex-col gap-y-8">
+                                <div className="flex w-full items-center justify-between">
+                                    <div className="w-[60%] flex items-center">
+
+                                        <h3 className="text-lg font-bold text-gray-900 sm:text-xl w-full">
+                                            Appointment Booking
+                                        </h3>
+                                    </div>
+
+                                    <span className="box w-[30%] p-2 text-[10px] font-semibold text-[#232426] text-center rounded bg-[#000066]/10">
+                                        Receive Expert Care In-Person
+                                    </span>
+
+                                </div>
+                                <div className="flex justify-between">
+                                    <p className="text-sm">Fee:</p>
+                                    <p className="text-sm font-semibold">Rs. 1500</p>
+                                </div>
+                                <hr className="-mt-6" />
+
+                                <div className="flex justify-between">
+                                    <p className="text-sm">Address:</p>
+                                    <p className="text-sm font-semibold">{address + " , "}{city}</p>
+                                </div>
+                                <hr className="-mt-6" />
+
+                                <div className="flex justify-between">
+                                    <p className="flex gap-x-2 text-sm text-[#2a872e] font-semibold"><Clock4 className="w-5 h-5" />Online Hours</p>
+                                    <p className="text-sm font-semibold">10:00 AM - 7:00 PM </p>
+                                </div>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <button className="flex gap-x-2 py-4 bg-[#192a56] text-white font-semibold justify-center rounded items-center hover:bg-[#192a56]/90">
+
+                                            Book Appointment
+                                        </button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle>Book Appointment</DialogTitle>
+                                            <DialogDescription>
+                                                with {name}
+                                            </DialogDescription>
+                                        </DialogHeader>
+
+                                        <Calendar
+                                            className="w-full"
+                                            color="#000"
+                                            minDate={minSelectableDate}
+                                            date={selectedDate}
+                                            onChange={handleDateSelect}
+                                        />
+
+                                        <div className="flex flex-col items-center gap-2 mt-4 p-4">
+                                            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6  text-md gap-2">
+                                                {
+                                                    freeTimes.map((hour, hourIdx) => {
+                                                        return (
+                                                            <div key={hourIdx}>
+                                                                <button
+                                                                    type="button"
+                                                                    className={cn(
+                                                                        'bg-green-200 rounded-lg px-2 text-gray-800 relative hover:border hover:border-green-400 w-[60px] h-[26px]',
+                                                                        selectedTime &&
+                                                                        isSameMinute(selectedTime, hour) &&
+                                                                        'bg-black text-white',
+                                                                        // isDisabled && 'bg-gray-400 cursor-not-allowed'
+                                                                    )}
+                                                                    onClick={() => handleTimeClick(hour)}
+                                                                >
+                                                                    {format(hour, 'HH:mm')}
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                        </div>
+                                        <DialogFooter>
+                                            <DialogClose asChild>
+                                                <button
+                                                    type="button"
+                                                    className="py-3 text-base font-medium px-7 border border-[#273c75] text-[#273c75] rounded-lg hover:text-white hover:bg-[#273c75] "
+                                                >
+                                                    Close
+                                                </button>
+                                            </DialogClose>
+                                            <button
+                                                type="submit"
+                                                className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80 cursor-pointer"
+                                                onClick={onSubmit}
+
+                                            >
+                                                Book Appointment
+                                            </button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
                         </div>
                     </div>
 
@@ -286,7 +389,7 @@ const DoctorDetail = () => {
                                 </h3>
 
                                 <p className="mt-8 my-4">{about}</p>
-                        
+
                             </div>
                         </div>
                     </div>
@@ -297,16 +400,16 @@ const DoctorDetail = () => {
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center">
-                                    
+
                                     <h3 className="text-lg font-bold text-gray-900 sm:text-xl w-full">
-                                    Appointment Booking
+                                        Appointment Booking
                                     </h3>
                                 </div>
-                                
+
                                 <span className="box w-[30%] p-2 text-[10px] font-semibold text-[#232426] text-center rounded bg-[#000066]/10">
-                                Receive Expert Care In-Person
+                                    Receive Expert Care In-Person
                                 </span>
-                                
+
                             </div>
                             <div className="flex justify-between">
                                 <p className="text-sm">Fee:</p>
@@ -316,7 +419,7 @@ const DoctorDetail = () => {
 
                             <div className="flex justify-between">
                                 <p className="text-sm">Address:</p>
-                                <p className="text-sm font-semibold">{address+" , "}{city}</p>
+                                <p className="text-sm font-semibold">{address + " , "}{city}</p>
                             </div>
                             <hr className="-mt-6" />
 
@@ -327,7 +430,7 @@ const DoctorDetail = () => {
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <button className="flex gap-x-2 py-4 bg-[#192a56] text-white font-semibold justify-center rounded items-center hover:bg-[#192a56]/90">
-                                       
+
                                         Book Appointment
                                     </button>
                                 </DialogTrigger>
@@ -384,7 +487,7 @@ const DoctorDetail = () => {
                                             type="submit"
                                             className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80 cursor-pointer"
                                             onClick={onSubmit}
-                                            
+
                                         >
                                             Book Appointment
                                         </button>
@@ -394,7 +497,7 @@ const DoctorDetail = () => {
                         </div>
                     </div>
 
-                 {/*   <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
+                    {/*   <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center gap-x-4">
