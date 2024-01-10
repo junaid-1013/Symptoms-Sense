@@ -5,21 +5,18 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { useRouter } from "next/navigation";
 interface ChildProps {
-    doctorData?: any; 
-  }
-const RatingForm : React.FC<ChildProps> = ({ doctorData }) => {
+    doctorData?: any;
+}
+const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
     const router = useRouter();
-
     const [modalOpen, setModalOpen] = useState(false);
     const trigger = useRef<HTMLButtonElement | null>(null);
     const modal = useRef<HTMLDivElement | null>(null);
     const [rating, setRating] = useState(1);
     const [message, setMessage] = useState('');
-
     const handleStarClick = (newRating: number) => {
         setRating(newRating);
     };
-
     const onSubmit = async () => {
         try {
             const fed = {
@@ -27,19 +24,20 @@ const RatingForm : React.FC<ChildProps> = ({ doctorData }) => {
                 mess: message,
                 doctor: doctorData ? doctorData.doctor : undefined,
             };
-    
+
             const response = await axios.post(doctorData ? "/api/doctorReview" : "/api/users/feedback", fed);
-    
+
             router.push(doctorData ? "/profile" : "/");
+            window.location.reload()
             Swal.fire('Success!', 'Thank you for sharing your feedback', 'success');
             setMessage('');
-           
-        } catch (error:any) {
+
+        } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                
+
                 Swal.fire('Failed!', error.response.data.error, 'error');
             } else {
-                
+
                 Swal.fire('Failed!', 'An error occurred during feedback', 'error');
             }
         }

@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json();
         const { time,id,  doctor } = reqBody;
-        const newAppointment = { doctor:doctor,doctor_id:id, time: time }; 
+        
     const token = request.cookies.get("token")?.value; 
 
     if (!token) {
@@ -22,6 +22,11 @@ export async function POST(request: NextRequest) {
     const email=userData.email
     const username:any=userData.username
     const role = userData.role
+    const user = await User.findOne({email})
+    const doc = await Doctor.findOne({_id:id})
+    let newAppointment;
+    
+    newAppointment = { doctor:doctor,doctor_id:id, time: time,image:doc.image.url }; 
     if(role == 'doctor'){
       return NextResponse.json({ error: "Please Login as a patient to book an appointment" }, { status: 401 });
     }
@@ -31,8 +36,12 @@ export async function POST(request: NextRequest) {
             { new: true }
           );
           const newAppointmentId = updatedUser.appointments[updatedUser.appointments.length - 1]._id;
-          const newDocAppointment = { username:username, time: time,_id:newAppointmentId, }; 
-         
+          let newDocAppointment ;
+          if(user.image){
+             newDocAppointment = { username:username, time: time,image:user.image.url,_id:newAppointmentId, };          }
+         else{
+           newDocAppointment = { username:username, time: time,image:'/user.png',_id:newAppointmentId, }; 
+                 }
           const updatedDoc = await Doctor.findOneAndUpdate(
             { _id:id},
             { $push: { appointments: newDocAppointment,} },
@@ -43,7 +52,6 @@ export async function POST(request: NextRequest) {
             { $push: { reservations:{time:time,_id:newAppointmentId}} },
             { new: true }
           );
-          const doc = await Doctor.findOne({_id:id})
           const localTime = new Date(time).toLocaleString('en-US', { timeZone: 'Asia/Karachi' })
           console.log(localTime)
           //const meetingLink = `https://meet.google.com/new?name=${username.replace(/\s/g, '-')}-${doctor.replace(/\s/g, '-')}`; 

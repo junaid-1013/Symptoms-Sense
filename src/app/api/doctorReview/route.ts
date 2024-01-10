@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
             { $push: { feedbacks: newFeedback } },
             { new: true }
           );
-          console.log('cr7')
+        
         return NextResponse.json({
             message: "Feedback Saved Succcessfully",
             success: true,

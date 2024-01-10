@@ -62,6 +62,7 @@ const doctorSchema = new mongoose.Schema({
         
           username: String,
           time: Date,
+          image:String
         }
       ],
       CompletedAppointments: [
@@ -69,6 +70,7 @@ const doctorSchema = new mongoose.Schema({
           
           username: String,
           time: Date,
+          image:String
         }
       ],
     feedbacks: [

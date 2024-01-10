@@ -19,8 +19,8 @@ const Profile = () => {
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
-  const [appointment, setAppointment] = useState([{ time: '', doctor: '', doctor_id: '' }]);
-  const [compAppointment, setCompAppointment] = useState([{ time: '', doctor: '' }]);
+  const [appointment, setAppointment] = useState([{ time: '', doctor: '', doctor_id: '',image:'' }]);
+  const [compAppointment, setCompAppointment] = useState([{ time: '', doctor: '',image:''  }]);
   const [reminder, setReminder] = useState([{ medicineName: '', dosage: 1, selectedDays: [], reminderTime: '', medicineType: '' }]);
   const [image, setImage] = useState('/user.png');
   const cancelAppointment = async (data: any) => {
@@ -102,7 +102,9 @@ const Profile = () => {
       setAppointment(ress.appointments)
       setReminder(ress.reminders)
       setCompAppointment(ress.CompletedAppointments)
-      //setImage(ress.image.url)
+      if (ress.image && ress.image.url) {
+        setImage(ress.image.url);
+      }
       setLoading(false);
       setApp('hello')
     }).catch((error) => {
@@ -169,7 +171,7 @@ const Profile = () => {
                               <h3 className="text-lg font-bold text-gray-900 sm:text-xl">{data.doctor}</h3>
                             </div>
                             <div className="block shrink-0">
-                              <img alt="..." src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1180&q=80" className="h-16 w-16 rounded-lg object-cover shadow-sm" />
+                              <img alt="..." src={data.image} className="h-16 w-16 rounded-lg object-cover shadow-sm" />
                             </div>
                           </div>
                           <div className="mt-4">
@@ -244,7 +246,7 @@ const Profile = () => {
                             <h3 className="text-lg font-bold text-gray-900 sm:text-xl">{data.doctor}</h3>
                           </div>
                           <div className="block shrink-0">
-                            <img alt="..." src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1180&q=80" className="h-16 w-16 rounded-lg object-cover shadow-sm" />
+                            <img alt="..." src={data.image} className="h-16 w-16 rounded-lg object-cover shadow-sm" />
                           </div>
                         </div>
                         <div className="mt-4">

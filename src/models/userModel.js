@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema({
           doctor:String,
           doctor_id: String,
           time: Date,
+          image:String
         }
       ],
       CompletedAppointments: [
@@ -46,11 +47,11 @@ const userSchema = new mongoose.Schema({
           doctor:String,
           doctor_id: String,
           time: Date,
+          image:String
         }
       ],
       reminders: [
         {
-          
           medicineName: String,
           dosage: Number,
           selectedDays:[String],

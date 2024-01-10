@@ -54,10 +54,7 @@ if (!passwordRegex.test(password)) {
             username,
             email,
             password: hashedPassword,
-            /* image: {
-                public_id: result.public_id,
-                url: result.secure_url
-            },*/
+           
         })
 
         const savedUser = await newUser.save()
