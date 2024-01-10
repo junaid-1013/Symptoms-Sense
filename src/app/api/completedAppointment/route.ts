@@ -9,7 +9,8 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json();
         const { time,  doctor,doctor_id,_id } = reqBody;
-        const newAppointment = { doctor:doctor,doctor_id:doctor_id, time: time }; 
+        const doc = await Doctor.findOne({_id:doctor_id})
+        const newAppointment = { doctor:doctor,doctor_id:doctor_id, time: time,image:doc.image.url }; 
         console.log(reqBody);
     const token = request.cookies.get("token")?.value; 
     if (!token) {
@@ -32,7 +33,14 @@ export async function POST(request: NextRequest) {
             { $push: { CompletedAppointments: newAppointment } },
             { new: true }
           );
-          const newDocAppointment = { username:userData.username, time: time }; 
+          const user = await User.findOne({email})
+          let newDocAppointment ; 
+          if(user.image){
+            newDocAppointment = { username:userData.username, time: time,image:user.image.url };         }
+        else{
+          newDocAppointment = { username:userData.username, time: time,image:'/user.png' }; 
+                }
+         
           const upddDoc = await Doctor.findOneAndUpdate(
             { _id:doctor_id },
             { $push: { CompletedAppointments: newDocAppointment } },
@@ -51,7 +59,14 @@ export async function PUT(request: NextRequest) {
   try {
       const reqBody = await request.json();
       const { time,  username,_id } = reqBody;
-      const newAppointment = { username:username, time: time }; 
+      const user1 = await User.findOne({username})
+          let newAppointment ; 
+          if(user1.image){
+            newAppointment = { username:username, time: time,image:user1.image.url };         }
+        else{
+          newAppointment = { username:username, time: time,image:'/user.png' }; 
+                }
+      
       console.log(reqBody);
   const token = request.cookies.get("token")?.value; 
   if (!token) {
@@ -70,7 +85,7 @@ export async function PUT(request: NextRequest) {
           { $pull: { appointments: { _id: _id } } },
         ); 
         const user = await Doctor.findOne({ email });
-        const newUserAppointment = { doctor:user.name,doctor_id:user._id, time: time }; 
+        const newUserAppointment = { doctor:user.name,doctor_id:user._id, time: time,image:user.image.url }; 
         const upddUser = await User.findOneAndUpdate(
           { username:username },
           { $push: { CompletedAppointments: newUserAppointment } },

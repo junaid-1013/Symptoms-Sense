@@ -15,12 +15,12 @@ export const sendEmail = async ({ userEmail, medicineName, medicineType, dosage,
           pass: process.env.MAILER_PASS,
         },
       });
-
+  
       const jobKey = generateJobKey(userEmail, medicineName);
-      const cronExpression = `0 ${reminderTime.split(':')[1]} ${reminderTime.split(':')[0]} * * ${selectedDays
-        .map((day: string) => ['Su', 'M', 'T', 'W', 'Th', 'F', 'Sa'].indexOf(day))
-        .join(',')}`;
+      const selectedDaysNumeric = selectedDays.map((day:any) => ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(day));
 
+      const cronExpression = `0 ${reminderTime.split(':')[1]} ${reminderTime.split(':')[0]} * * ${selectedDaysNumeric.join(',')}`;
+        console.log(cronExpression)
       const job = Cron(cronExpression, { name: jobKey } , () => {
         const mailOptions = {
           from: 'muzzitts56@gmail.com',
