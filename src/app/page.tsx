@@ -7,13 +7,15 @@ import Chatbot from "@/components/Chatbot"
 import Services from "@/components/Services";
 import OurTeam from "@/components/OurTeam";
 import Doctors from "@/components/Doctors";
+import Chat from "@/components/chatbot/page";
 
 export default function Home() {
   return (
     <>
       <Hero />
       <Services />
-      <Chatbot />
+      <Chat/>
+      {/* <Chatbot /> */}
       <Doctors />
       <Testimonials />
       <RatingForm />
