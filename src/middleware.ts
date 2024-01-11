@@ -25,6 +25,7 @@ export const config = {
   matcher: [
     '/profile',
     '/doctorProfile',
+    '/adminDashboard',
     '/login',
     '/register'
   ]
