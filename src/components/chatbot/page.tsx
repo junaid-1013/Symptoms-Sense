@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Send } from "react-feather";
+import { Send ,Mic,MicOff} from "react-feather";
 import LoadingDots from "./components/LoadingDots";
  type Message = {
     role: "user" | "assistant"
@@ -17,7 +17,26 @@ export default function Chat() {
   ]);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [isListening, setIsListening] = useState(false);
+  const startListening = () => {
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.continuous = true;
+    recognition.lang = 'en-US';
 
+    recognition.onresult = (event:any) => {
+      const result = event.results[event.results.length - 1];
+      const text = result[0].transcript;
+      setMessage(text);
+    };
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+    recognition.start();
+    setIsListening(true);
+  };
+  const stopListening = () => {
+    setIsListening(false);
+  };
   const handleClick = async () => {
     if (message === "") return;
 
@@ -174,6 +193,7 @@ export default function Chat() {
                   }
                 }}
               />
+             
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -186,6 +206,16 @@ export default function Chat() {
               >
                 <Send />
               </button>
+              {!message && <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  startListening();
+                }}
+                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm  bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
+              >
+                <Mic />
+              </button>}
+             
             </div>
           </div>
         </form>
