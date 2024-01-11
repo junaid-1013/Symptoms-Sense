@@ -45,7 +45,7 @@ if(role=='patient'){
             email: user.email,
             role:role
         }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1h" })
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "2h" })
         const response = NextResponse.json({
             message: "Login successfull",
             success: true,
@@ -77,7 +77,39 @@ if(role=='patient'){
             email: user.email,
             role:role
         }
-        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1h" })
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "2h" })
+        const response = NextResponse.json({
+            message: "Login successfull",
+            success: true,
+        })
+
+        response.cookies.set("token", token, {
+            httpOnly: true,
+        })
+        return response;
+    }
+    else if(role=='admin'){
+        //check if user exists
+       
+
+        if (email!='muzzitts56@gmail.com') {
+            console.log("User does not exists");
+            return NextResponse.json({ error: "User does not exists" }, { status: 400 })
+        }
+     
+
+        
+        if (password!='admin123') {
+           
+            return NextResponse.json({ error: "The entered password is incorrect. Please provide the correct password." }, { status: 400 })
+        }
+        const tokenData = {
+            id: 1,
+            username: 'muzzi',
+            email: email,
+            role:role
+        }
+        const token = await jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "2h" })
         const response = NextResponse.json({
             message: "Login successfull",
             success: true,

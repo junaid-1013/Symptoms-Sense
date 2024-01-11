@@ -3,7 +3,7 @@ import {jwtVerify} from 'jose'
 import { NextRequest, NextResponse } from "next/server";
 import cloudinary from "@/helpers/cloudinary";
 import User from "@/models/userModel";
-import Doctor from "@/models/userModel";
+
 connect()
 export async function GET(request: NextRequest) {
   try {

@@ -29,9 +29,12 @@ const Navbar = () => {
     let ress = response.data;
     if(ress.role == 'doctor'){
 setPath("/doctorProfile")
-    }else{
-      setPath("/profile")
+    }else if(ress.role=='admin'){
+      setPath("/adminDashboard")
 
+    }
+    else{
+      setPath("/profile")
     }
    
     
@@ -99,7 +102,11 @@ setPath("/doctorProfile")
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink={profilePath}
                   >
-                     {profilePath==='/doctorProfile' ? "Doctor Profile" : "Profile"}
+                     {  profilePath === '/doctorProfile'
+    ? 'Doctor Profile'
+    : profilePath === '/adminDashboard'
+    ? 'Admin Dashboard'
+    : 'Profile'}
                   </ListItem>
                   
                   <ListItem

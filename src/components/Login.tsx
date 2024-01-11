@@ -81,28 +81,40 @@ role:role
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
                     <div className="mt-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
-      <div className="flex mb-4">
-        <label className="mr-4">
-          <input
-            type="radio"
-            value="patient"
-            checked={role === 'patient'}
-            onChange={() => setRole('patient')}
-            className="mr-2"
-          />
-          Patient
-        </label>
-        <label>
-          <input
-            type="radio"
-            value="doctor"
-            checked={role === 'doctor'}
-            onChange={() => setRole('doctor')}
-            className="mr-2"
-          />
-          Doctor
-        </label>
-      </div>
+                    <div className="flex mb-6">
+  <label className="flex items-center mr-4 cursor-pointer">
+    <input
+      type="radio"
+      value="patient"
+      checked={role === 'patient'}
+      onChange={() => setRole('patient')}
+      className="mr-2 cursor-pointer"
+    />
+    <span className="text-sm">Patient</span>
+  </label>
+
+  <label className="flex items-center mr-4 cursor-pointer">
+    <input
+      type="radio"
+      value="doctor"
+      checked={role === 'doctor'}
+      onChange={() => setRole('doctor')}
+      className="mr-2 cursor-pointer"
+    />
+    <span className="text-sm">Doctor</span>
+  </label>
+
+  <label className="flex items-center cursor-pointer">
+    <input
+      type="radio"
+      value="admin"
+      checked={role === 'admin'}
+      onChange={() => setRole('admin')}
+      className="mr-2 cursor-pointer"
+    />
+    <span className="text-sm">Admin</span>
+  </label>
+</div>
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
                             value={users.email}
