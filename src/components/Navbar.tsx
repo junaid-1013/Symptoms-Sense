@@ -90,6 +90,12 @@ setPath("/doctorProfile")
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#service"
                   >
+                   Chat
+                  </ListItem>
+                  <ListItem
+                    navItemStyles="text-white hover:text-gray-300"
+                    NavLink="/#service"
+                  >
                     Services
                   </ListItem>
                   <ListItem
