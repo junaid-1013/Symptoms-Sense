@@ -13,6 +13,7 @@ const Register = () => {
         username: "",
         image:""
     })
+    const [pass2,setpass2]=useState('')
     const [img, setImage] = useState('/user.png');
     const handleImage = (e: any) => {
         const file = e.target.files[0];
@@ -32,6 +33,9 @@ const Register = () => {
         try {
             const user1={email:user.email,password:user.password,username:user.username,image:img}
            
+            if (user.password !== pass2) {
+               throw new Error('Passwords do not match')
+              }
             const response = await axios.post("/api/users/register", user1);
             console.log("Signup Success", response.data);
 
@@ -41,7 +45,7 @@ const Register = () => {
             if (error.response && error.response.data && error.response.data.error) {
                 Swal.fire('Failed!', error.response.data.error, 'error');
             } else {
-                Swal.fire('Failed!', 'An error occurred during signup.', 'error');
+                Swal.fire('Failed!', error.message, 'error');
             }
         } finally {
 
@@ -84,6 +88,7 @@ const Register = () => {
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
                         <input
+                        required
                             value={user.username}
                             onChange={(e) => setUser({ ...user, username: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -93,6 +98,7 @@ const Register = () => {
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
+                         required
                             value={user.email}
                             onChange={(e) => setUser({ ...user, email: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -105,8 +111,22 @@ const Register = () => {
                          {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
                         </div>
                         <input
+                         required
                             value={user.password}
                             onChange={(e) => setUser({ ...user, password: e.target.value })}
+                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            type="password"
+                        />
+                    </div>
+                    <div className="mt-4">
+                        <div className="flex justify-between">
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
+                         {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
+                        </div>
+                        <input
+                         required
+                            value={pass2}
+                            onChange={(e) => setpass2(e.target.value)}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
                             type="password"
                         />
@@ -172,17 +192,17 @@ const Register = () => {
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "
-                        width={370}
-                        height={370}
+                        width={430}
+                        height={430}
                     />
-                     <div className="flex mt-2 mr-20 justify-center">
+                    {/* <div className="flex mt-2 mr-20 justify-center">
                 <Link
                     href="/doctorRegistration"
                     className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
                 >
                     Register as a Doctor
                 </Link>
-            </div>
+</div>*/}
                 </div>
                 
             </div>

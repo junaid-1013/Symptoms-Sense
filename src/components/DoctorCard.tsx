@@ -14,18 +14,26 @@ interface docSchema {
     city:string,
     streetAddress:string
     reservations:(string | any)[] 
+    feedbacks:(string | any)[] 
 }
 
 
-const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears,city,streetAddress,reservations}: docSchema) => {
+const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears,city,streetAddress,reservations,feedbacks}: docSchema) => {
     const [reserveTime, setReserve] = useState(['k']);
+    const [fed,setfed]=useState([''])
+    const [user,setuser]=useState([''])
+
     useEffect(() => {
         
         const timeArray = reservations.map(obj => obj.time);
         setReserve(timeArray)
+        const fedArray = feedbacks.map(obj => obj.review);
+        const userArray = feedbacks.map(obj => obj.username);
+        setfed(fedArray)
+        setuser(userArray)
        }, []);
     const details = { id:id,name:name,img:img,specialization:specialization,education:education,experience:experience,
-    services:services,about:about,experienceYears:experienceYears,city,streetAddress,reserveTime
+    services:services,about:about,experienceYears:experienceYears,city,streetAddress,reserveTime, fed,user
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (

@@ -20,8 +20,8 @@ const Footer = () => {
 
                     <ul className="mt-12 flex flex-wrap justify-center gap-6 md:gap-8 lg:gap-12">
                         <li>
-                            <a className="text-white transition hover:text-white/75" href="/">
-                                About
+                            <a className="text-white transition hover:text-white/75" href="/#chat">
+                                Predict
                             </a>
                         </li>
 
@@ -49,11 +49,11 @@ const Footer = () => {
                             </a>
                         </li>
 
-                        <li>
+                        {/*<li>
                             <a className="text-white transition hover:text-white/75" href="/">
                                 Blog
                             </a>
-                        </li>
+    </li>*/}
                     </ul>
 
                     <ul className="mt-12 flex justify-center gap-6 md:gap-8">

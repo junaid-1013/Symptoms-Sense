@@ -56,10 +56,14 @@ const DoctorDetail = () => {
     const education: string[] = educ!.split('*');
     let exp = searchParams.get("experience");
     const experience: string[] = exp!.split('*');
-    let ser = searchParams.get("services");
-    const services: string[] = ser!.split('*');
+    let ser:any = searchParams.get("services");
+    const services: string[] = ser ? ser.split('*'): [];
     let about = searchParams.get("about");
     let experienceYears = searchParams.get("experienceYears");
+    let fed :any= searchParams.get("fed");
+    const feedbacks: string[]|any = fed?fed.split('*'):[];
+    let user :any= searchParams.get("user");
+    const users: string[]|any = user?user.split('*'):[];
     const [selectedDate, setSelectedDate] = useState(new Date());
 
     const [selectedTime, setSelectedTime] = useState(new Date());
@@ -138,8 +142,8 @@ const DoctorDetail = () => {
                 Swal.fire({
                     icon: 'error',
                     title: 'please select time for the appointment',
-                    showConfirmButton: false,  // Hide the "OK" button
-                    timer: 2000  // Automatically close after 2000 milliseconds (2 seconds)
+                    showConfirmButton: false, 
+                    timer: 2000  
                 });
             }
 
@@ -183,10 +187,10 @@ const DoctorDetail = () => {
                                             <dt className="text-sm font-medium text-gray-600">Experience</dt>
                                             <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
                                         </div>
-                                        <div className="flex flex-col-reverse">
+                                    { /*   <div className="flex flex-col-reverse">
                                             <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
                                             <dd className="text-xs text-gray-500">2913</dd>
-                                        </div>
+                            </div>*/}
                                     </dl>
                                 </div>
                             )}
@@ -393,7 +397,95 @@ const DoctorDetail = () => {
                             </div>
                         </div>
                     </div>
+                    <div >
+            < section className="bg-white" >
+                <div className="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+                    <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+                        Reviews
+                    </h2>
+                    <div className="mt-8 [column-fill:_balance] sm:columns-2 sm:gap-6 lg:columns-2 lg:gap-8">
+                        {feedbacks.map((data:any, index:any) => (
+                                <div key={index} className="mb-8 sm:break-inside-avoid">
+                                    <blockquote className="rounded-lg bg-gray-50 p-6 shadow-sm sm:p-8">
+                                        <div className="flex items-center gap-4">
+                                            <img
+                                                alt="Man"
+                                                src="/user.png"
+                                                className="h-14 w-14 rounded-full object-cover"
+                                            />
+                                            <div>
+                                                <div className="flex justify-center gap-0.5 text-[#facc15]">
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="#facc15"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                                        />
+                                                    </svg>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="#facc15"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                                        />
+                                                    </svg>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="#facc15"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                                        />
+                                                    </svg>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="#facc15"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                                        />
+                                                    </svg>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-5 w-5"
+                                                        viewBox="0 0 20 20"
+                                                        fill="#facc15"
+                                                    >
+                                                        <path
+                                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
+                                                        />
+                                                    </svg>
+                                                </div>
+                                                <p className="mt-0.5 text-lg font-medium text-gray-900">{users[index]}</p>
+                                            </div>
+                                        </div>
+                                        <p className="mt-4 text-gray-700">
+                                             {data}
+                                        </p>
+                                        
+                                    </blockquote>
+                                </div>
+                            ))}
+                    </div>
                 </div>
+            </section >
+            
+        </div>
+
+
+
+                </div>
+                
                 {/* Appointment booking divs */}
                 <div className="relative block md:col-span-2 col-span-5 space-y-6">
                     <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">

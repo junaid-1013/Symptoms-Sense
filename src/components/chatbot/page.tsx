@@ -49,7 +49,7 @@ export default function Chat() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/chatapi", {
+      const response = await fetch("/chatapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query: message }),
@@ -85,14 +85,14 @@ export default function Chat() {
   };
 
   //scroll to bottom of chat
-  useEffect(() => {
+ { /*useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [history]);
+  }, [history]);*/}
 
   return (
-    <main className="h-screen bg-white p-6 flex flex-col">
+    <main id="chat" className="h-screen bg-white p-6 flex flex-col">
       <div className="flex flex-col gap-8 w-full items-center flex-grow max-h-full">
         <h1 className=" text-4xl text-transparent font-extralight bg-clip-text bg-gradient-to-r from-violet-800 to-fuchsia-500">
           Symptoms Sense AI Bot
@@ -190,8 +190,10 @@ export default function Chat() {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleClick();
+                   
                   }
-                }}
+                }
+              }
               />
              
               <button
