@@ -52,7 +52,7 @@ export async function POST(request: NextRequest, res: NextResponse) {
       apiKey,
     } as any);
 
-    const loader = new PDFLoader("app/api/chat/book.pdf", {
+    const loader = new PDFLoader("src/app/chatapi/book.pdf", {
       splitPages: false,
     });
     const book = await loader.load();
