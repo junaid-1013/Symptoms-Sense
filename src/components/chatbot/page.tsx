@@ -1,18 +1,19 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Send ,Mic,MicOff} from "react-feather";
+import { Send, Mic, MicOff } from "react-feather";
 import LoadingDots from "./components/LoadingDots";
- type Message = {
-    role: "user" | "assistant"
-    content: string
-    links?: string[]
-}
+type Message = {
+  role: "user" | "assistant";
+  content: string;
+  links?: string[];
+};
 export default function Chat() {
   const [message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hello there! I am your AI medical assistant. Tell me how are you feeling?",
+      content:
+        "Hello there! I am your AI medical assistant. Tell me how are you feeling?",
     },
   ]);
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
@@ -21,9 +22,9 @@ export default function Chat() {
   const startListening = () => {
     const recognition = new (window as any).webkitSpeechRecognition();
     recognition.continuous = true;
-    recognition.lang = 'en-US';
+    recognition.lang = "en-US";
 
-    recognition.onresult = (event:any) => {
+    recognition.onresult = (event: any) => {
       const result = event.results[event.results.length - 1];
       const text = result[0].transcript;
       setMessage(text);
@@ -52,7 +53,7 @@ export default function Chat() {
       const response = await fetch("http://localhost:3000/chatapi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: message }),
+        body: JSON.stringify({ query: message, history: history }),
       });
 
       if (!response.ok) {
@@ -193,7 +194,7 @@ export default function Chat() {
                   }
                 }}
               />
-             
+
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -206,16 +207,17 @@ export default function Chat() {
               >
                 <Send />
               </button>
-              {!message && <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  startListening();
-                }}
-                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm  bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
-              >
-                <Mic />
-              </button>}
-             
+              {!message && (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    startListening();
+                  }}
+                  className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm  bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
+                >
+                  <Mic />
+                </button>
+              )}
             </div>
           </div>
         </form>
