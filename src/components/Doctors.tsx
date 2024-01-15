@@ -34,7 +34,8 @@ const Doctors = () => {
         "experienceYears": 1,
         "city":"",
         "streetAddress":"",
-        "reservations":[] }]);
+        "reservations":[],
+        "feedbacks":[] }]);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -88,7 +89,7 @@ const Doctors = () => {
                                 city={data.city}
                                 streetAddress={data.streetAddress}
                                 reservations={data.reservations}
-                         
+                                feedbacks={data.feedbacks}
                             />
                         </li>
                     ))
