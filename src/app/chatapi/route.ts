@@ -13,22 +13,46 @@ import { createRetrievalChain } from "langchain/chains/retrieval";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 
 export async function POST(request: NextRequest, res: NextResponse) {
-  // if (req.method !== "POST") {
-  //   return res.status(405).json({ error: "Method Not Allowed" });
-  // }
   const body = await request.json();
-  console.log("key api", process.env.OPENAI_API_KEY);
-
   const query = body.query;
-  console.log("req", query);
-
+  const conversation_history: { role: string; content: string }[] = [];
+  const messages_array: { role: string; content: string }[] = body.history;
   try {
+    //setting chat template
+    const systemTemplate =
+      "You are a medical practitioner that helps patients diagnose their problems based on the {context} and give them suitable recommendations.";
+    conversation_history.push({
+      role: "system",
+      content: `${systemTemplate}. `,
+    });
+    if (!messages_array) {
+      conversation_history.push({
+        role: "user",
+        content: query,
+      });
+    } else {
+      for (const message of messages_array) {
+        conversation_history.push({
+          role: message.role,
+          content: message.content,
+        });
+      }
+      conversation_history.push({ role: "user", content: query });
+    }
+    const gpt_array: { role: string; content: string }[] = [];
+    for (const interaction of conversation_history) {
+      gpt_array.push({
+        role: interaction.role,
+        content: interaction.content,
+      });
+    }
+    //api
     const apiKey = process.env.OPENAI_API_KEY;
     const chatModel = new ChatOpenAI({
       apiKey,
     } as any);
 
-    const loader = new PDFLoader("src/app/chatapi/book.pdf", {
+    const loader = new PDFLoader("app/api/chat/book.pdf", {
       splitPages: false,
     });
     const book = await loader.load();
@@ -48,14 +72,9 @@ export async function POST(request: NextRequest, res: NextResponse) {
       docOutput,
       embeddings
     );
-
-    const systemTemplate =
-      "You are a medical practitioner that helps patients diagnose their problems based on the {context} and give them suitable recommendations.";
-    const humanTemplate = "{input}";
-    const chatPrompt = ChatPromptTemplate.fromMessages([
-      ["system", systemTemplate],
-      ["human", humanTemplate],
-    ]);
+    const chatPrompt = ChatPromptTemplate.fromMessages(
+      gpt_array.map(({ role, content }) => [role, content])
+    );
 
     const documentChain = await createStuffDocumentsChain({
       llm: chatModel,
@@ -76,24 +95,3 @@ export async function POST(request: NextRequest, res: NextResponse) {
     console.error(error);
   }
 }
-
-// import { NextResponse } from 'next/server';
-// import {chain} from "@/utils/chain";
-// import {Message} from "@/types/message";
-
-// export async function POST(request: Request) {
-
-//     const body = await request.json();
-//     const question: string = body.query;
-//     const history: Message[] = body.history ?? []
-
-//     const res = await chain.call({
-//             question: question,
-//             chat_history: history.map(h => h.content).join("\n"),
-//         });
-
-//     console.log(res.sourceDocuments)
-
-//     const links: string[] = Array.from(new Set(res.sourceDocuments.map((document: {metadata: {source: string}}) => document.metadata.source)))
-//     return NextResponse.json({role: "assistant", content: res.text, links: links})
-// }
