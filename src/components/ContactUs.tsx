@@ -11,7 +11,7 @@ const ContactUs = () => {
   const [phone ,setphone]=useState('')
   const [message ,setmessage]=useState('')
   
-  //const isFormValid = name && email &&phone && message;
+
 
   const handleChange1 = (newName: string) => {
    setname(newName)

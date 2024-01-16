@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     const token = request.cookies.get("token")?.value; 
 
     if (!token) {
-      return NextResponse.json({ error: "User is not authenticated" }, { status: 401 });
+      return NextResponse.json({ error: "Please Login as a patient to add medicine reminder" }, { status: 401 });
     }
     
     const tokenData = await jwtVerify(token, new TextEncoder().encode(process.env.TOKEN_SECRET!));
@@ -49,6 +49,9 @@ export async function POST(request: NextRequest) {
   
     const email=userData.email
     const username:any=userData.username
+    if (userData.role!='patient') {
+        return NextResponse.json({ error: "Please Login as a patient to add medicine reminder" }, { status: 401 });
+      }
     const updatedUser = await User.findOneAndUpdate(
         { email: email },
         { $push: { reminders: newReminder } },

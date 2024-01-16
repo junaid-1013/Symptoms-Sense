@@ -4,21 +4,21 @@ const members = [
         name: "Khubaib Mashood",
         title: "CFO",
         imageSrc:
-            "/khubaib.png",
+            "/khubaib.jpg",
     },
     {
         id: 2,
         name: "Asadullah Rind",
         title: "CEO",
         imageSrc:
-            "/asadullah.png",
+            "/asadullah.jpg",
     },
     {
         id: 3,
         name: "Muhammad Muzammil",
         title: "CTO",
         imageSrc:
-            "/muzzi.png",
+            "/muzzi.jpg",
     },
    
 ];
@@ -43,22 +43,20 @@ const OurTeam = () => {
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap justify-center gap-6">
+                        <div className="flex flex-wrap justify-center gap-14">
     {members.map((member) => (
         <div
             key={member.id}
             className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 mb-6 px-4"
         >
             <div className="flex flex-col items-center">
-                <div
-                    className="rounded-full overflow-hidden w-100 h-100"
-                >
-                    <img
-                        className="object-contain w-full h-full shadow-md hover:shadow-lg transition-all duration-300"
-                        src={member.imageSrc}
-                        alt={member.name}
-                    />
-                </div>
+            <div className="relative w-60 h-50  " >
+        <img
+          className="object-cover w-full h-full rounded"
+          src={member.imageSrc}
+          alt={member.name}
+        />
+      </div>
                 <div className="text-center mt-6">
                     <h1 className="text-gray-900 text-lg font-bold mb-1">
                         {member.name}

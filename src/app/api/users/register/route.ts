@@ -2,7 +2,7 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import { NextRequest, NextResponse } from "next/server";
 import bcryptjs from "bcryptjs";
-import cloudinary from "@/helpers/cloudinary";
+import { sendEmail } from "@/helpers/checkMailer";
 
 connect()
 
@@ -45,7 +45,15 @@ if (!passwordRegex.test(password)) {
         if (userEmail) {
             return NextResponse.json({ error: "Email already registered" }, { status: 400 })
         }
-
+          /*
+        try{
+            await sendEmail({ email})
+        }
+      
+     catch (error:any) {
+        return NextResponse.json({ error: "Email does not exist, please enter valid email address " }, { status: 400 })
+      }
+        */
         //hash password
         const salt = await bcryptjs.genSalt(10)
         const hashedPassword = await bcryptjs.hash(password, salt)
@@ -59,7 +67,6 @@ if (!passwordRegex.test(password)) {
 
         const savedUser = await newUser.save()
 
-       
 
         return NextResponse.json({
             message: "User Created Succcessfully",

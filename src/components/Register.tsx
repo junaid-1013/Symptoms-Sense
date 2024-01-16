@@ -32,7 +32,9 @@ const Register = () => {
     const onRegister = async () => {
         try {
             const user1={email:user.email,password:user.password,username:user.username,image:img}
-           
+            if (!user.username || !user.email || !user.password || !pass2) {
+                throw new Error('All fields are required!')
+              }
             if (user.password !== pass2) {
                throw new Error('Passwords do not match')
               }
@@ -133,6 +135,7 @@ const Register = () => {
                     </div>
                     <div className="mt-8">
                         <button
+                        
                             onClick={onRegister}
                             className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
                             Sign Up

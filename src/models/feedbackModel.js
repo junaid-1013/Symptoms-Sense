@@ -9,7 +9,9 @@ const feedbackSchema = new mongoose.Schema({
     name: {
         type: String,
     },
-
+image:{
+    type: String
+}
 })
 
 const Feedback = mongoose.models.feedback || mongoose.model("feedback", feedbackSchema);

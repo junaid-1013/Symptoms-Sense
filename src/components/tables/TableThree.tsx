@@ -4,9 +4,7 @@ import axios from "axios";
 import Loading from "@/components/Loading";
  const TableThree = () => {
     const [loading, setLoading] = useState(true);
-    const [jsonData, setJsonData] = useState([{ "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." },
-    { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." }, { "name": "Loading...", "message": "Loading...." },
-    { "name": "Loading...", "message": "Loading...." },]);
+    const [jsonData, setJsonData] = useState([{ "name": "Loading...", "message": "Loading....","image":"" }]);
 
     const getData = async () => {
         try {
@@ -47,7 +45,7 @@ import Loading from "@/components/Loading";
                                         <div className="flex items-center gap-4">
                                             <img
                                                 alt="Man"
-                                                src="/user.png"
+                                                src={data.image ? data.image : "/user.png"}
                                                 className="h-14 w-14 rounded-full object-cover"
                                             />
                                             <div>
