@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     let newAppointment;
     
     newAppointment = { doctor:doctor,doctor_id:id, time: time,image:doc.image.url }; 
-    if(role == 'doctor'){
+    if(role != 'patient'){
       return NextResponse.json({ error: "Please Login as a patient to book an appointment" }, { status: 401 });
     }
         const updatedUser = await User.findOneAndUpdate(
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
           );
           const newAppointmentId = updatedUser.appointments[updatedUser.appointments.length - 1]._id;
           let newDocAppointment ;
-          if(user.image){
+          if(user && user.image && user.image.url){
              newDocAppointment = { username:username, time: time,image:user.image.url,_id:newAppointmentId, };          }
          else{
            newDocAppointment = { username:username, time: time,image:'/user.png',_id:newAppointmentId, }; 

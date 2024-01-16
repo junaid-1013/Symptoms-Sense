@@ -123,6 +123,11 @@ role:role
                             type="email" />
                     </div>
                     <div className="mt-4">
+                        <div>
+                        {role == 'admin'?(<div className="flex justify-between">
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                          
+                        </div>):(
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
                             <a 
@@ -130,6 +135,9 @@ role:role
                             onClick={forgotPass}
                              className="text-xs text-gray-500">Forget Password?</a>
                         </div>
+                        )
+}
+</div>
                         <input
                             value={users.password}
                             onChange={(e) => setUsers({ ...users, password: e.target.value })}

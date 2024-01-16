@@ -43,11 +43,7 @@ const Footer = () => {
                             </a>
                         </li>
 
-                        <li>
-                            <a className="text-white transition hover:text-white/75" href="/">
-                                Projects
-                            </a>
-                        </li>
+                     
 
                         {/*<li>
                             <a className="text-white transition hover:text-white/75" href="/">
@@ -55,7 +51,7 @@ const Footer = () => {
                             </a>
     </li>*/}
                     </ul>
-
+{/*
                     <ul className="mt-12 flex justify-center gap-6 md:gap-8">
                         <li>
                             <a
@@ -170,6 +166,7 @@ const Footer = () => {
                             </a>
                         </li>
                     </ul>
+*/}
                 </div>
             </footer>
         </>

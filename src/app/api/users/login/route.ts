@@ -14,10 +14,10 @@ export async function POST(request: NextRequest) {
         const reqBody = await request.json()
         const {email, password,role } = reqBody;
         if(email==""){
-            return NextResponse.json({ error: "Please provide email address for login " }, { status: 400 });
+            return NextResponse.json({ error: "Please provide the email address for logging in. " }, { status: 400 });
         }
         if(password==""){
-            return NextResponse.json({ error: "Please provide password for login" }, { status: 400 });
+            return NextResponse.json({ error: "Please provide the password for logging in." }, { status: 400 });
         }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
@@ -30,7 +30,7 @@ if(role=='patient'){
 
         if (!user) {
             console.log("User does not exists");
-            return NextResponse.json({ error: "User does not exists" }, { status: 400 })
+            return NextResponse.json({ error: "No user exists with the provided email address." }, { status: 400 })
         }
      
 
@@ -60,7 +60,7 @@ if(role=='patient'){
         const user = await Doctor.findOne({email})
 
         if (!user) {
-            return NextResponse.json({ error: "Doctor does not exists" }, { status: 400 })
+            return NextResponse.json({ error: "No doctor exists with the provided email address." }, { status: 400 })
         }
         if(!user.password){
             return NextResponse.json({ error: "Your password has not been configured yet. Please proceed to set up your password by following the link provided in the email in order to log in." }, { status: 400 })
@@ -94,7 +94,7 @@ if(role=='patient'){
 
         if (email!='muzzitts56@gmail.com') {
             console.log("User does not exists");
-            return NextResponse.json({ error: "User does not exists" }, { status: 400 })
+            return NextResponse.json({ error: "No admin exists with the provided email address." }, { status: 400 })
         }
      
 
