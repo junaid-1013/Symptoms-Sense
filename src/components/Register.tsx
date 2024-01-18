@@ -195,17 +195,17 @@ const Register = () => {
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "
-                        width={430}
+                        width={410}
                         height={430}
                     />
-                    {/* <div className="flex mt-2 mr-20 justify-center">
+                     <div className="flex mt-2 mr-20 justify-center">
                 <Link
                     href="/doctorRegistration"
                     className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
                 >
                     Register as a Doctor
                 </Link>
-</div>*/}
+</div>
                 </div>
                 
             </div>

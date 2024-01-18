@@ -20,7 +20,7 @@ export async function POST(request: NextRequest, res: NextResponse) {
   try {
     //setting chat template
     const systemTemplate =
-      "You are a medical practitioner that helps patients diagnose their problems based on the {context} and give them suitable recommendations.";
+      "As a medical professional, your role involves diagnosing patient issues using the provided {context} and providing appropriate treatment suggestions. You are a doctor and respond like a doctor. Do not say that you are not a doctor. Do not reply to queries other than medical queries.";
     conversation_history.push({
       role: "system",
       content: `${systemTemplate}. `,
