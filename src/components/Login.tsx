@@ -6,33 +6,36 @@ import Link from "next/link";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { useUser } from '@/helpers/UserContext';
+import { Eye } from "lucide-react";
 const Login = () => {
+    const [showPassword, setShowPassword] = useState(false);
+
     const router = useRouter();
     const [role, setRole] = useState('patient');
     const { user, setUser } = useUser();
-    const [users  , setUsers] = useState({
+    const [users, setUsers] = useState({
         email: "",
         password: "",
     })
-   
+
     const onLogin = async () => {
-        
+
         try {
             const data = {
-email:users.email,
-password:users.password,
-role:role
+                email: users.email,
+                password: users.password,
+                role: role
 
             }
             const response = await axios.post("/api/users/login", data);
             router.push("/");
             window.location.reload();
             console.log("Login Success", response.data);
-          
+
             setUser({ username: 'exampleUser' });
             Swal.fire('Success!', 'Sign in Successful', 'success');
 
-        } catch (error:any) {
+        } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
                 Swal.fire('Failed!', error.response.data.error, 'error');
             } else {
@@ -45,16 +48,16 @@ role:role
     const forgotPass = async () => {
         try {
             const { protocol, host } = window.location;
-            const url =  `${protocol}//${host}`;
+            const url = `${protocol}//${host}`;
             const data = {
-                email:users.email,
-                url : url,
-                role:role
+                email: users.email,
+                url: url,
+                role: role
             }
-            const response = await axios.post("/api/forgot_password", data);          
+            const response = await axios.post("/api/forgot_password", data);
             Swal.fire('Success!', 'An email containing the link to reset your password has been dispatched to your inbox.', 'success');
 
-        } catch (error:any) {
+        } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
                 Swal.fire('Failed!', error.response.data.error, 'error');
             } else {
@@ -80,41 +83,41 @@ role:role
                     </div>
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
                     <div className="mt-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
-                    <div className="flex mb-6">
-  <label className="flex items-center mr-4 cursor-pointer">
-    <input
-      type="radio"
-      value="patient"
-      checked={role === 'patient'}
-      onChange={() => setRole('patient')}
-      className="mr-2 cursor-pointer"
-    />
-    <span className="text-sm">Patient</span>
-  </label>
+                        <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
+                        <div className="flex mb-6">
+                            <label className="flex items-center mr-4 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    value="patient"
+                                    checked={role === 'patient'}
+                                    onChange={() => setRole('patient')}
+                                    className="mr-2 cursor-pointer"
+                                />
+                                <span className="text-sm">Patient</span>
+                            </label>
 
-  <label className="flex items-center mr-4 cursor-pointer">
-    <input
-      type="radio"
-      value="doctor"
-      checked={role === 'doctor'}
-      onChange={() => setRole('doctor')}
-      className="mr-2 cursor-pointer"
-    />
-    <span className="text-sm">Doctor</span>
-  </label>
+                            <label className="flex items-center mr-4 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    value="doctor"
+                                    checked={role === 'doctor'}
+                                    onChange={() => setRole('doctor')}
+                                    className="mr-2 cursor-pointer"
+                                />
+                                <span className="text-sm">Doctor</span>
+                            </label>
 
-  <label className="flex items-center cursor-pointer">
-    <input
-      type="radio"
-      value="admin"
-      checked={role === 'admin'}
-      onChange={() => setRole('admin')}
-      className="mr-2 cursor-pointer"
-    />
-    <span className="text-sm">Admin</span>
-  </label>
-</div>
+                            <label className="flex items-center cursor-pointer">
+                                <input
+                                    type="radio"
+                                    value="admin"
+                                    checked={role === 'admin'}
+                                    onChange={() => setRole('admin')}
+                                    className="mr-2 cursor-pointer"
+                                />
+                                <span className="text-sm">Admin</span>
+                            </label>
+                        </div>
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
                             value={users.email}
@@ -124,26 +127,33 @@ role:role
                     </div>
                     <div className="mt-4">
                         <div>
-                        {role == 'admin'?(<div className="flex justify-between">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                          
-                        </div>):(
-                        <div className="flex justify-between">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            <a 
-                            href="#"
-                            onClick={forgotPass}
-                             className="text-xs text-gray-500">Forget Password?</a>
+                            {role == 'admin' ? (<div className="flex justify-between">
+                                <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+
+                            </div>) : (
+                                <div className="flex justify-between">
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                                    <a
+                                        href="#"
+                                        onClick={forgotPass}
+                                        className="text-xs text-gray-500">Forget Password?</a>
+                                </div>
+                            )
+                            }
                         </div>
-                        )
-}
-</div>
                         <input
                             value={users.password}
+
                             onChange={(e) => setUsers({ ...users, password: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                            type="password"
+                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none "
+                            type={
+                                showPassword ? "text" : "password"
+                            }
                         />
+                        <br />
+                        <label onClick={() => { setShowPassword(!showPassword) }} className="cursor-pointer hover:underline hover:underline-offset-2">
+                            Show Password
+                        </label>
                     </div>
                     <div className="mt-8">
                         <button
