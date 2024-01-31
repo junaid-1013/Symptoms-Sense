@@ -11,57 +11,52 @@ const Services = () => {
                 </div>
                 <div className="w-full lg:w-6/12 px-4 pt-8">
                     <p className="text-gray-700 text-lg font-light">
-                    &quot;Transforming Healthcare: Our Comprehensive Services&quot;
+                        &quot;Transforming Healthcare: Our Comprehensive Services&quot;
                     </p>
                 </div>
             </div>
-            <div className="xl:px-28 flex flex-wrap p-8 justify-center pb-0">
+            <div className="xl:px-28 flex flex-wrap p-8 justify-center pb-0 gap-6">
 
-                <div className="w-full px-4 md:w-1/2 lg:w-1/3">
-                    <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9">
-                        <div className="mx-auto mb-7 inline-block">
-                            <Stethoscope strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
-                        </div>
-                        <div>
-                            <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
-                                Disease Diagnosis and Recomendation
-                            </h3>
-                            <p className="text-base font-medium text-body-color">
+
+                <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9 h-[22rem] w-[26rem]">
+                    <div className="mx-auto mb-7 inline-block">
+                        <Stethoscope strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
+                    </div>
+                    <div>
+                        <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
+                            Disease Diagnosis and Recomendation
+                        </h3>
+                        <p className="text-base font-medium text-body-color">
                             Experience precise disease diagnosis and personalized recommendations, empowering you to take control of your well-being with expert guidance.
-                            </p>
-                        </div>
+                        </p>
                     </div>
                 </div>
 
-                <div className="w-full px-4 md:w-1/2 lg:w-1/3">
-                    <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9">
-                        <div className="mx-auto mb-7 inline-block">
-                            <Bot strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
-                        </div>
-                        <div>
-                            <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
+                <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9 h-[22rem] w-[26rem]">
+                    <div className="mx-auto mb-7 inline-block">
+                        <Bot strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
+                    </div>
+                    <div>
+                        <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
                             Customized AI Medical Chatbot Development
-                            </h3>
-                            <p className="text-base font-medium text-body-color">
+                        </h3>
+                        <p className="text-base font-medium text-body-color">
                             Unlock the future of healthcare with our custom AI Medical Chatbot Development, designed to cater to your unique healthcare needs and deliver exceptional patient care.
-                            </p>
-                        </div>
+                        </p>
                     </div>
                 </div>
 
-                <div className="w-full px-4 md:w-1/2 lg:w-1/3">
-                    <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9">
-                        <div className="mx-auto mb-7 inline-block">
-                            <Workflow strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
-                        </div>
-                        <div>
-                            <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
+                <div className="mb-9 rounded-xl py-8 px-7 shadow-md transition-all hover:shadow-lg sm:p-9 lg:px-6 xl:px-9 h-[22rem] w-[26rem]">
+                    <div className="mx-auto mb-7 inline-block">
+                        <Workflow strokeWidth="1.2px" className="w-16 h-16 text-[#273c75]" />
+                    </div>
+                    <div>
+                        <h3 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-xl xl:text-2xl">
                             Seamless Chatbot Integration
-                            </h3>
-                            <p className="text-base font-medium text-body-color">
+                        </h3>
+                        <p className="text-base font-medium text-body-color">
                             Streamline customer interactions with seamless chatbot integration, enhancing communication and support while saving time and resources for your business.
-                            </p>
-                        </div>
+                        </p>
                     </div>
                 </div>
             </div>
