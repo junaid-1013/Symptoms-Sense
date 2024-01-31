@@ -3,7 +3,6 @@
 import axios from "axios";
 import React, { useState, useEffect } from "react";
 import DoctorCard from "@/components/DoctorCard";
-import Link from "next/link";
 import Loading from "@/components/Loading";
 const Doctors = () => {
     const [loading, setLoading] = useState(true);
@@ -72,7 +71,7 @@ const Doctors = () => {
                     </p>
                 </div>
             </div>
-            <ul className="grid gap-4 mt-8 sm:grid-cols-2 lg:grid-cols-3">
+            <ul className="flex gap-4 mt-8 flex-wrap justify-center">
                 {
                     DocData.map((data, index) => (
                         <li key={index}>

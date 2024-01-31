@@ -1,46 +1,49 @@
 import Link from "next/link"
 import queryString from 'query-string';
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 interface docSchema {
-    id:string,
+    id: string,
     name: string,
     img: string,
     specialization: string[],
     education: string[],
     experience: (string | number)[],
-    services:string[]
-    about:string
+    services: string[]
+    about: string
     experienceYears: number,
-    city:string,
-    streetAddress:string
-    reservations:(string | any)[] 
-    feedbacks:(string | any)[] 
+    city: string,
+    streetAddress: string
+    reservations: (string | any)[]
+    feedbacks: (string | any)[]
 }
 
 
-const DoctorCard = ({ id,name, img, specialization, education, experience,services,about ,experienceYears,city,streetAddress,reservations,feedbacks}: docSchema) => {
+const DoctorCard = ({ id, name, img, specialization, education, experience, services, about, experienceYears, city, streetAddress, reservations, feedbacks }: docSchema) => {
     const [reserveTime, setReserve] = useState(['k']);
-    const [fed,setfed]=useState([''])
-    const [user,setuser]=useState([''])
+    const [fed, setfed] = useState([''])
+    const [user, setuser] = useState([''])
 
     useEffect(() => {
-        
+
         const timeArray = reservations.map(obj => obj.time);
         setReserve(timeArray)
         const fedArray = feedbacks.map(obj => obj.review);
         const userArray = feedbacks.map(obj => obj.username);
         setfed(fedArray)
         setuser(userArray)
-       }, []);
-    const details = { id:id,name:name,img:img,specialization:specialization,education:education,experience:experience,
-    services:services,about:about,experienceYears:experienceYears,city,streetAddress,reserveTime, fed,user
+    }, []);
+    const details = {
+        id: id, name: name, img: img, specialization: specialization, education: education, experience: experience,
+        services: services, about: about, experienceYears: experienceYears, city, streetAddress, reserveTime, fed, user
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (
-        <Link href={{ pathname: '/doctorDetail', query: query }} 
-        
+        <Link href={{ pathname: '/doctorDetail', query: query }}
+
             className="relative block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 
-            hover:shadow-xl hover:-translate-y-2 cursor-pointer transition-all ease-in-out duration-100"
+            hover:shadow-xl hover:-translate-y-2 cursor-pointer transition-all ease-in-out duration-100
+            w-80 sm:w-96 h-60
+            "
         >
             <span className="absolute inset-x-0 bottom-0 h-2 bg-gradient-to-r from-green-300 via-blue-500 to-purple-600" />
             <div className="flex justify-between gap-4">
@@ -73,10 +76,10 @@ const DoctorCard = ({ id,name, img, specialization, education, experience,servic
                     <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
                 </div>
 
-                {/*<div className="flex flex-col-reverse">
+                {/* <div className="flex flex-col-reverse">
                     <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
                     <dd className="text-xs text-gray-500">{satisfiedPatients}</dd>
-    </div>*/}
+                </div> */}
             </dl>
         </Link>
     )

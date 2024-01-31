@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, Mic, MicOff } from "react-feather";
 import LoadingDots from "./components/LoadingDots";
+import { Label } from "../ui/label";
 type Message = {
   role: "user" | "assistant";
   content: string;
@@ -86,26 +87,26 @@ export default function Chat() {
   };
 
   //scroll to bottom of chat
- { /*useEffect(() => {
+  { /*useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [history]);*/}
 
   return (
-    <main id="chat" className="h-screen bg-white p-6 flex flex-col">
+    <main id="chat" className="h-screen bg-white py-6 flex flex-col container md:px-8 px-4">
       <div className="flex flex-col gap-8 w-full items-center flex-grow max-h-full">
-        <h1 className=" text-4xl text-transparent font-extralight bg-clip-text bg-gradient-to-r from-violet-800 to-fuchsia-500">
+        <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
           Symptoms Sense AI Bot
-        </h1>
+        </h2>
         <form
-          className="rounded-2xl border-purple-700 border-opacity-5  border lg:w-3/4 flex-grow flex flex-col bg-[url('/images/bg.png')] bg-cover max-h-full overflow-clip"
+          className="rounded-2xl border-[#192a56] border-opacity-5 border w-full flex-grow flex flex-col bg-[url('/images/bg.png')] bg-cover max-h-full overflow-clip "
           onSubmit={(e) => {
             e.preventDefault();
             handleClick();
           }}
         >
-          <div className="overflow-y-scroll flex flex-col gap-5 p-10 h-full">
+          <div className="scroll-auto flex flex-col gap-5 p-10 h-full">
             {history.map((message: Message, idx) => {
               const isLastMessage = idx === history.length - 1;
               switch (message.role) {
@@ -120,23 +121,23 @@ export default function Chat() {
                         src="images/assistant-avatar.png"
                         className="h-12 w-12 rounded-full"
                       />
-                      <div className="w-auto max-w-xl break-words bg-white rounded-b-xl rounded-tr-xl text-black p-6 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)]">
-                        <p className="text-sm font-medium text-violet-500 mb-2">
+                      <div className="w-auto max-w-xl break-words bg-white rounded-b-xl rounded-tr-xl text-black p-6 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)] flex flex-col">
+                        <Label className="text-sm font-bold text-[#192a56] mb-2">
                           AI assistant
-                        </p>
+                        </Label>
                         {message.content}
                         {message.links && (
                           <div className="mt-4 flex flex-col gap-2">
-                            <p className="text-sm font-medium text-slate-500">
+                            <Label className="text-sm font-medium text-slate-500">
                               Sources:
-                            </p>
+                            </Label>
 
                             {message.links?.map((link) => {
                               return (
                                 <a
                                   href={link}
                                   key={link}
-                                  className="block w-fit px-2 py-1 text-sm  text-violet-700 bg-violet-100 rounded"
+                                  className="block w-fit px-2 py-1 text-sm  text-[#192a56] bg-violet-100 rounded"
                                 >
                                   {formatPageName(link)}
                                 </a>
@@ -154,9 +155,9 @@ export default function Chat() {
                       key={idx}
                       ref={isLastMessage ? lastMessageRef : null}
                     >
-                      <p className="text-sm font-medium text-violet-500 mb-2">
+                      <Label className="text-sm font-medium text-[#192a56] mb-2">
                         You
-                      </p>
+                      </Label>
                       {message.content}
                     </div>
                   );
@@ -169,9 +170,9 @@ export default function Chat() {
                   className="h-12 w-12 rounded-full"
                 />
                 <div className="w-auto max-w-xl break-words bg-white rounded-b-xl rounded-tr-xl text-black p-6 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)]">
-                  <p className="text-sm font-medium text-violet-500 mb-4">
+                  <Label className="text-sm font-bold text-[#192a56] mb-4">
                     AI assistant
-                  </p>
+                  </Label>
                   <LoadingDots />
                 </div>
               </div>
@@ -179,22 +180,24 @@ export default function Chat() {
           </div>
 
           {/* input area */}
-          <div className="flex sticky bottom-0 w-full px-6 pb-6 h-24">
+          <div className="flex bottom-0 w-full px-6 pb-6 h-24 ">
             <div className="w-full relative">
               <textarea
                 aria-label="chat input"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Type a message"
-                className="w-full h-full resize-none rounded-full border border-slate-900/10 bg-white pl-6 pr-24 py-[25px] text-base placeholder:text-slate-400 focus:border-violet-500 focus:outline-none focus:ring-4 focus:ring-violet-500/10 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)]"
+                className="w-full h-full resize-none rounded-full border border-slate-900/10 bg-white pl-6 pr-24 py-[25px] 
+                text-base placeholder:text-slate-400 focus:border-[#192a56] focus:outline-none focus:ring-4
+                 focus:ring-violet-500/10 shadow-[0_10px_40px_0px_rgba(0,0,0,0.15)] overflow-hidden"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
                     handleClick();
-                   
+
                   }
                 }
-              }
+                }
               />
 
               <button
@@ -202,7 +205,9 @@ export default function Chat() {
                   e.preventDefault();
                   handleClick();
                 }}
-                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm  bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
+                className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm 
+                 bg-[#192a56] font-semibold text-white hover:bg-[#192a56]/80 active:bg-[#192a56]/90 absolute right-2 bottom-2
+                  disabled:bg-[#192a56]/10 disabled:text-[#192a56]/40"
                 type="submit"
                 aria-label="Send"
                 disabled={!message || loading}
@@ -215,7 +220,9 @@ export default function Chat() {
                     e.preventDefault();
                     startListening();
                   }}
-                  className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm  bg-violet-600 font-semibold text-white hover:bg-violet-700 active:bg-violet-800 absolute right-2 bottom-2 disabled:bg-violet-100 disabled:text-violet-400"
+                  className="flex w-14 h-14 items-center justify-center rounded-full px-3 text-sm 
+                   bg-[#192a56] font-semibold text-white hover:bg-[#192a56]/80 active:bg-[#192a56]/90 absolute right-2 bottom-2
+                    disabled:bg-[#192a56]/10 disabled:text-[#192a56]/40"
                 >
                   <Mic />
                 </button>

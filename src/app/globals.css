@@ -33,6 +33,10 @@
     --ring: 20 14.3% 4.1%;
 
     --radius: 0.5rem;
+
+    --first: #f1f1f1;
+    --second: #3a0ca3;
+    --tertiary: #4361ee;
   }
 
   .dark {
@@ -115,6 +119,31 @@
   }
 }
 
-.rdrMonth{
+.rdrMonth {
   width: 100% !important;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--second) var(--first);
+}
+
+/* Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--first);
+  border-radius: 5px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--second);
+  border-radius: 14px;
+  border: 3px solid var(--first);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--tertiary);
 }
