@@ -93,5 +93,6 @@ export async function POST(request: NextRequest, res: NextResponse) {
     return NextResponse.json({ data: result.answer });
   } catch (error) {
     console.error(error);
+    return NextResponse.json({ data: "You exceeded your current quota, please check your plan and billing details."})
   }
 }
