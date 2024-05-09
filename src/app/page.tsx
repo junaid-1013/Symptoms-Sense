@@ -1,21 +1,19 @@
 'use client';
-import Hero from "@/components/Hero"
-import { Testimonials } from "@/components/Testimonials"
-import ContactUs from "@/components/ContactUs"
-import RatingForm from "@/components/RatingForm";
-import Chatbot from "@/components/Chatbot"
-import Services from "@/components/Services";
-import OurTeam from "@/components/OurTeam";
+import ContactUs from "@/components/ContactUs";
 import Doctors from "@/components/Doctors";
-import Chat from "@/components/chatbot/page";
+import Hero from "@/components/Hero";
+import OurTeam from "@/components/OurTeam";
+import RatingForm from "@/components/RatingForm";
+import Services from "@/components/Services";
+import { Testimonials } from "@/components/Testimonials";
+import { Chat } from "@/components/chat/chat";
 
 export default function Home() {
   return (
     <>
       <Hero />
       <Services />
-      <Chat/>
-      {/* <Chatbot /> */}
+      <Chat />
       <Doctors />
       <Testimonials />
       <RatingForm />
