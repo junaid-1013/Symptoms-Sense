@@ -4,6 +4,7 @@ import './globals.css'
 import { UserProvider } from "@/helpers/UserContext";
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
+import { Toaster } from "@/components/ui/toaster"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,10 +21,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-      <UserProvider>
-        <Navbar />
-        {children}
-        <Footer />
+        <UserProvider>
+          <Navbar />
+          {children}
+          <Toaster />
+          <Footer />
         </UserProvider>
       </body>
     </html>
