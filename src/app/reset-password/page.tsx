@@ -1,40 +1,47 @@
 "use client";
-import { useRouter } from "next/navigation";
 import ResetPasswordForm from '@/components/ResetPasswordForm';
-import { useSearchParams } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
-import Swal from 'sweetalert2';
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from 'react';
 
 const ResetPasswordPage = () => {
   const router = useRouter();
+  const { toast } = useToast()
   const searchParams = useSearchParams();
   let token = searchParams.get("token");
-let role = searchParams.get("role")
+  let role = searchParams.get("role")
   const handleResetPassword = async (newPassword: string) => {
     try {
-      const data={
-token,role,newPassword
-
-      }
+      const data = { token, role, newPassword }
       const response = await axios.put("/api/forgot_password", data);
       router.push("/login");
-    
-      Swal.fire('Success!', 'Password changed. please login with new password.', 'success');
-      
-    } catch (error:any) {
+      toast({
+        title: "Success!",
+        description: "Password changed. please login with new password.",
+        variant: "destructive"
+      })
+    } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-        Swal.fire('Failed!', error.response.data.error, 'error');
-    } else {
-        Swal.fire('Failed!', 'An error occurred ', 'error');
-    }
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Failed!",
+          description: "An error occurred.",
+          variant: "destructive"
+        })
+      }
     }
   };
 
   return (
-    <div>
-     
+    <Suspense fallback={<div>Loading...</div>}>
       <ResetPasswordForm onSubmit={handleResetPassword} title="Reset Password" />
-    </div>
+    </Suspense>
   );
 };
 
