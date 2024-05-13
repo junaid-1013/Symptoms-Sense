@@ -9,6 +9,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 import {
     addDays,
@@ -35,13 +36,13 @@ import 'react-clock/dist/Clock.css';
 import { Calendar } from 'react-date-range';
 import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
+import { FaHospitalAlt } from "react-icons/fa";
+import { MdOutlineLocationOn } from "react-icons/md";
 import 'react-time-picker/dist/TimePicker.css';
-import Swal from 'sweetalert2';
 import { cn } from './datepicker/libs/utils';
-import { FaHospitalAlt } from "react-icons/fa"
-import { MdOutlineLocationOn } from "react-icons/md"
 const DoctorDetail = () => {
     const router = useRouter();
+    const { toast } = useToast()
     const searchParams = useSearchParams();
     let id = searchParams.get("id");
     let name = searchParams.get("name");
@@ -131,20 +132,26 @@ const DoctorDetail = () => {
                 throw new Error('Please select the time for the appointment');
             }
             const response = await axios.post("/api/appointment", data);
-            Swal.fire('Success!', 'Appointment booked successfully!', 'success');
+            toast({
+                title: "Success!",
+                description: "Appointment booked successfully!",
+            })
             router.push('/profile')
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
                 router.push('/login')
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'please select time for the appointment',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+                toast({
+                    title: "Error",
+                    description: "please select time for the appointment",
+                    variant: "destructive",
+                })
             }
 
         } finally {

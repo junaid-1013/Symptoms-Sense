@@ -1,53 +1,65 @@
 "use client";
-import Image from "next/image"
-import Link from "next/link"
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
-import Swal from 'sweetalert2';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 const Register = () => {
     const router = useRouter();
+    const { toast } = useToast()
     const [user, setUser] = useState({
         email: "",
         password: "",
         username: "",
-        image:""
+        image: ""
     })
-    const [pass2,setpass2]=useState('')
+    const [pass2, setpass2] = useState('')
     const [img, setImage] = useState('/user.png');
     const handleImage = (e: any) => {
         const file = e.target.files[0];
         setFileToBase(file);
-      }
-    
-      const setFileToBase = (file: any) => {
+    }
+
+    const setFileToBase = (file: any) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onloadend = () => {
-          setImage(reader.result as any);
-          
+            setImage(reader.result as any);
+
         }
-        
-      }
+
+    }
     const onRegister = async () => {
         try {
-            const user1={email:user.email,password:user.password,username:user.username,image:img}
+            const user1 = { email: user.email, password: user.password, username: user.username, image: img }
             if (!user.username || !user.email || !user.password || !pass2) {
                 throw new Error('All fields are required!')
-              }
+            }
             if (user.password !== pass2) {
-               throw new Error('Passwords do not match')
-              }
+                throw new Error('Passwords do not match')
+            }
             const response = await axios.post("/api/users/register", user1);
             console.log("Signup Success", response.data);
 
             router.push("/login");
-            Swal.fire('Success!', 'Signup Success. Please Sign in..', 'success');
-        } catch (error:any) {
+            toast({
+                title: "Success!",
+                description: "Signup Success. Please Sign in..",
+            })
+        } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
             } else {
-                Swal.fire('Failed!', error.message, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.message,
+                    variant: "destructive",
+                })
             }
         } finally {
 
@@ -90,7 +102,7 @@ const Register = () => {
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
                         <input
-                        required
+                            required
                             value={user.username}
                             onChange={(e) => setUser({ ...user, username: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -100,7 +112,7 @@ const Register = () => {
                     <div className="mt-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
                         <input
-                         required
+                            required
                             value={user.email}
                             onChange={(e) => setUser({ ...user, email: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -110,10 +122,10 @@ const Register = () => {
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                         {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
+                            {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
                         </div>
                         <input
-                         required
+                            required
                             value={user.password}
                             onChange={(e) => setUser({ ...user, password: e.target.value })}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -123,10 +135,10 @@ const Register = () => {
                     <div className="mt-4">
                         <div className="flex justify-between">
                             <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-                         {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
+                            {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
                         </div>
                         <input
-                         required
+                            required
                             value={pass2}
                             onChange={(e) => setpass2(e.target.value)}
                             className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
@@ -135,7 +147,7 @@ const Register = () => {
                     </div>
                     <div className="mt-8">
                         <button
-                        
+
                             onClick={onRegister}
                             className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
                             Sign Up
@@ -184,30 +196,30 @@ const Register = () => {
 
                     </div>
     */}
-    
+
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 object-contain pb-8" >
-               
+
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "
                         width={410}
                         height={430}
                     />
-                     <div className="flex mt-2 mr-20 justify-center">
-                <Link
-                    href="/doctorRegistration"
-                    className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
-                >
-                    Register as a Doctor
-                </Link>
-</div>
+                    <div className="flex mt-2 mr-20 justify-center">
+                        <Link
+                            href="/doctorRegistration"
+                            className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
+                        >
+                            Register as a Doctor
+                        </Link>
+                    </div>
                 </div>
-                
+
             </div>
         </div>
     )

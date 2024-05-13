@@ -1,11 +1,12 @@
 "use client";
-import Swal from 'sweetalert2';
-import { useRouter } from "next/navigation";
-import { Checkbox } from "@/components/ui/checkbox"
-import { useState } from 'react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useState } from 'react';
 const MedicineForm = () => {
   const router = useRouter();
+  const { toast } = useToast()
 
   const [medicineName, setMedicineName] = useState('');
   const [dosage, setDosage] = useState(1);
@@ -47,13 +48,24 @@ const MedicineForm = () => {
       }
       const response = await axios.post("/api/medicineReminder", data);
       router.push("/profile");
-      Swal.fire('Success!', 'Reminder has been added successfully', 'success');
+      toast({
+        title: "Success!",
+        description: "Reminder has been added successfully",
+      })
     }
     catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-        Swal.fire('Failed!', error.response.data.error, 'error');
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive",
+        })
       } else {
-        Swal.fire('Failed!', 'An error occurred during signup.', 'error');
+        toast({
+          title: "Failed!",
+          description: "An error occurred during signup.",
+          variant: "destructive",
+        })
       }
     } finally {
 

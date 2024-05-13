@@ -1,33 +1,37 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import Loading from "@/components/Loading";
+import RatingForm from "@/components/RatingForm";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/components/ui/use-toast";
+import { useUser } from '@/helpers/UserContext';
 import axios from "axios";
+import { FileEdit } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import RatingForm from "@/components/RatingForm";
-import Swal from 'sweetalert2';
-import Loading from "@/components/Loading";
-import { useUser } from '@/helpers/UserContext';
+import { useEffect, useState } from "react";
 import { Label } from "./ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { FileEdit } from "lucide-react";
 
 const Profile = () => {
 
   const router = useRouter();
+  const { toast } = useToast()
   const [appCheck, setApp] = useState('');
   const [loading, setLoading] = useState(true);
   const { user, setUser } = useUser();
   const [username, setname] = useState(null);
   const [useremail, setemail] = useState(null);
-  const [appointment, setAppointment] = useState([{ time: '', doctor: '', doctor_id: '',image:'' }]);
-  const [compAppointment, setCompAppointment] = useState([{ time: '', doctor: '',image:''  }]);
+  const [appointment, setAppointment] = useState([{ time: '', doctor: '', doctor_id: '', image: '' }]);
+  const [compAppointment, setCompAppointment] = useState([{ time: '', doctor: '', image: '' }]);
   const [reminder, setReminder] = useState([{ medicineName: '', dosage: 1, selectedDays: [], reminderTime: '', medicineType: '' }]);
   const [image, setImage] = useState('/user.png');
   const cancelAppointment = async (data: any) => {
     try {
       const response = await axios.post("/api/cancelAppointment", data);
       router.push("/profile");
-      Swal.fire('Success!', 'Appointment has been cancelled successfully', 'success');
+      toast({
+        title: "Success!",
+        description: "Appointment has been cancelled successfully",
+      })
       window.location.reload();
 
     } catch (error: any) {
@@ -42,15 +46,26 @@ const Profile = () => {
     try {
       const response = await axios.put("/api/medicineReminder", data);
       router.push("/profile");
-      Swal.fire('Success!', 'Reminder has been cancelled successfully', 'success');
+      toast({
+        title: "Success!",
+        description: "Reminder has been cancelled successfully",
+      })
       window.location.reload();
 
 
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-        Swal.fire('Failed!', error.response.data.error, 'error');
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive",
+        })
       } else {
-        Swal.fire('Failed!', 'An error occurred ', 'error');
+        toast({
+          title: "Failed!",
+          description: "An error occurred ",
+          variant: "destructive",
+        })
       }
     } finally {
 
@@ -67,9 +82,17 @@ const Profile = () => {
 
     } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-        Swal.fire('Failed!', error.response.data.error, 'error');
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive",
+        })
       } else {
-        Swal.fire('Failed!', 'An error occurred ', 'error');
+        toast({
+          title: "Failed!",
+          description: "An error occurred ",
+          variant: "destructive",
+        })
       }
     } finally {
 

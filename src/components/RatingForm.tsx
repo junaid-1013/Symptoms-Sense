@@ -1,14 +1,15 @@
 "use client"
-import { useEffect, useRef, useState } from "react";
-import { Star } from "lucide-react"
-import Swal from 'sweetalert2';
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
+import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 interface ChildProps {
     doctorData?: any;
 }
 const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
     const router = useRouter();
+    const { toast } = useToast()
     const [modalOpen, setModalOpen] = useState(false);
     const trigger = useRef<HTMLButtonElement | null>(null);
     const modal = useRef<HTMLDivElement | null>(null);
@@ -29,16 +30,25 @@ const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
 
             router.push(doctorData ? "/profile" : "/");
             window.location.reload()
-            Swal.fire('Success!', 'Thank you for sharing your feedback', 'success');
+            toast({
+                title: "Success!",
+                description: "Thank you for sharing your feedback",
+            })
             setMessage('');
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
             } else {
-
-                Swal.fire('Failed!', 'An error occurred during feedback', 'error');
+                toast({
+                    title: "Failed!",
+                    description: "An error occurred during feedback",
+                    variant: "destructive",
+                })
             }
         }
     };

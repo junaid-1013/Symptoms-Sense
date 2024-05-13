@@ -3,8 +3,9 @@ import Image from "next/image";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import Swal from 'sweetalert2';
+import { useToast } from "@/components/ui/use-toast";
 const TableTwo = () => {
+    const { toast } = useToast()
     const [loading, setLoading] = useState(true);
     const [users,setUsers]=useState([ {
         image: {
@@ -27,15 +28,26 @@ const TableTwo = () => {
         try {
             const data1 ={email:data}
           const response = await axios.put("/api/getPatients", data1);
-          Swal.fire('Success!', 'User has been deleted successfully', 'success');
+          toast({
+            title: "Success!",
+            description: "User has been deleted successfully",
+          })
           window.location.reload();
     
     
         } catch (error: any) {
           if (error.response && error.response.data && error.response.data.error) {
-            Swal.fire('Failed!', error.response.data.error, 'error');
+            toast({
+              title: "Failed!",
+              description: error.response.data.error,
+              variant: "destructive",
+            })
           } else {
-            Swal.fire('Failed!', 'An error occurred ', 'error');
+            toast({
+              title: "Failed!",
+              description: "An error occurred ",
+              variant: "destructive",
+            })
           }
         } finally {
     
