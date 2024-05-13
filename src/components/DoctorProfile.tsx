@@ -1,17 +1,17 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import img from "../../public/user.png";
-import Image from "next/image";
-import { Clock4, CalendarCheck } from "lucide-react";
 import Loading from "@/components/Loading";
+import { useToast } from "@/components/ui/use-toast";
 import { useUser } from '@/helpers/UserContext';
-import Swal from 'sweetalert2';
+import axios from "axios";
+import { CalendarCheck, Clock4 } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 const DoctorProfile = () => {
     const router = useRouter();
+    const { toast } = useToast()
     const [appCheck, setApp] = useState('');
     const [selectedDate, setSelectedDate] = useState(null);
 
@@ -30,19 +30,25 @@ const DoctorProfile = () => {
                 throw new Error('Please select the date and time for the reservation');
             }
             const response = await axios.post("/api/reservation", data);
-            Swal.fire('Success!', 'Reservation added successfully!', 'success');
+            toast({
+                title: "Success!",
+                description: "Reservation added successfully!",
+            })
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
                 router.push('/login')
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: error.message,
-                    showConfirmButton: false,  // Hide the "OK" button
-                    timer: 2000  // Automatically close after 2000 milliseconds (2 seconds)
-                });
+                toast({
+                    title: "Error",
+                    description: error.message,
+                    variant: "destructive",
+                })
             }
 
         } finally {
@@ -55,7 +61,10 @@ const DoctorProfile = () => {
         try {
             const response = await axios.put("/api/cancelAppointment", data);
             router.push("/doctorProfile");
-            Swal.fire('Success!', 'Appointment has been cancelled successfully', 'success');
+            toast({
+                title: "Success!",
+                description: "Appointment has been cancelled successfully",
+            })
             window.location.reload();
 
         } catch (error: any) {
@@ -82,9 +91,17 @@ const DoctorProfile = () => {
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
             } else {
-                Swal.fire('Failed!', 'An error occurred ', 'error');
+                toast({
+                    title: "Failed!",
+                    description: "An error occurred ",
+                    variant: "destructive",
+                })
             }
         } finally {
 

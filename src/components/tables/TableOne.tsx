@@ -3,9 +3,10 @@ import Image from "next/image";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import Loading from "@/components/Loading";
-import Swal from 'sweetalert2';
+import { useToast } from "@/components/ui/use-toast";
 
 const TableOne = () => {
+    const { toast } = useToast()
     const [loading, setLoading] = useState(true);
     const [totalAppointments, setTotalAppointments] = useState(0);
     const [doctors,setDoctor]  =useState( [
@@ -42,15 +43,26 @@ const TableOne = () => {
             try {
                 const data1 ={email:data}
               const response = await axios.put("/api/getDoctors", data1);
-              Swal.fire('Success!', 'Doctor has been deleted successfully', 'success');
+              toast({
+                title: "Success!",
+                description: "Doctor has been deleted successfully",
+              })
               window.location.reload();
         
         
             } catch (error: any) {
               if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                  title: "Failed!",
+                  description: error.response.data.error,
+                  variant: "destructive",
+                })
               } else {
-                Swal.fire('Failed!', 'An error occurred ', 'error');
+                toast({
+                  title: "Failed!",
+                  description: "An error occurred ",
+                  variant: "destructive",
+                })
               }
             } finally {
         

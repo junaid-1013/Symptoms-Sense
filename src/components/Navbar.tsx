@@ -1,22 +1,26 @@
 'use client';
-import React, { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
+import { useUser } from '@/helpers/UserContext';
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
-import Swal from 'sweetalert2';
-import { useUser } from '@/helpers/UserContext';
+import { useEffect, useState } from "react";
 const Navbar = () => {
   const { user, setUser } = useUser();
+  const { toast } = useToast()
   const [open, setOpen] = useState(false);
- const [profilePath,setPath] =useState("/profile" );
+  const [profilePath, setPath] = useState("/profile");
 
   const onLogout = async () => {
 
     try {
       const response = axios.get("/api/users/logout");
       setUser(null);
-     setPath( "/profile")
-      Swal.fire('Success!', 'Successfully logged out', 'success');
+      setPath("/profile")
+      toast({
+        title: "Success!",
+        description: "Successfully logged out",
+      })
     }
     catch (error: any) {
       console.log("Logging out Failed", error.message);
@@ -24,21 +28,21 @@ const Navbar = () => {
 
     }
   }
-  useEffect(() => { 
+  useEffect(() => {
     axios.post("/api/users/profile").then((response) => {
-    let ress = response.data;
-    if(ress.role == 'doctor'){
-setPath("/doctorProfile")
-    }else if(ress.role=='admin'){
-      setPath("/adminDashboard")
+      let ress = response.data;
+      if (ress.role == 'doctor') {
+        setPath("/doctorProfile")
+      } else if (ress.role == 'admin') {
+        setPath("/adminDashboard")
 
-    }
-    else{
-      setPath("/profile")
-    }
-   
-    
-    setUser({ username: 'User' });
+      }
+      else {
+        setPath("/profile")
+      }
+
+
+      setUser({ username: 'User' });
     }).catch((error) => {
       setUser(null);
       console.error("Error fetching user data:", error.message);
@@ -90,7 +94,7 @@ setPath("/doctorProfile")
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#chat"
                   >
-                   Chat
+                    Chat
                   </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
@@ -108,13 +112,13 @@ setPath("/doctorProfile")
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink={profilePath}
                   >
-                     {  profilePath === '/doctorProfile'
-    ? 'Doctor Profile'
-    : profilePath === '/adminDashboard'
-    ? 'Admin Dashboard'
-    : 'Profile'}
+                    {profilePath === '/doctorProfile'
+                      ? 'Doctor Profile'
+                      : profilePath === '/adminDashboard'
+                        ? 'Admin Dashboard'
+                        : 'Profile'}
                   </ListItem>
-                  
+
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
                     NavLink="/#contact-us"

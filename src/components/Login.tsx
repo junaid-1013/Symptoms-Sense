@@ -1,13 +1,13 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { useUser } from '@/helpers/UserContext';
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
-import Swal from 'sweetalert2';
-import { useUser } from '@/helpers/UserContext';
-import { Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 const Login = () => {
+    const { toast } = useToast()
     const [showPassword, setShowPassword] = useState(false);
 
     const router = useRouter();
@@ -33,13 +33,24 @@ const Login = () => {
             console.log("Login Success", response.data);
 
             setUser({ username: 'exampleUser' });
-            Swal.fire('Success!', 'Sign in Successful', 'success');
+            toast({
+                title: "Success!",
+                description: "Sign in Successful",
+            })
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
             } else {
-                Swal.fire('Failed!', 'An error occurred during Login.', 'error');
+                toast({
+                    title: "Failed!",
+                    description: "An error occurred during Login.",
+                    variant: "destructive",
+                })
             }
         } finally {
 
@@ -55,13 +66,24 @@ const Login = () => {
                 role: role
             }
             const response = await axios.post("/api/forgot_password", data);
-            Swal.fire('Success!', 'An email containing the link to reset your password has been dispatched to your inbox.', 'success');
+            toast({
+                title: "Success!",
+                description: "An email containing the link to reset your password has been dispatched to your inbox.",
+            })
 
         } catch (error: any) {
             if (error.response && error.response.data && error.response.data.error) {
-                Swal.fire('Failed!', error.response.data.error, 'error');
+                toast({
+                    title: "Failed!",
+                    description: error.response.data.error,
+                    variant: "destructive",
+                })
             } else {
-                Swal.fire('Failed!', 'An error occurred .', 'error');
+                toast({
+                    title: "Failed!",
+                    description: "An error occurred .",
+                    variant: "destructive",
+                })
             }
         } finally {
 

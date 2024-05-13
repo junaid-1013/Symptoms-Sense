@@ -1,20 +1,20 @@
 'use client'
-
-import React, { SyntheticEvent, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import Swal from 'sweetalert2';
+import { SyntheticEvent, useState } from "react";
 const ContactUs = () => {
   const router = useRouter();
-  const [name ,setname]=useState('')
-  const [email ,setemail]=useState('')
-  const [phone ,setphone]=useState('')
-  const [message ,setmessage]=useState('')
-  
+  const { toast } = useToast()
+  const [name, setname] = useState('')
+  const [email, setemail] = useState('')
+  const [phone, setphone] = useState('')
+  const [message, setmessage] = useState('')
+
 
 
   const handleChange1 = (newName: string) => {
-   setname(newName)
+    setname(newName)
   };
   const handleChange2 = (newEmail: string) => {
     setemail(newEmail)
@@ -30,7 +30,7 @@ const ContactUs = () => {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
     try {
-      const formData= {
+      const formData = {
         name: name,
         email: email,
         phone: phone,
@@ -38,26 +38,37 @@ const ContactUs = () => {
       };
       const response = await axios.post("/api/contactUs", formData);
       console.log("Mail Sent", response.data);
-      Swal.fire('Success!', 'Thank you for contacting us! Your message has been successfully submitted. We will get back to you as soon as possible.', 'success');
-      
+      toast({
+        title: "Success!",
+        description: "Thank you for contacting us! Your message has been successfully submitted. We will get back to you as soon as possible.",
+      })
+
       setname('')
       setemail('')
       setphone('')
       setmessage('')
-      
-      window.location.reload();      
 
-    } catch (error:any) {
+      window.location.reload();
+
+    } catch (error: any) {
       if (error.response && error.response.data && error.response.data.error) {
-          Swal.fire('Failed!', error.response.data.error, 'error');
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive",
+        })
       } else {
-          Swal.fire('Failed!', 'An error occurred during form submission', 'error');
+        toast({
+          title: "Failed!",
+          description: "An error occurred during form submission",
+          variant: "destructive",
+        })
       }
-  } finally {
+    } finally {
 
     }
   }
-  
+
   return (
     <div id="contact-us">
       <section className="bg-white py-20 lg:py-[120px] overflow-hidden relative z-10 sm:px-16 px-8">
@@ -73,7 +84,7 @@ const ContactUs = () => {
                   GET IN TOUCH WITH US
                 </h2>
                 <p className="text-base leading-relaxed mb-9 text-body-color">
-                We&apos;d love to hear from you! Whether you have questions, need assistance, or simply want to chat, our team is here to help. Feel free to reach out, and we&apos;ll get back to you promptly. Your feedback and inquiries matter to us, and we look forward to connecting with you.
+                  We&apos;d love to hear from you! Whether you have questions, need assistance, or simply want to chat, our team is here to help. Feel free to reach out, and we&apos;ll get back to you promptly. Your feedback and inquiries matter to us, and we look forward to connecting with you.
                 </p>
                 <div className="mb-8 flex w-full max-w-[370px]">
                   <div className="mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  text-primary sm:h-[70px] sm:max-w-[70px]">
