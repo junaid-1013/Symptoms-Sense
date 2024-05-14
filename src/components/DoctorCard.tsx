@@ -1,40 +1,27 @@
-import Link from "next/link"
+import { DocSchema } from "@/types";
+import Link from "next/link";
 import queryString from 'query-string';
 import { useEffect, useState } from "react";
-interface docSchema {
-    id: string,
-    name: string,
-    img: string,
-    specialization: string[],
-    education: string[],
-    experience: (string | number)[],
-    services: string[]
-    about: string
-    experienceYears: number,
-    city: string,
-    streetAddress: string
-    reservations: (string | any)[]
-    feedbacks: (string | any)[]
-}
 
-
-const DoctorCard = ({ id, name, img, specialization, education, experience, services, about, experienceYears, city, streetAddress, reservations, feedbacks }: docSchema) => {
+const DoctorCard = (props: DocSchema) => {
+    const { id, name, img, specialization, education, experience, services, about, experienceYears, city, streetAddress, reservations, feedbacks } = props;
     const [reserveTime, setReserve] = useState(['k']);
-    const [fed, setfed] = useState([''])
-    const [user, setuser] = useState([''])
+    const [feedback, setFeedback] = useState([''])
+    const [user, setUser] = useState([''])
 
     useEffect(() => {
 
         const timeArray = reservations.map(obj => obj.time);
         setReserve(timeArray)
-        const fedArray = feedbacks.map(obj => obj.review);
+        const feedbackArray = feedbacks.map(obj => obj.review);
         const userArray = feedbacks.map(obj => obj.username);
-        setfed(fedArray)
-        setuser(userArray)
+        setFeedback(feedbackArray)
+        setUser(userArray)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     const details = {
         id: id, name: name, img: img, specialization: specialization, education: education, experience: experience,
-        services: services, about: about, experienceYears: experienceYears, city, streetAddress, reserveTime, fed, user
+        services: services, about: about, experienceYears: experienceYears, city, streetAddress, reserveTime, feedback, user
     };
     const query = queryString.stringify(details, { arrayFormat: 'separator', arrayFormatSeparator: '*' });
     return (
@@ -56,6 +43,7 @@ const DoctorCard = ({ id, name, img, specialization, education, experience, serv
                 </div>
 
                 <div className="block shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         alt={name}
                         src={img}
@@ -75,11 +63,6 @@ const DoctorCard = ({ id, name, img, specialization, education, experience, serv
                     <dt className="text-sm font-medium text-gray-600">Experience</dt>
                     <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
                 </div>
-
-                {/* <div className="flex flex-col-reverse">
-                    <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
-                    <dd className="text-xs text-gray-500">{satisfiedPatients}</dd>
-                </div> */}
             </dl>
         </Link>
     )

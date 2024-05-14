@@ -4,26 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/components/ui/use-toast";
+import { DoctorRegistrationFormValues } from '@/types';
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import React, { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-
-interface FormValues {
-  img: any;
-  name: string;
-  email: string;
-  phone: string;
-  image: FileList;
-  services: string[];
-  education: string[];
-  specialization: string[];
-  experienceYears: number;
-  experienceDetails: string[];
-  about: string;
-  city: string;
-  streetAddress: string;
-}
 
 const DoctorProfileForm: React.FC = () => {
 
@@ -38,7 +23,7 @@ const DoctorProfileForm: React.FC = () => {
     setValue,
     getValues,
     formState: { errors },
-  } = useForm<FormValues>();
+  } = useForm<DoctorRegistrationFormValues>();
 
   const handleImage = (e: any) => {
     const file = e.target.files[0];
@@ -54,7 +39,7 @@ const DoctorProfileForm: React.FC = () => {
     }
 
   }
-  const onSubmit: SubmitHandler<FormValues> = (data) => {
+  const onSubmit: SubmitHandler<DoctorRegistrationFormValues> = (data) => {
     const onLogin = async () => {
       try {
         data.img = image;
