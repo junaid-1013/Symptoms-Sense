@@ -1,21 +1,26 @@
 "use client";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { DatePicker } from "@/components/uiUtils/DatePicker";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
+import { MEDICINE_TYPES } from "@/config/constants";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+
 const MedicineForm = () => {
   const router = useRouter();
   const { toast } = useToast()
-
-  const [medicineName, setMedicineName] = useState('');
-  const [dosage, setDosage] = useState(1);
   const [selectedDays, setSelectedDays]: any = useState([]);
   const [everyDay, setEveryDay] = useState(false);
-  const [reminderTime, setReminderTime] = useState('');
-  const [medicineType, setMedicineType] = useState('');
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  type FormData = { medicineName: string; dosage: number; reminderTime: string; medicineType: string };
+  const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
   const handleDayToggle = (day: any) => {
     if (selectedDays.includes(day)) {
@@ -34,16 +39,14 @@ const MedicineForm = () => {
     setEveryDay(!everyDay);
   };
 
-  const handleSubmit = async (e: any) => {
+  const onSubmit = async (form: FormData) => {
     try {
-      e.preventDefault();
       const data = {
-
-        medicineName,
-        dosage,
+        medicineName: form.medicineName,
+        dosage: form.dosage,
         selectedDays,
-        reminderTime,
-        medicineType,
+        reminderTime: form.reminderTime,
+        medicineType: form.medicineType,
 
       }
       const response = await axios.post("/api/medicineReminder", data);
@@ -73,38 +76,47 @@ const MedicineForm = () => {
   };
 
   return (
-    <form className="max-w-md mx-auto my-8 flex flex-col gap-y-4" onSubmit={handleSubmit}>
-      <label className="block text-lg font-bold">Medicine Name</label>
-      <input
+    <form
+      className="max-w-md mx-auto my-8 flex flex-col gap-y-4"
+      onSubmit={handleSubmit(onSubmit)}
+    >
+      <Label className="block text-base font-bold">Medicine Name</Label>
+      <Input
         type="text"
-        className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
         placeholder="Enter medicine name"
-        value={medicineName}
-        required
-        onChange={(e) => setMedicineName(e.target.value)}
+        {...register("medicineName", { required: "Medicine name is required" })}
       />
+      {errors.medicineName && (
+        <Label className="text-red-500 text-xs">
+          {errors.medicineName.message}
+        </Label>
+      )}
 
-      <label className="block text-lg font-bold">Dosage</label>
-      <input
+      <Label className="block text-base font-bold">Dosage</Label>
+      <Input
         type="number"
-        className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
         placeholder="Enter dosage"
-        value={dosage}
-        min="1"
-        required
-        onChange={(e: any) => setDosage(e.target.value)}
+        min={1}
+        {...register("dosage", {
+          required: "Dosage is required",
+          min: { value: 1, message: "Must be at least 1" },
+        })}
       />
+      {errors.dosage && (
+        <Label className="text-red-500 text-xs">
+          {errors.dosage.message as any}
+        </Label>
+      )}
 
-
-      <label className="block text-lg font-bold">Medicine Days</label>
+      <Label className="block text-base font-bold">Medicine Days</Label>
       <div className="flex justify-between">
         {daysOfWeek.map((day) => (
           <button
             key={day}
             type="button"
             className={`rounded-full px-3 py-1 ${selectedDays.includes(day)
-              ? 'bg-[#273c75] text-white'
-              : 'bg-gray-200 hover:bg-[#273c75] hover:text-white'
+              ? "bg-[#273c75] text-white"
+              : "bg-gray-200 hover:bg-[#273c75] hover:text-white"
               } focus:outline-none`}
             onClick={() => handleDayToggle(day)}
           >
@@ -114,44 +126,65 @@ const MedicineForm = () => {
       </div>
 
       <div className="flex items-center gap-x-2">
-        <Checkbox
-          checked={everyDay}
-          onCheckedChange={handleEveryDayToggle}
-        />
-        <label>Every Day</label>
+        <Checkbox checked={everyDay} onCheckedChange={handleEveryDayToggle} />
+        <Label>Every Day</Label>
       </div>
 
+      <Label htmlFor="time-picker" className="text-base font-bold">
+        Reminder Time
+      </Label>
+      <div className="grid grid-cols-2 gap-4">
+        <DatePicker
+          onChange={(value: string) =>
+            setValue("reminderTime", value, { shouldValidate: true })
+          }
+        />
+        <Input
+          type="time"
+          id="time-picker"
+          defaultValue="10:30:00"
+          step="1"
+          className="col-span-1 bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          {...register("reminderTime", {
+            required: "Reminder time is required",
+          })}
+        />
+      </div>
+      {errors.reminderTime && (
+        <Label className="text-red-500 text-xs">
+          {errors.reminderTime.message}
+        </Label>
+      )}
 
-      <label className="block text-lg font-bold">Reminder Time</label>
-      <input
-        type="time"
-        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-        value={reminderTime}
-        onChange={(e) => setReminderTime(e.target.value)}
-      />
-
-      <label className="block font-bold text-lg">Medicine Type</label>
-      <select
-        className="shadow appearance-none border rounded w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
-        value={medicineType}
-        onChange={(e) => setMedicineType(e.target.value)}
+      <Label className="block font-bold text-base">Medicine Type</Label>
+      <Select
+        onValueChange={(value: string) =>
+          setValue("medicineType", value, { shouldValidate: true })
+        }
       >
-        <option value="">Select type</option>
-        <option value="tablet">Tablet</option>
-        <option value="capsule">Capsule</option>
-        <option value="liquid">Liquid</option>
-        <option value="drops">Drops</option>
-        <option value="inhaler">Inhaler</option>
-        <option value="injection">Injection</option>
-        <option value="emulsion">Emulsion</option>
-      </select>
+        <SelectTrigger>
+          <SelectValue placeholder="Select type" />
+        </SelectTrigger>
+        <SelectContent>
+          {MEDICINE_TYPES.map((type) => (
+            <SelectItem key={type} value={type}>
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {errors.medicineType && (
+        <Label className="text-red-500 text-xs">
+          {errors.medicineType.message}
+        </Label>
+      )}
 
-      <button
+      <SpinnerButton
+        state={isSubmitting}
+        name="Submit"
         type="submit"
-        className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
-      >
-        Submit
-      </button>
+        className="bg-[#273c75] text-white font-medium rounded-lg hover:bg-opacity-80"
+      />
     </form>
   );
 };

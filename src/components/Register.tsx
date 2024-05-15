@@ -1,25 +1,22 @@
 "use client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import PasswordInput from "@/components/uiUtils/PasswordField";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
 const Register = () => {
     const router = useRouter();
     const { toast } = useToast()
-    const [user, setUser] = useState({
-        email: "",
-        password: "",
-        username: "",
-        image: ""
-    })
-    const [pass2, setpass2] = useState('')
+    type FormData = { email: string; password: string; username: string; confirmPassword: string };
+    const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
+    const password = watch('password');
     const [img, setImage] = useState('/user.png');
-    const handleImage = (e: any) => {
-        const file = e.target.files[0];
-        setFileToBase(file);
-    }
 
     const setFileToBase = (file: any) => {
         const reader = new FileReader();
@@ -30,15 +27,9 @@ const Register = () => {
         }
 
     }
-    const onRegister = async () => {
+    const onRegister = async (data: FormData) => {
         try {
-            const user1 = { email: user.email, password: user.password, username: user.username, image: img }
-            if (!user.username || !user.email || !user.password || !pass2) {
-                throw new Error('All fields are required!')
-            }
-            if (user.password !== pass2) {
-                throw new Error('Passwords do not match')
-            }
+            const user1 = { email: data.email, password: data.password, username: data.username, image: img }
             const response = await axios.post("/api/users/register", user1);
             console.log("Signup Success", response.data);
 
@@ -81,122 +72,68 @@ const Register = () => {
 
                     </div>
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome !</p>
-                    {/*
-                    <div className="flex items-center py-6">
-                    <div className="w-40 h-40 mr-4 flex-none rounded-xl overflow-hidden">
-                      <img
-                        className="w-40 h-40 mr-4 object-cover"
-                        src={img}
-                        alt="Avatar Upload" />
-                    </div>
-                    <label className="cursor-pointer ">
-                      <span className="focus:outline-none text-white text-sm py-2 px-4 rounded-full bg-[#273c75] hover:bg-opacity-80 hover:shadow-lg">Browse</span>
-                      <input
-                        type="file"
-                        onChange={handleImage}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-    */}
                     <div className="mt-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                        <input
-                            required
-                            value={user.username}
-                            onChange={(e) => setUser({ ...user, username: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                            type="text"
+                        <Label className="block text-gray-700 text-sm font-bold mb-2">Username</Label>
+                        <Input
+                            placeholder="Your name"
+                            {...register('username', { required: 'Username is required' })}
+                            className="bg-gray-100 text-gray-700"
                         />
+                        {errors.username && (
+                            <Label className="text-red-500 text-xs mt-1 block">{errors.username.message}</Label>
+                        )}
                     </div>
                     <div className="mt-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                        <input
-                            required
-                            value={user.email}
-                            onChange={(e) => setUser({ ...user, email: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                        <Label className="block text-gray-700 text-sm font-bold mb-2">Email</Label>
+                        <Input
                             type="email"
+                            placeholder="you@example.com"
+                            {...register('email', { required: 'Email is required' })}
+                            className="bg-gray-100 text-gray-700"
+                        />
+                        {errors.email && (
+                            <Label className="text-red-500 text-xs mt-1 block">{errors.email.message}</Label>
+                        )}
+                    </div>
+                    <div className="mt-4">
+                        <div className="flex justify-between">
+                            <Label className="block text-gray-700 text-sm font-bold mb-2">Password</Label>
+                        </div>
+                        <PasswordInput
+                            register={register}
+                            errors={errors}
+                            showLabel={false}
+                            inputClassName="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
                         />
                     </div>
                     <div className="mt-4">
                         <div className="flex justify-between">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                            {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
+                            <Label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</Label>
                         </div>
-                        <input
-                            required
-                            value={user.password}
-                            onChange={(e) => setUser({ ...user, password: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                            type="password"
-                        />
-                    </div>
-                    <div className="mt-4">
-                        <div className="flex justify-between">
-                            <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-                            {/*  <a href="#" className="text-xs text-gray-500">Forget Password?</a>*/}
-                        </div>
-                        <input
-                            required
-                            value={pass2}
-                            onChange={(e) => setpass2(e.target.value)}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                            type="password"
+                        <PasswordInput
+                            register={(name: string, options: any) =>
+                                register('confirmPassword', {
+                                    required: 'Please confirm your password',
+                                    validate: (value) => value === password || 'Passwords do not match',
+                                    ...options
+                                })
+                            }
+                            errors={{ password: errors.confirmPassword }}
+                            showLabel={false}
+                            inputClassName="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
+                            passwordError={errors.confirmPassword?.message}
                         />
                     </div>
                     <div className="mt-8">
-                        <button
-
-                            onClick={onRegister}
-                            className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
-                            Sign Up
-                        </button>
+                        <form onSubmit={handleSubmit(onRegister)}>
+                            <SpinnerButton state={isSubmitting} name="Sign Up" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75 disabled:opacity-50 disabled:cursor-not-allowed" />
+                        </form>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-x-2">
                         <span className="border-b w-full"></span>
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>
                         <span className="border-b w-full"></span>
                     </div>
-                    {/*
-                    <div className="flex items-center justify-center gap-x-4 mt-4">
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/google.svg"
-                                    alt="google logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/facebook.svg"
-                                    alt="facebook logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/apple.svg"
-                                    alt="apple logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-
-                    </div>
-    */}
-
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
