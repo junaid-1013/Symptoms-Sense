@@ -1,53 +1,28 @@
 'use client'
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 import axios from "axios";
-import { useRouter } from "next/navigation";
-import { SyntheticEvent, useState } from "react";
+import { useForm } from "react-hook-form";
+
 const ContactUs = () => {
-  const router = useRouter();
   const { toast } = useToast()
-  const [name, setname] = useState('')
-  const [email, setemail] = useState('')
-  const [phone, setphone] = useState('')
-  const [message, setmessage] = useState('')
+  type FormData = { name: string; email: string; phone: string; message: string };
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
 
-
-  const handleChange1 = (newName: string) => {
-    setname(newName)
-  };
-  const handleChange2 = (newEmail: string) => {
-    setemail(newEmail)
-  };
-  const handleChange3 = (newPhone: string) => {
-    setphone(newPhone)
-  };
-
-  const handleChange4 = (newMessage: string) => {
-    setmessage(newMessage)
-  };
-
-  const handleSubmit = async (e: SyntheticEvent) => {
-    e.preventDefault();
+  const onSubmit = async (form: FormData) => {
     try {
-      const formData = {
-        name: name,
-        email: email,
-        phone: phone,
-        message: message,
-      };
+      const formData = form;
       const response = await axios.post("/api/contactUs", formData);
       console.log("Mail Sent", response.data);
       toast({
         title: "Success!",
         description: "Thank you for contacting us! Your message has been successfully submitted. We will get back to you as soon as possible.",
       })
-
-      setname('')
-      setemail('')
-      setphone('')
-      setmessage('')
-
+      reset();
       window.location.reload();
 
     } catch (error: any) {
@@ -76,10 +51,6 @@ const ContactUs = () => {
           <div className="flex flex-wrap -mx-4 lg:justify-between">
             <div className="w-full px-4 lg:w-1/2 xl:w-6/12">
               <div className="mb-12 max-w-[570px] lg:mb-0">
-                {/*
-                <span className="block mb-4 text-base font-semibold text-primary">
-                  Contact Us
-                </span>*/}
                 <h2 className="mb-6 text-[32px] font-bold uppercase text-dark sm:text-[40px] lg:text-[36px] xl:text-[40px]">
                   GET IN TOUCH WITH US
                 </h2>
@@ -152,47 +123,49 @@ const ContactUs = () => {
             </div>
             <div className="w-full px-4 lg:w-1/2 xl:w-5/12">
               <div className="relative p-8 bg-white rounded-lg shadow-lg sm:p-12">
-                <form >
-                  <ContactInputBox
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <Label className="text-sm font-medium">Your Name</Label>
+                  <Input
                     type="text"
-                    name="name"
                     placeholder="Your Name"
+                    {...register('name', { required: 'Name is required' })}
+                    className="mb-4"
+                  />
+                  {errors.name && (<Label className="text-red-500 text-xs mb-2 block">{errors.name.message}</Label>)}
 
-                    value={name}
-                    onChange={handleChange1}
-                  />
-                  <ContactInputBox
-                    type="text"
-                    name="email"
+                  <Label className="text-sm font-medium">Your Email</Label>
+                  <Input
+                    type="email"
                     placeholder="Your Email"
-                    value={email}
-                    onChange={handleChange2}
+                    {...register('email', { required: 'Email is required' })}
+                    className="mb-4"
                   />
-                  <ContactInputBox
+                  {errors.email && (<Label className="text-red-500 text-xs mb-2 block">{errors.email.message}</Label>)}
+
+                  <Label className="text-sm font-medium">Your Phone (03XXXXXXXXX)</Label>
+                  <Input
                     type="text"
-                    name="phone"
                     placeholder="Your Phone (03XXXXXXXXX)"
-                    value={phone}
-                    onChange={handleChange3}
+                    {...register('phone', { required: 'Phone is required' })}
+                    className="mb-4"
                   />
-                  <ContactTextArea
-                    row="6"
+                  {errors.phone && (<Label className="text-red-500 text-xs mb-2 block">{errors.phone.message}</Label>)}
+
+                  <Label className="text-sm font-medium">Your Message</Label>
+                  <Textarea
+                    rows={6}
                     placeholder="Your Message"
-                    name="details"
-                    defaultValue=""
-                    value={message}
-                    onChange={handleChange4}
+                    {...register('message', { required: 'Message is required' })}
+                    className="mb-4"
                   />
-                  <div>
-                    <button
-                      type="submit"
-                      //disabled={!isFormValid}
-                      onClick={handleSubmit}
-                      className="w-full p-3 text-white transition border rounded border-[#192a56] bg-[#192a56] hover:bg-opacity-90"
-                    >
-                      Send Message
-                    </button>
-                  </div>
+                  {errors.message && (<Label className="text-red-500 text-xs mb-2 block">{errors.message.message}</Label>)}
+
+                  <SpinnerButton
+                    state={isSubmitting}
+                    name="Send Message"
+                    type="submit"
+                    className="w-full text-white transition border rounded border-[#192a56] bg-[#192a56] hover:bg-opacity-90"
+                  />
                 </form>
                 <div>
                   <span className="absolute -top-10 -right-9 z-[-1]">
@@ -1012,37 +985,3 @@ const ContactUs = () => {
 };
 
 export default ContactUs;
-
-const ContactTextArea = ({ row, placeholder, name, onChange, defaultValue }: any) => {
-  return (
-    <>
-      <div className="mb-6">
-        <textarea
-          rows={row}
-          placeholder={placeholder}
-          name={name}
-          className="border-[f0f0f0] w-full resize-none rounded border py-3 px-[14px] text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none"
-          defaultValue={defaultValue}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      </div>
-    </>
-  );
-};
-
-const ContactInputBox = ({ type, placeholder, name, onChange }: any) => {
-  return (
-    <>
-      <div className="mb-6">
-        <input
-          type={type}
-          placeholder={placeholder}
-          required
-          name={name}
-          onChange={(e) => onChange(e.target.value)}
-          className="border-[f0f0f0] w-full rounded border py-3 px-[14px] text-base text-body-color outline-none focus:border-primary focus-visible:shadow-none"
-        />
-      </div>
-    </>
-  );
-};

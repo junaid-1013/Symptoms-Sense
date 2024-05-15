@@ -1,9 +1,9 @@
 "use client";
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/components/ui/use-toast";
+import { SpinnerButton } from '@/components/uiUtils/SpinnerButton';
 import { DoctorRegistrationFormValues } from '@/types';
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,7 @@ const DoctorProfileForm: React.FC = () => {
     handleSubmit,
     setValue,
     getValues,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<DoctorRegistrationFormValues>();
 
   const handleImage = (e: any) => {
@@ -39,71 +39,68 @@ const DoctorProfileForm: React.FC = () => {
     }
 
   }
-  const onSubmit: SubmitHandler<DoctorRegistrationFormValues> = (data) => {
-    const onLogin = async () => {
-      try {
-        data.img = image;
+  const onSubmit: SubmitHandler<DoctorRegistrationFormValues> = async (data) => {
+    try {
+      data.img = image;
 
-        if (
-          ((data.services ?? []).length === 0) || ((data.services ?? [])[0] == '')
-        ) {
-          throw new Error('Please provide atlease one service, then proceed to complete services 1 through 5 in sequential order');
+      if (
+        ((data.services ?? []).length === 0) || ((data.services ?? [])[0] == '')
+      ) {
+        throw new Error('Please provide atlease one service, then proceed to complete services 1 through 5 in sequential order');
 
-        }
-        else if (
-
-          ((data.education ?? []).length === 0) || ((data.education ?? [])[0] == '')
-
-        ) {
-          throw new Error('Please provide atlease one education, then proceed to complete education 1 through 5 in sequential order');
-
-        }
-        else if (
-
-          ((data.specialization ?? []).length === 0) || ((data.specialization ?? [])[0] == '')
-        ) {
-          throw new Error('Please provide atlease one specialization, then proceed to complete specialization 1 through 5 in sequential order');
-
-        }
-        else if (
-          ((data.experienceDetails ?? []).length === 0) || ((data.experienceDetails ?? [])[0] == '')
-        ) {
-          throw new Error('Please enter atlease one Experience Detail, then proceed to complete 1 through 5 in sequential order');
-
-        }
-
-        const response = await axios.post("/api/regDoctor", data);
-        const { protocol, host } = window.location;
-        const url = `${protocol}//${host}`;
-        const data1 = {
-          email: data.email,
-          url: url,
-        }
-        const res = await axios.post("/api/doctorPasswordSetup", data1);
-        toast({
-          title: "Success!",
-          description: "Congratulations! You have successfully registered as a doctor. We have emailed you instructions to set up your password. To activate your account and gain access to your dashboard, please proceed to set up your password.",
-        })
-        router.push("/");
-
-      } catch (error: any) {
-        if (error.response && error.response.data && error.response.data.error) {
-          toast({
-            title: "Failed!",
-            description: error.response.data.error,
-            variant: "destructive"
-          })
-        } else {
-          toast({
-            title: "Failed!",
-            description: error.message,
-            variant: "destructive"
-          })
-        }
-      } finally {
       }
+      else if (
+
+        ((data.education ?? []).length === 0) || ((data.education ?? [])[0] == '')
+
+      ) {
+        throw new Error('Please provide atlease one education, then proceed to complete education 1 through 5 in sequential order');
+
+      }
+      else if (
+
+        ((data.specialization ?? []).length === 0) || ((data.specialization ?? [])[0] == '')
+      ) {
+        throw new Error('Please provide atlease one specialization, then proceed to complete specialization 1 through 5 in sequential order');
+
+      }
+      else if (
+        ((data.experienceDetails ?? []).length === 0) || ((data.experienceDetails ?? [])[0] == '')
+      ) {
+        throw new Error('Please enter atlease one Experience Detail, then proceed to complete 1 through 5 in sequential order');
+
+      }
+
+      const response = await axios.post("/api/regDoctor", data);
+      const { protocol, host } = window.location;
+      const url = `${protocol}//${host}`;
+      const data1 = {
+        email: data.email,
+        url: url,
+      }
+      const res = await axios.post("/api/doctorPasswordSetup", data1);
+      toast({
+        title: "Success!",
+        description: "Congratulations! You have successfully registered as a doctor. We have emailed you instructions to set up your password. To activate your account and gain access to your dashboard, please proceed to set up your password.",
+      })
+      router.push("/");
+
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.error) {
+        toast({
+          title: "Failed!",
+          description: error.response.data.error,
+          variant: "destructive"
+        })
+      } else {
+        toast({
+          title: "Failed!",
+          description: error.message,
+          variant: "destructive"
+        })
+      }
+    } finally {
     }
-    onLogin();
   };
 
   const handleServicesChange = (index: number, value: string) => {
@@ -344,7 +341,7 @@ const DoctorProfileForm: React.FC = () => {
                     <span className="text-red-500">{errors.about.message}</span>
                   )}
                 </div>
-                <Button type="submit">Submit</Button>
+                <SpinnerButton state={isSubmitting} name="Submit" type="submit" />
               </form>
             </div>
           </div>

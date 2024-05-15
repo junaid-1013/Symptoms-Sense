@@ -1,33 +1,31 @@
 "use client";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import PasswordInput from "@/components/uiUtils/PasswordField";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 import { useUser } from '@/helpers/UserContext';
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+
 const Login = () => {
     const { toast } = useToast()
-    const [showPassword, setShowPassword] = useState(false);
-
+    type FormData = { email: string; password: string };
     const router = useRouter();
     const [role, setRole] = useState('patient');
     const { user, setUser } = useUser();
-    const [users, setUsers] = useState({
-        email: "",
-        password: "",
-    })
+    const { register, handleSubmit, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
-    const onLogin = async () => {
+    const onLogin = async (data: FormData) => {
 
         try {
-            const data = {
-                email: users.email,
-                password: users.password,
-                role: role
-
-            }
-            const response = await axios.post("/api/users/login", data);
+            const payload = { ...data, role };
+            const response = await axios.post("/api/users/login", payload);
             router.push("/");
             window.location.reload();
             console.log("Login Success", response.data);
@@ -61,7 +59,7 @@ const Login = () => {
             const { protocol, host } = window.location;
             const url = `${protocol}//${host}`;
             const data = {
-                email: users.email,
+                email: getValues('email'),
                 url: url,
                 role: role
             }
@@ -105,128 +103,56 @@ const Login = () => {
                     </div>
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
                     <div className="mt-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
-                        <div className="flex mb-6">
-                            <label className="flex items-center mr-4 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="patient"
-                                    checked={role === 'patient'}
-                                    onChange={() => setRole('patient')}
-                                    className="mr-2 cursor-pointer"
-                                />
-                                <span className="text-sm">Patient</span>
-                            </label>
-
-                            <label className="flex items-center mr-4 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="doctor"
-                                    checked={role === 'doctor'}
-                                    onChange={() => setRole('doctor')}
-                                    className="mr-2 cursor-pointer"
-                                />
-                                <span className="text-sm">Doctor</span>
-                            </label>
-
-                            <label className="flex items-center cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="admin"
-                                    checked={role === 'admin'}
-                                    onChange={() => setRole('admin')}
-                                    className="mr-2 cursor-pointer"
-                                />
-                                <span className="text-sm">Admin</span>
-                            </label>
-                        </div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                        <input
-                            value={users.email}
-                            onChange={(e) => setUsers({ ...users, email: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
-                            type="email" />
+                        <Label className="block text-gray-700 text-sm font-bold mb-2">Role</Label>
+                        <RadioGroup value={role} onValueChange={setRole} className="flex mb-6 gap-x-6">
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="patient" id="r-patient" />
+                                <Label htmlFor="r-patient" className="text-sm">Patient</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="doctor" id="r-doctor" />
+                                <Label htmlFor="r-doctor" className="text-sm">Doctor</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="admin" id="r-admin" />
+                                <Label htmlFor="r-admin" className="text-sm">Admin</Label>
+                            </div>
+                        </RadioGroup>
+                        <Label className="block text-gray-700 text-sm font-bold mb-2">Email</Label>
+                        <Input
+                            type="email"
+                            placeholder="you@example.com"
+                            {...register('email', { required: 'Email is required' })}
+                            className="bg-gray-100 text-gray-700"
+                        />
+                        {errors.email && (
+                            <Label className="text-red-500 text-xs mt-1 block">{errors.email.message}</Label>
+                        )}
                     </div>
                     <div className="mt-4">
-                        <div>
-                            {role == 'admin' ? (<div className="flex justify-between">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-
-                            </div>) : (
-                                <div className="flex justify-between">
-                                    <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                                    <a
-                                        href="#"
-                                        onClick={forgotPass}
-                                        className="text-xs text-gray-500">Forget Password?</a>
-                                </div>
-                            )
-                            }
+                        <div className="flex justify-between">
+                            <Label className="block text-gray-700 text-sm font-bold mb-2">Password</Label>
+                            {role !== 'admin' && (
+                                <a href="#" onClick={forgotPass} className="text-xs text-gray-500">Forget Password?</a>
+                            )}
                         </div>
-                        <input
-                            value={users.password}
-
-                            onChange={(e) => setUsers({ ...users, password: e.target.value })}
-                            className="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none "
-                            type={
-                                showPassword ? "text" : "password"
-                            }
+                        <PasswordInput
+                            register={register}
+                            errors={errors}
+                            showLabel={false}
+                            inputClassName="bg-gray-100 text-gray-700 focus:outline-none focus:shadow-outline border border-gray-300 rounded py-2 px-4 block w-full appearance-none"
                         />
-                        <br />
-                        <label onClick={() => { setShowPassword(!showPassword) }} className="cursor-pointer hover:underline hover:underline-offset-2">
-                            Show Password
-                        </label>
                     </div>
                     <div className="mt-8">
-                        <button
-                            onClick={onLogin}
-                            className="bg-[#192a56] text-white font-bold py-2 px-4 w-full rounded hover:bg-[#192a56]/75">
-                            Login
-                        </button>
+                        <form onSubmit={handleSubmit(onLogin)}>
+                            <SpinnerButton state={isSubmitting} name="Login" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75" />
+                        </form>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-x-2">
                         <span className="border-b w-full"></span>
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>
                         <span className="border-b w-full"></span>
                     </div>
-                    {/*
-                    <div className="flex items-center justify-center gap-x-4 mt-4">
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/google.svg"
-                                    alt="google logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/facebook.svg"
-                                    alt="facebook logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-                        <Link href="#" className="text-white rounded-lg shadow-md hover:bg-gray-100">
-                            <div className="px-4 py-3">
-                                <Image
-                                    src="/apple.svg"
-                                    alt="apple logo"
-                                    width={1000}
-                                    height={1000}
-                                    className="h-5 w-5"
-                                />
-                            </div>
-                        </Link>
-
-                    </div>
-    */}
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Do not have an account?</p>
                         <Link href="/register" className="text-xs text-[#192a56] uppercase hover:underline">Sign up</Link>
