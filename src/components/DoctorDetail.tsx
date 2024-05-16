@@ -33,13 +33,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from 'react';
 import 'react-clock/dist/Clock.css';
-import { Calendar } from 'react-date-range';
-import 'react-date-range/dist/styles.css';
-import 'react-date-range/dist/theme/default.css';
+import { Calendar } from "@/components/ui/calendar";
 import { FaHospitalAlt } from "react-icons/fa";
 import { MdOutlineLocationOn } from "react-icons/md";
 import 'react-time-picker/dist/TimePicker.css';
-import { cn } from './datepicker/libs/utils';
+import { cn } from '@/lib/utils';
 const DoctorDetail = () => {
     const router = useRouter();
     const { toast } = useToast()
@@ -252,11 +250,11 @@ const DoctorDetail = () => {
                                         </DialogHeader>
 
                                         <Calendar
-                                            className="w-full"
-                                            color="#000"
-                                            minDate={minSelectableDate}
-                                            date={selectedDate}
-                                            onChange={handleDateSelect}
+                                            mode="single"
+                                            selected={selectedDate}
+                                            onSelect={(date) => date && handleDateSelect(date)}
+                                            disabled={(date) => date < minSelectableDate}
+                                            className="rounded-md border"
                                         />
 
                                         <div className="flex flex-col items-center gap-2 mt-4 p-4">
@@ -542,11 +540,11 @@ const DoctorDetail = () => {
                                     </DialogHeader>
 
                                     <Calendar
-                                        className="w-full"
-                                        color="#000"
-                                        minDate={minSelectableDate}
-                                        date={selectedDate}
-                                        onChange={handleDateSelect}
+                                        mode="single"
+                                        selected={selectedDate}
+                                        onSelect={(date) => date && handleDateSelect(date)}
+                                        disabled={(date) => date < minSelectableDate}
+                                        className="rounded-md border"
                                     />
 
                                     <div className="flex flex-col items-center gap-2 mt-4 p-4">
