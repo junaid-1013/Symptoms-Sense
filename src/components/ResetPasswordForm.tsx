@@ -1,16 +1,16 @@
-import PasswordInput from "@/components/uiUtils/PasswordField";
-import Image from "next/image";
-import { useForm } from 'react-hook-form';
-import { SpinnerButton } from "./uiUtils/SpinnerButton";
-
+"use client"
+import PasswordInput from "@/components/uiUtils/PasswordField"
+import Image from "next/image"
+import type React from "react"
+import { useForm } from "react-hook-form"
+import { SpinnerButton } from "./uiUtils/SpinnerButton"
 interface ResetPasswordFormProps {
-  onSubmit: (newPassword: string) => void;
-  title: string;
+  onSubmit: (newPassword: string) => void
+  title: string
 }
-
 interface FormData {
-  password: string;
-  confirmPassword: string;
+  password: string
+  confirmPassword: string
 }
 
 const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit, title }) => {
@@ -18,16 +18,16 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit, title }
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<FormData>({
-    mode: 'onChange'
-  });
+    mode: "onChange",
+  })
 
-  const password = watch('password');
+  const password = watch("password")
 
   const onFormSubmit = (data: FormData) => {
-    onSubmit(data.password);
-  };
+    onSubmit(data.password)
+  }
 
   return (
     <form onSubmit={handleSubmit(onFormSubmit)}>
@@ -35,13 +35,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit, title }
         <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
           <div className="w-full p-8 lg:w-1/2">
             <div className="flex justify-center mb-2">
-              <Image
-                src="/logo-green.png"
-                alt="green logo"
-                height={1000}
-                width={1000}
-                className="w-36"
-              />
+              <Image src="/logo-green.png" alt="green logo" height={1000} width={1000} className="w-36" />
             </div>
             <p className="text-lg text-gray-500 text-center font-semibold">{title}</p>
 
@@ -60,15 +54,14 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit, title }
             <div className="mt-4">
               <PasswordInput
                 register={(name: string, options: any) =>
-                  register('confirmPassword', {
-                    required: 'Please confirm your password',
-                    validate: (value) =>
-                      value === password || 'Passwords do not match',
-                    ...options
+                  register("confirmPassword", {
+                    required: "Please confirm your password",
+                    validate: (value) => value === password || "Passwords do not match",
+                    ...options,
                   })
                 }
                 errors={{
-                  password: errors.confirmPassword
+                  password: errors.confirmPassword,
                 }}
                 showLabel={true}
                 labelName="Confirm Password"
@@ -90,17 +83,12 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ onSubmit, title }
           </div>
 
           <div className="hidden lg:block lg:w-1/2 object-contain pb-8">
-            <Image
-              src='/loginImage.jpg'
-              alt="login page"
-              width={1000}
-              height={1000}
-            />
+            <Image src="/loginImage.jpg" alt="login page" width={1000} height={1000} />
           </div>
         </div>
       </div>
     </form>
-  );
-};
+  )
+}
 
-export default ResetPasswordForm;
+export default ResetPasswordForm

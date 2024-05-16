@@ -1,7 +1,10 @@
-import DoctorDetail from "@/components/DoctorDetail";
+import DoctorDetail from "@/components/DoctorDetail"
+import { Suspense } from "react"
 
-export default function doctorDetail() {
+export default function DoctorDetailPage() {
     return (
-        <DoctorDetail />
+        <Suspense fallback={<div>Loading...</div>}>
+            <DoctorDetail />
+        </Suspense>
     )
 }
