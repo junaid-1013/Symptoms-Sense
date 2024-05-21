@@ -61,3 +61,17 @@ export const TEAM_MEMBERS = [
         imageSrc: "/muzzi.jpg",
     },
 ]
+export const CONTACT_INFO = {
+    email: "support@symptomssense.com",
+    phone: "+92 3065506950",
+    address: {
+        street: "House No. 123, Street No. 456",
+        area: "Medical District, Health City",
+        country: "Lahore, Pakistan"
+    },
+    hours: {
+        weekdays: "Monday - Friday: 8:00 AM - 8:00 PM",
+        weekends: "Saturday - Sunday: 9:00 AM - 5:00 PM",
+        emergency: "24/7 Emergency Support Available"
+    }
+};
