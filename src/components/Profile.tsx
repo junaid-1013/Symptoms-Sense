@@ -1,6 +1,6 @@
 "use client";
 import Loading from "@/components/Loading";
-import RatingForm from "@/components/RatingForm";
+import RatingForm from "@/components/landingPage/RatingForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
 import { useUser } from '@/helpers/UserContext';
