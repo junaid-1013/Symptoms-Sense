@@ -92,7 +92,7 @@ export default function ContactUs() {
   };
 
   return (
-    <section id="contact" className="py-24 bg-gradient-to-b from-background to-muted/20">
+    <section id="contact-us" className="py-24 bg-gradient-to-b from-background to-muted/20">
       <div className="container mx-auto px-4">
         {/* Header Section */}
         <div className="text-center mb-16 space-y-4">
