@@ -1,4 +1,6 @@
 "use client";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { ChatList } from "./chat-list";
 import ChatTopbar from "./chat-topbar";
@@ -57,22 +59,35 @@ export function Chat() {
   console.log("this is the history", history);
 
   return (
-    <main className="flex h-[calc(100dvh)] flex-col items-center justify-center p-4 md:px-24 pt-12 gap-4 gap-y-12">
-      <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-        Symptoms Sense AI Bot
-      </h2>
-      <div className="z-10 border rounded-lg max-w-5xl w-full h-full text-sm lg:flex">
-        <div className="flex flex-col justify-between w-full h-full">
-          <ChatTopbar />
-          <ChatList
-            messages={history}
-            sendMessage={handleClick}
-            setMessage={setMessage}
-            message={message}
-            loading={loading}
-          />
+    <section id="chat" className="py-20 bg-background">
+      <div className="container mx-auto px-4">
+        {/* Header */}
+        <div className="text-center mb-16">
+          <Badge variant="outline" className="mb-4">
+            <MessageCircle className="w-4 h-4 mr-2" />
+            AI Health Assistant
+          </Badge>
+          <h2 className="text-3xl md:text-4xl font-bold text-balance mb-4">
+            Chat with Our <span className="text-primary">AI Assistant</span>
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
+            Get instant health insights and guidance from our AI-powered assistant. Available 24/7 to help with your
+            health questions.
+          </p>
+        </div>
+        <div className="z-10 border rounded-lg max-w-5xl w-full h-full text-sm lg:flex mx-auto">
+          <div className="flex flex-col justify-between w-full h-full">
+            <ChatTopbar />
+            <ChatList
+              messages={history}
+              sendMessage={handleClick}
+              setMessage={setMessage}
+              message={message}
+              loading={loading}
+            />
+          </div>
         </div>
       </div>
-    </main>
+    </section>
   );
 }

@@ -98,7 +98,7 @@ const Navbar = () => {
                   </ListItem>
                   <ListItem
                     navItemStyles="text-white hover:text-gray-300"
-                    NavLink="/#service"
+                    NavLink="/#services"
                   >
                     Services
                   </ListItem>
