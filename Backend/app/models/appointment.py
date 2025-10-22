@@ -1,12 +1,10 @@
 """
 Appointment model.
 """
-from sqlalchemy import Column, String, DateTime, ForeignKey
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
 import uuid
 from app.db.base_class import Base
-
 
 class Appointment(Base):
     """Appointment model."""
@@ -29,4 +27,3 @@ class Appointment(Base):
     diagnoses = relationship("Diagnosis", back_populates="appointment", cascade="all, delete-orphan")
     prescriptions = relationship("Prescription", back_populates="appointment", cascade="all, delete-orphan")
     tests = relationship("Test", back_populates="appointment", cascade="all, delete-orphan")
-

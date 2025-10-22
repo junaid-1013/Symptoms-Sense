@@ -7,7 +7,6 @@ from datetime import datetime
 import uuid
 from app.db.base_class import Base
 
-
 class User(Base):
     """User model - base user for all user types."""
     __tablename__ = "users"
@@ -15,7 +14,7 @@ class User(Base):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
-    user_type = Column(String, nullable=False)
+    user_type = Column(String, nullable=True)
     name = Column(String, nullable=False)
     phone = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
@@ -27,7 +26,6 @@ class User(Base):
     doctor = relationship("Doctor", back_populates="user", uselist=False, cascade="all, delete-orphan")
     patient = relationship("Patient", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
-
 class Admin(Base):
     """Admin model."""
     __tablename__ = "admin"
@@ -37,4 +35,3 @@ class Admin(Base):
     
     # Relationships
     user = relationship("User", back_populates="admin")
-

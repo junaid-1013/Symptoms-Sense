@@ -6,7 +6,6 @@ from sqlalchemy.orm import relationship
 import uuid
 from app.db.base_class import Base
 
-
 class Patient(Base):
     """Patient model."""
     __tablename__ = "patient"
@@ -25,4 +24,3 @@ class Patient(Base):
     diagnoses = relationship("Diagnosis", back_populates="patient", cascade="all, delete-orphan")
     prescriptions = relationship("Prescription", back_populates="patient", cascade="all, delete-orphan")
     tests = relationship("Test", back_populates="patient", cascade="all, delete-orphan")
-
