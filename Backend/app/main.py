@@ -19,6 +19,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include API routes
+from app.api import api_router
+app.include_router(api_router)
+
 
 @app.get("/")
 def root():
