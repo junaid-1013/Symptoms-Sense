@@ -7,7 +7,6 @@ from datetime import datetime
 import uuid
 from app.db.base_class import Base
 
-
 class Diagnosis(Base):
     """Diagnosis model."""
     __tablename__ = "diagnosis"
@@ -24,4 +23,3 @@ class Diagnosis(Base):
     appointment = relationship("Appointment", back_populates="diagnoses")
     doctor = relationship("Doctor", back_populates="diagnoses")
     patient = relationship("Patient", back_populates="diagnoses")
-

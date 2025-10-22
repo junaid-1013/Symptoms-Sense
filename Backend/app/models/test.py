@@ -1,12 +1,10 @@
 """
 Test model.
 """
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
 import uuid
 from app.db.base_class import Base
-
 
 class Test(Base):
     """Test model."""
@@ -24,4 +22,3 @@ class Test(Base):
     appointment = relationship("Appointment", back_populates="tests")
     doctor = relationship("Doctor", back_populates="tests")
     patient = relationship("Patient", back_populates="tests")
-

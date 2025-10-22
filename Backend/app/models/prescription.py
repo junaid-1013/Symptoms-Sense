@@ -1,12 +1,10 @@
 """
 Prescription and Medicine models.
 """
-from sqlalchemy import Column, String, Integer, Text, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
 import uuid
 from app.db.base_class import Base
-
 
 class Prescription(Base):
     """Prescription model."""
@@ -25,7 +23,6 @@ class Prescription(Base):
     patient = relationship("Patient", back_populates="prescriptions")
     prescription_medicines = relationship("PrescriptionMedicine", back_populates="prescription", cascade="all, delete-orphan")
 
-
 class Medicine(Base):
     """Medicine model."""
     __tablename__ = "medicine"
@@ -38,7 +35,6 @@ class Medicine(Base):
     
     # Relationships
     prescription_medicines = relationship("PrescriptionMedicine", back_populates="medicine", cascade="all, delete-orphan")
-
 
 class PrescriptionMedicine(Base):
     """PrescriptionMedicine junction table."""
@@ -54,4 +50,3 @@ class PrescriptionMedicine(Base):
     # Relationships
     prescription = relationship("Prescription", back_populates="prescription_medicines")
     medicine = relationship("Medicine", back_populates="prescription_medicines")
-

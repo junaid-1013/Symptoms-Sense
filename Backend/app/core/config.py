@@ -3,7 +3,6 @@ Configuration settings with type safety and validation.
 """
 import os
 from dotenv import load_dotenv
-from typing import Optional
 
 # Load environment variables from .env file
 load_dotenv()

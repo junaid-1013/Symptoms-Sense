@@ -68,3 +68,4 @@ dmypy.json
 # Alembic (Backend specific)
 Backend/alembic/versions/*_*.py
 !Backend/alembic/versions/__init__.py
+/Backend/fastEnv
