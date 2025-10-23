@@ -2,6 +2,8 @@
 Authentication controller with FastAPI routes.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
+from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -141,7 +143,7 @@ async def google_oauth_login(
     auth_service = AuthService(db)
     
     try:
-        user, tokens = auth_service.google_oauth_login(google_data.code)
+        user, tokens = await auth_service.google_oauth_login(google_data.code)
         return {
             "message": "Google login successful",
             "user": UserResponse.from_orm(user),
@@ -160,6 +162,12 @@ async def get_google_auth_url():
     """Get Google OAuth2 authorization URL."""
     auth_url = SecurityUtils.get_google_auth_url()
     return {"auth_url": auth_url}
+
+@router.get("/google/callback")
+async def google_oauth_callback(code: str, state: Optional[str] = None):
+    """Handle Google OAuth2 callback by redirecting to frontend with code."""
+    redirect_url = AuthService.build_google_callback_redirect(code, state)
+    return RedirectResponse(url=redirect_url, status_code=307)
 
 @router.post("/forgot-password")
 async def forgot_password(

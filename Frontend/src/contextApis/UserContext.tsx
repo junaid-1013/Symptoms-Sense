@@ -1,0 +1,114 @@
+'use client';
+import { STORAGE_KEYS } from '@/config/localStorageKeys';
+import { readStorage, writeStorage } from '@/helpers/localStorageHelper';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+
+// TYPES
+interface User {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string | null;
+  user_type?: string | null;
+  is_active: boolean;
+  is_email_verified: boolean;
+  avatar_url?: string | null;
+  last_login?: string | Date | null;
+}
+
+interface Tokens {
+  accessToken?: string | null;
+  refreshToken?: string | null;
+  tokenType?: string | null;
+  expiresIn?: number | null;
+}
+
+interface AuthState {
+  user: User | null;
+  tokens: Tokens | null;
+  isAuthenticated: boolean;
+}
+
+interface UserContextType {
+  user: User | null;
+  tokens: Tokens | null;
+  isAuthenticated: boolean;
+  setAuthData: (data: { user?: User | null; tokens?: Tokens | null }) => void;
+  clearAuthData: () => void;
+}
+
+// DEFAULT STATE
+const defaultState: AuthState = {
+  user: null,
+  tokens: null,
+  isAuthenticated: false,
+};
+
+function normalizeTokens(raw: any): Tokens | null {
+  if (!raw) return null;
+  return {
+    accessToken: raw.accessToken ?? raw.access_token ?? null,
+    refreshToken: raw.refreshToken ?? raw.refresh_token ?? null,
+    tokenType: raw.tokenType ?? raw.token_type ?? null,
+    expiresIn: raw.expiresIn ?? raw.expires_in ?? null,
+  };
+}
+
+const UserContext = createContext<UserContextType>({
+  user: null,
+  tokens: null,
+  isAuthenticated: false,
+  setAuthData: () => { },
+  clearAuthData: () => { },
+});
+
+
+export function useUser() {
+  return useContext(UserContext);
+}
+
+export function UserProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<AuthState>(defaultState);
+
+  const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
+    setState((prev) => {
+      const normalizedTokens = normalizeTokens(tokens);
+      const newData: AuthState = {
+        user: user !== undefined ? user : prev.user,
+        tokens: tokens !== undefined ? normalizedTokens : prev.tokens,
+        isAuthenticated: Boolean((normalizedTokens && (normalizedTokens.accessToken || normalizedTokens.refreshToken)) || user),
+      };
+      writeStorage(STORAGE_KEYS.user, newData.user);
+      writeStorage(STORAGE_KEYS.tokens, newData.tokens);
+      return newData;
+    });
+  }, []);
+
+  const clearAuthData = useCallback(() => {
+    setState(defaultState);
+    writeStorage(STORAGE_KEYS.user, null);
+    writeStorage(STORAGE_KEYS.tokens, null);
+  }, []);
+
+  //Get Data from Local Storage on load
+  useEffect(() => {
+    const storedTokensRaw = readStorage(STORAGE_KEYS.tokens);
+    const storedTokens = normalizeTokens(storedTokensRaw);
+    const storedUser = readStorage<User>(STORAGE_KEYS.user);
+
+    if (storedTokens || storedUser) {
+      setAuthData({ user: storedUser ?? null, tokens: storedTokens ?? null });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const value = useMemo<UserContextType>(() => ({
+    user: state.user,
+    tokens: state.tokens,
+    isAuthenticated: state.isAuthenticated,
+    setAuthData,
+    clearAuthData,
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData]);
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+}

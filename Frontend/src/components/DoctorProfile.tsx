@@ -1,7 +1,6 @@
 "use client";
 import Loading from "@/components/Loading";
 import { useToast } from "@/components/ui/use-toast";
-import { useUser } from '@/helpers/UserContext';
 import axios from "axios";
 import { CalendarCheck, Clock4 } from "lucide-react";
 import Image from "next/image";
@@ -76,7 +75,6 @@ const DoctorProfile = () => {
 
     }
     const [loading, setLoading] = useState(true);
-    const { user, setUser } = useUser();
     const [username, setname] = useState(null);
     const [useremail, setemail] = useState(null);
     const [expYears, setExpYears] = useState(null);
@@ -129,7 +127,6 @@ const DoctorProfile = () => {
                 const response = await axios.get("/api/doctorProfile");
                 let ress = await response.data;
 
-                setUser({ username: 'User' });
                 setemail(ress.email)
                 setname(ress.name)
                 setAppointment(ress.appointments)
@@ -142,7 +139,6 @@ const DoctorProfile = () => {
             }
 
             catch (error: any) {
-                setUser(null);
                 console.error("Error fetching user data:", error);
             }
             finally {

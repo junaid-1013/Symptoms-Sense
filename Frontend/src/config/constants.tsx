@@ -1,4 +1,4 @@
-import { Bot, Stethoscope, Workflow } from "lucide-react"
+import { Bot, Stethoscope, Workflow } from "lucide-react";
 
 export const MEDICINE_TYPES = [
     "tablet",
@@ -75,3 +75,10 @@ export const CONTACT_INFO = {
         emergency: "24/7 Emergency Support Available"
     }
 };
+export const NAV_LINKS = [
+    { label: "Home", href: "/" },
+    { label: "Chat", href: "/#chat" },
+    { label: "Services", href: "/#services" },
+    { label: "Testimonials", href: "/#feedback" },
+    { label: "Contact Us", href: "/#contact-us" },
+];

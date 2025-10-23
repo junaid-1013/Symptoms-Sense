@@ -12,7 +12,7 @@ from app.core.exceptions import (
 )
 from app.models.user import User, RefreshToken
 from app.auth.schema import UserRegister, UserLogin, TokenResponse
-from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS
+from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, FRONTEND_URL
 from sqlalchemy import and_
 
 class AuthService:
@@ -308,3 +308,12 @@ class AuthService:
             return True
         except Exception:
             return False
+
+    @staticmethod
+    def build_google_callback_redirect(code: str, state: Optional[str] = None) -> str:
+        """Build the frontend redirect URL for Google OAuth callback."""
+        frontend_login = (FRONTEND_URL.rstrip("/") if FRONTEND_URL else "http://localhost:3000") + "/login"
+        redirect_url = f"{frontend_login}?code={code}"
+        if state:
+            redirect_url += f"&state={state}"
+        return redirect_url
