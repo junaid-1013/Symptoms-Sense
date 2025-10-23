@@ -48,8 +48,15 @@ class SecurityUtils:
     def create_refresh_token(data: Dict[str, Any]) -> str:
         """Create a JWT refresh token."""
         to_encode = data.copy()
-        expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-        to_encode.update({"exp": expire, "type": "refresh"})
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        # Include iat and a random jti to ensure token uniqueness
+        to_encode.update({
+            "exp": expire,
+            "iat": now,
+            "type": "refresh",
+            "jti": SecurityUtils.generate_random_token(24)
+        })
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
         return encoded_jwt
     

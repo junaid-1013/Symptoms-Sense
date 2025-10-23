@@ -1,60 +1,46 @@
 "use client";
+import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import PasswordInput from "@/components/uiUtils/PasswordField";
 import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
-import axios from "axios";
+import { useUser } from '@/contextApis/UserContext';
+import { RegisterApi } from "@/endPoints/auth.endPoints";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+
 const Register = () => {
     const router = useRouter();
+    const { setAuthData } = useUser();
     const { toast } = useToast()
-    type FormData = { email: string; password: string; username: string; confirmPassword: string };
+    type FormData = { email: string; password: string; username: string; confirmPassword: string; phone: string };
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
     const password = watch('password');
-    const [img, setImage] = useState('/user.png');
 
-    const setFileToBase = (file: any) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onloadend = () => {
-            setImage(reader.result as any);
-
-        }
-
-    }
     const onRegister = async (data: FormData) => {
-        try {
-            const user1 = { email: data.email, password: data.password, username: data.username, image: img }
-            const response = await axios.post("/api/users/register", user1);
-            console.log("Signup Success", response.data);
-
-            router.push("/login");
-            toast({
-                title: "Success!",
-                description: "Signup Success. Please Sign in..",
-            })
-        } catch (error: any) {
-            if (error.response && error.response.data && error.response.data.error) {
+        RegisterApi({ email: data.email, password: data.password, name: data.username, phone: data.phone })
+            .then((response) => {
+                const user = response.data?.user;
+                const tokens = response.data?.tokens || response.data?.data?.tokens || null;
+                setAuthData({ user, tokens });
+                console.log("Signup Success", response.data);
+                router.push("/");
                 toast({
-                    title: "Failed!",
-                    description: error.response.data.error,
-                    variant: "destructive",
+                    title: "Success!",
+                    description: "Signup Success.",
                 })
-            } else {
+            })
+            .catch((error) => {
+                console.log("Signup Failed", error);
                 toast({
                     title: "Failed!",
                     description: error.message,
                     variant: "destructive",
                 })
-            }
-        } finally {
-
-        }
+            })
     }
 
     return (
@@ -96,6 +82,24 @@ const Register = () => {
                         )}
                     </div>
                     <div className="mt-4">
+                        <Label className="block text-gray-700 text-sm font-bold mb-2">Phone</Label>
+                        <Input
+                            type="tel"
+                            placeholder="+1 555 123 4567"
+                            {...register('phone', {
+                                required: 'Phone number is required',
+                                pattern: {
+                                    value: /^[+()\-.\s\d]{7,20}$/,
+                                    message: 'Enter a valid phone number',
+                                },
+                            })}
+                            className="bg-gray-100 text-gray-700"
+                        />
+                        {errors.phone && (
+                            <Label className="text-red-500 text-xs mt-1 block">{errors.phone.message}</Label>
+                        )}
+                    </div>
+                    <div className="mt-4">
                         <div className="flex justify-between">
                             <Label className="block text-gray-700 text-sm font-bold mb-2">Password</Label>
                         </div>
@@ -134,27 +138,21 @@ const Register = () => {
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>
                         <span className="border-b w-full"></span>
                     </div>
+                    <div className="mt-4">
+                        <GoogleAuthButton />
+                    </div>
                     <div className="mt-4 flex items-center justify-center gap-x-2">
                         <p className="text-xs text-gray-500">Already have an account?</p>
                         <Link href="/login" className="text-xs text-[#192a56] uppercase hover:underline">Sign In</Link>
                     </div>
                 </div>
                 <div className="hidden lg:block lg:w-1/2 object-contain pb-8" >
-
                     <Image
                         src='/registerImage.jpg'
                         alt="login page "
                         width={410}
                         height={430}
                     />
-                    <div className="flex mt-2 mr-20 justify-center">
-                        <Link
-                            href="/doctorRegistration"
-                            className="py-3 text-base font-medium text-white rounded-lg bg-[#273c75] px-7 hover:bg-opacity-80"
-                        >
-                            Register as a Doctor
-                        </Link>
-                    </div>
                 </div>
 
             </div>
