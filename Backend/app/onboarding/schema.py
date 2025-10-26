@@ -3,6 +3,9 @@ Onboarding schemas for request/response validation.
 """
 from pydantic import BaseModel, Field
 from typing import Optional
+from datetime import datetime
+
+# ========== Patient Schemas ==========
 
 class PatientOnboardingRequest(BaseModel):
     """Patient onboarding request schema."""
@@ -21,10 +24,12 @@ class PatientOnboardingResponse(BaseModel):
     blood_group: Optional[str]
     emergency_contact: Optional[str]
     address: Optional[str]
+    created_at: datetime
 
     class Config:
         from_attributes = True
 
+# ========== Doctor Schemas ==========
 class DoctorOnboardingRequest(BaseModel):
     """Doctor onboarding request schema."""
     specialization: str = Field(..., min_length=1, max_length=100)
@@ -32,6 +37,7 @@ class DoctorOnboardingRequest(BaseModel):
     experience_years: int = Field(..., ge=0, le=100)
     bio: Optional[str] = Field(None, min_length=1, max_length=1000)
     clinic_id: Optional[str] = Field(None)
+
 
 class DoctorOnboardingResponse(BaseModel):
     """Doctor onboarding response schema."""
@@ -43,16 +49,19 @@ class DoctorOnboardingResponse(BaseModel):
     bio: Optional[str]
     clinic_id: Optional[str]
     status: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
 
+
+# ========== Clinic Schemas ==========
+
 class ClinicOnboardingRequest(BaseModel):
     """Clinic onboarding request schema."""
-    address: str = Field(..., min_length=1, max_length=255)
-    registration_no: str = Field(..., min_length=1, max_length=50)
-    established_year: int = Field(..., ge=1800, le=2100)
-    total_doctors: int = Field(..., ge=0, le=1000)
+    address: str = Field(..., min_length=1, max_length=255, description="Clinic address")
+    registration_no: str = Field(..., min_length=1, max_length=50, description="Registration number")
+    established_year: int = Field(..., ge=1800, le=2100, description="Year clinic was established")
 
 class ClinicOnboardingResponse(BaseModel):
     """Clinic onboarding response schema."""
@@ -63,6 +72,7 @@ class ClinicOnboardingResponse(BaseModel):
     established_year: Optional[int]
     total_doctors: int
     status: str
+    created_at: datetime
 
     class Config:
         from_attributes = True

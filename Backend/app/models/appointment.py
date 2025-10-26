@@ -4,9 +4,9 @@ Appointment model.
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Appointment(Base):
+class Appointment(Base, SoftDeletableMixin):
     """Appointment model."""
     __tablename__ = "appointment"
     

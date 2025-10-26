@@ -5,9 +5,9 @@ from sqlalchemy import Column, String, Text, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Diagnosis(Base):
+class Diagnosis(Base, SoftDeletableMixin):
     """Diagnosis model."""
     __tablename__ = "diagnosis"
     

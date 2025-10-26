@@ -5,17 +5,17 @@ from sqlalchemy import Column, String, Integer, Text, Boolean, DateTime, Foreign
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Doctor(Base):
+class Doctor(Base, SoftDeletableMixin):
     """Doctor model."""
     __tablename__ = "doctor"
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("users.id", ondelete="SET NULL"), unique=True, nullable=True)
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=True)
     clinic_id = Column(String, ForeignKey("clinic.id", ondelete="SET NULL"), nullable=True)
     specialization = Column(String, nullable=True)
-    license_no = Column(String, nullable=True)
+    license_no = Column(String, nullable=True, unique=True)
     experience_years = Column(Integer, nullable=True)
     bio = Column(Text, nullable=True)
     status = Column(String, default="active", nullable=False)
@@ -30,7 +30,7 @@ class Doctor(Base):
     prescriptions = relationship("Prescription", back_populates="doctor", cascade="all, delete-orphan")
     tests = relationship("Test", back_populates="doctor", cascade="all, delete-orphan")
 
-class DoctorSchedule(Base):
+class DoctorSchedule(Base, SoftDeletableMixin):
     """Defines recurring weekly availability of a doctor."""
     __tablename__ = "doctor_schedule"
     
@@ -45,7 +45,7 @@ class DoctorSchedule(Base):
     # Relationships
     doctor = relationship("Doctor", back_populates="schedules")
 
-class Timeslot(Base):
+class Timeslot(Base, SoftDeletableMixin):
     """Actual bookable slot generated dynamically from DoctorSchedule."""
     __tablename__ = "timeslot"
     
@@ -59,4 +59,4 @@ class Timeslot(Base):
     # Relationships
     doctor = relationship("Doctor", back_populates="timeslots")
     appointments = relationship("Appointment", back_populates="timeslot")
-    schedule = relationship("DoctorSchedule",)
+    schedule = relationship("DoctorSchedule")
