@@ -35,6 +35,7 @@ interface UserContextType {
   isAuthenticated: boolean;
   setAuthData: (data: { user?: User | null; tokens?: Tokens | null }) => void;
   clearAuthData: () => void;
+  updateUserType: (type: string) => void;
 }
 
 // DEFAULT STATE
@@ -60,6 +61,7 @@ const UserContext = createContext<UserContextType>({
   isAuthenticated: false,
   setAuthData: () => { },
   clearAuthData: () => { },
+  updateUserType: () => { }, 
 });
 
 
@@ -90,6 +92,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     writeStorage(STORAGE_KEYS.tokens, null);
   }, []);
 
+  const updateUserType = useCallback((type: string) => {
+    setState((prev) => {
+      if (!prev.user) return prev;
+      const updatedUser = { ...prev.user, user_type: type };
+      writeStorage(STORAGE_KEYS.user, updatedUser);
+      return { ...prev, user: updatedUser };
+    });
+  }, []);
+
   //Get Data from Local Storage on load
   useEffect(() => {
     const storedTokensRaw = readStorage(STORAGE_KEYS.tokens);
@@ -108,6 +119,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: state.isAuthenticated,
     setAuthData,
     clearAuthData,
+    updateUserType,
   }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
