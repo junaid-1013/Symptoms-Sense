@@ -16,7 +16,8 @@ class PatientOnboardingRequest(BaseModel):
     address: Optional[str] = Field(None, min_length=1, max_length=255)
 
 class PatientOnboardingResponse(BaseModel):
-    """Patient onboarding response schema."""
+    """Patient onboarding response schema with complete user details."""
+    # Patient fields
     id: str
     user_id: str
     age: Optional[int]
@@ -25,6 +26,20 @@ class PatientOnboardingResponse(BaseModel):
     emergency_contact: Optional[str]
     address: Optional[str]
     created_at: datetime
+    
+    # User fields
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
+    user_phone: Optional[str] = None
+    user_type: Optional[str] = None
+    is_active: Optional[bool] = None
+    last_login: Optional[datetime] = None
+    google_id: Optional[str] = None
+    avatar_url: Optional[str] = None
+    is_email_verified: Optional[bool] = None
+    email_verification_token: Optional[str] = None
+    password_reset_token: Optional[str] = None
+    password_reset_expires: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -64,7 +79,8 @@ class ClinicOnboardingRequest(BaseModel):
     established_year: int = Field(..., ge=1800, le=2100, description="Year clinic was established")
 
 class ClinicOnboardingResponse(BaseModel):
-    """Clinic onboarding response schema."""
+    """Clinic onboarding response schema with complete user details."""
+    # Clinic fields
     id: str
     user_id: str
     address: Optional[str]
@@ -73,6 +89,20 @@ class ClinicOnboardingResponse(BaseModel):
     total_doctors: int
     status: str
     created_at: datetime
+    
+    # User fields
+    user_email: Optional[str] = None
+    user_name: Optional[str] = None
+    user_phone: Optional[str] = None
+    user_type: Optional[str] = None
+    is_active: Optional[bool] = None
+    last_login: Optional[datetime] = None
+    google_id: Optional[str] = None
+    avatar_url: Optional[str] = None
+    is_email_verified: Optional[bool] = None
+    email_verification_token: Optional[str] = None
+    password_reset_token: Optional[str] = None
+    password_reset_expires: Optional[datetime] = None
 
     class Config:
         from_attributes = True

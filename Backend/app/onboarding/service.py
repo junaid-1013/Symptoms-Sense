@@ -1,7 +1,7 @@
 """
 Onboarding service for patient, doctor, and clinic data business logic.
 """
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import Optional
 
 from app.models.patient import Patient
@@ -63,11 +63,23 @@ class OnboardingService:
         self.db.add(patient)
         self.db.commit()
         self.db.refresh(patient)
+        
+        # Load user relationship for complete response
+        patient = self.db.query(Patient).options(
+            joinedload(Patient.user)
+        ).filter(Patient.id == patient.id).first()
+        
         return patient
 
     def update_patient_profile(self, user_id: str, onboarding_data: PatientOnboardingRequest) -> Patient:
         """Update existing patient profile."""
-        patient = self.get_patient_by_user_id(user_id)
+        patient = self.db.query(Patient).options(
+            joinedload(Patient.user)
+        ).filter(
+            Patient.user_id == user_id,
+            Patient.deleted_at.is_(None)
+        ).first()
+        
         if not patient:
             raise UserNotFoundException("Patient profile not found")
 
@@ -197,11 +209,23 @@ class OnboardingService:
         self.db.add(clinic)
         self.db.commit()
         self.db.refresh(clinic)
+        
+        # Load user relationship for complete response
+        clinic = self.db.query(Clinic).options(
+            joinedload(Clinic.user)
+        ).filter(Clinic.id == clinic.id).first()
+        
         return clinic
 
     def update_clinic_profile(self, user_id: str, onboarding_data: ClinicOnboardingRequest) -> Clinic:
         """Update existing clinic profile."""
-        clinic = self.get_clinic_by_user_id(user_id)
+        clinic = self.db.query(Clinic).options(
+            joinedload(Clinic.user)
+        ).filter(
+            Clinic.user_id == user_id,
+            Clinic.deleted_at.is_(None)
+        ).first()
+        
         if not clinic:
             raise UserNotFoundException("Clinic profile not found")
 
@@ -239,3 +263,61 @@ class OnboardingService:
         self.db.commit()
         
         return doctor_count
+
+    # ========== Helper Methods for Complete Responses ==========
+
+    def build_patient_response(self, patient: Patient) -> dict:
+        """Build complete patient response with user details."""
+        return {
+            # Patient fields
+            "id": patient.id,
+            "user_id": patient.user_id,
+            "age": patient.age,
+            "gender": patient.gender,
+            "blood_group": patient.blood_group,
+            "emergency_contact": patient.emergency_contact,
+            "address": patient.address,
+            "created_at": patient.created_at,
+            
+            # User fields
+            "user_email": patient.user.email if patient.user else None,
+            "user_name": patient.user.name if patient.user else None,
+            "user_phone": patient.user.phone if patient.user else None,
+            "user_type": patient.user.user_type if patient.user else None,
+            "is_active": patient.user.is_active if patient.user else None,
+            "last_login": patient.user.last_login if patient.user else None,
+            "google_id": patient.user.google_id if patient.user else None,
+            "avatar_url": patient.user.avatar_url if patient.user else None,
+            "is_email_verified": patient.user.is_email_verified if patient.user else None,
+            "email_verification_token": patient.user.email_verification_token if patient.user else None,
+            "password_reset_token": patient.user.password_reset_token if patient.user else None,
+            "password_reset_expires": patient.user.password_reset_expires if patient.user else None,
+        }
+
+    def build_clinic_response(self, clinic: Clinic) -> dict:
+        """Build complete clinic response with user details."""
+        return {
+            # Clinic fields
+            "id": clinic.id,
+            "user_id": clinic.user_id,
+            "address": clinic.address,
+            "registration_no": clinic.registration_no,
+            "established_year": clinic.established_year,
+            "total_doctors": clinic.total_doctors,
+            "status": clinic.status,
+            "created_at": clinic.created_at,
+            
+            # User fields
+            "user_email": clinic.user.email if clinic.user else None,
+            "user_name": clinic.user.name if clinic.user else None,
+            "user_phone": clinic.user.phone if clinic.user else None,
+            "user_type": clinic.user.user_type if clinic.user else None,
+            "is_active": clinic.user.is_active if clinic.user else None,
+            "last_login": clinic.user.last_login if clinic.user else None,
+            "google_id": clinic.user.google_id if clinic.user else None,
+            "avatar_url": clinic.user.avatar_url if clinic.user else None,
+            "is_email_verified": clinic.user.is_email_verified if clinic.user else None,
+            "email_verification_token": clinic.user.email_verification_token if clinic.user else None,
+            "password_reset_token": clinic.user.password_reset_token if clinic.user else None,
+            "password_reset_expires": clinic.user.password_reset_expires if clinic.user else None,
+        }
