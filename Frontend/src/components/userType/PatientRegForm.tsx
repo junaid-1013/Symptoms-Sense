@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
@@ -10,24 +9,19 @@ import { RegisterPatientApi } from "@/endPoints/patient.endPoints";
 import { GENDERS, BLOOD_GROUPS } from "@/config/constants";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
 import { useUser } from "@/contextApis/UserContext"; 
+import { allowOnlyNumbers } from "../utils/Functions";
+import { RegisterPatientApiProps } from "@/types";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 
-interface FormData {
-  age: number;
-  gender: string;
-  blood_group: string;
-  emergency_contact: string;
-  address: string;
-}
 
 export default function PatientRegForm() {
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>();
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterPatientApiProps>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { tokens, updateUserType } = useUser(); 
 
-  const onRegister = (data: FormData) => {
+  const onRegister = (data: RegisterPatientApiProps) => {
     if (!tokens?.accessToken) {
       toast({
         title: "Unauthorized",
@@ -44,7 +38,7 @@ export default function PatientRegForm() {
       blood_group: data.blood_group,
       emergency_contact: data.emergency_contact,
       address: data.address,
-      token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjNzllZTI2Ny1mNzNjLTRmMGEtOGNjMi04NzY5ZDczYzc5ODMiLCJlbWFpbCI6Imh1bWVyYWFrbWFsMjAwMUBnbWFpbC5jb20iLCJleHAiOjE3NjE0ODg3MDYsInR5cGUiOiJhY2Nlc3MifQ.sp9O7H5r284Kx27kTXteC0m4FF3kNOzq204u5eZRMvE"
+      token: tokens.accessToken,
     })
       .then((response) => {
         console.log("Patient Registered:", response.data);
@@ -52,6 +46,7 @@ export default function PatientRegForm() {
           title: "Success!",
           description: "Patient registered successfully.",
         });
+        updateUserType(response.data.user_type);
         router.push("/");
       })
       .catch((error) => {
@@ -82,6 +77,7 @@ export default function PatientRegForm() {
               min: { value: 1, message: "Age must be at least 1" },
               max: { value: 120, message: "Age seems invalid" },
             })}
+            onKeyDown={allowOnlyNumbers}
           />
           {errors.age && <p className="text-red-500 text-sm">{errors.age.message}</p>}
         </div>
@@ -135,6 +131,7 @@ export default function PatientRegForm() {
                 message: "Enter a valid contact number (10–15 digits)",
               },
             })}
+            onKeyDown={allowOnlyNumbers}
           />
           {errors.emergency_contact && <p className="text-red-500 text-sm">{errors.emergency_contact.message}</p>}
         </div>
@@ -148,18 +145,12 @@ export default function PatientRegForm() {
           />
           {errors.address && <p className="text-red-500 text-sm">{errors.address.message}</p>}
         </div>
-
-        {/* Submit Button with Spinner */}
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Registering
-            </>
-          ) : (
-            "Register"
-          )}
-        </Button>
+        <SpinnerButton
+          type="submit"
+          state={loading}
+          name="Register"
+          className="w-full"
+        />
       </form>
     </div>
   );

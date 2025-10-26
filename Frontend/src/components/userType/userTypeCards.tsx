@@ -1,23 +1,22 @@
-"use client"
+"use client";
 
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { USER_TYPES } from "@/config/constants"
-import { useState } from "react"
-import { motion } from "framer-motion"
-import PatientRegForm from "@/components/userType/PatientRegForm"
-import { ArrowLeft } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { USER_TYPES } from "@/config/constants";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import PatientRegForm from "@/components/userType/PatientRegForm";
+import ClinicRegForm from "@/components/userType/ClinicRegForm";
+import { ArrowLeft } from "lucide-react";
 
 export default function UserTypeCard() {
-  const [selected, setSelected] = useState<string | null>(null)
+  const [selected, setSelected] = useState<string | null>(null);
 
-  // Back handler
-  const handleBack = () => setSelected(null)
+  const handleBack = () => setSelected(null);
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-muted/30 px-4 relative">
-      {/* Back Button (only when form is visible) */}
-      {selected === "patient" && (
+      {selected && (
         <button
           onClick={handleBack}
           className="absolute top-6 left-6 flex items-center gap-1 text-sm text-primary"
@@ -28,6 +27,8 @@ export default function UserTypeCard() {
 
       {selected === "patient" ? (
         <PatientRegForm />
+      ) : selected === "clinic" ? (
+        <ClinicRegForm />
       ) : (
         <div className="text-center space-y-10">
           <div>
@@ -65,5 +66,5 @@ export default function UserTypeCard() {
         </div>
       )}
     </section>
-  )
+  );
 }
