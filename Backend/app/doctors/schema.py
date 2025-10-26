@@ -1,44 +1,118 @@
 """
-Doctors API schemas for patient frontend.
+Doctor schemas for request/response validation.
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
+from datetime import datetime
+
+
+# ========== Request Schemas ==========
+
+class DoctorCreateRequest(BaseModel):
+    """Create doctor request (clinic only)."""
+    email: EmailStr = Field(..., description="Doctor's email")
+    name: str = Field(..., min_length=2, max_length=100, description="Doctor's full name")
+    phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
+    password: Optional[str] = Field(None, min_length=8, description="Password for new user account")
+    specialization: str = Field(..., min_length=1, max_length=100, description="Medical specialization")
+    license_no: str = Field(..., min_length=1, max_length=50, description="Medical license number")
+    experience_years: int = Field(..., ge=0, le=100, description="Years of experience")
+    bio: Optional[str] = Field(None, max_length=1000, description="Doctor biography")
+
+
+class DoctorUpdateByClinicRequest(BaseModel):
+    """Update doctor request (clinic only)."""
+    # User fields
+    name: Optional[str] = Field(None, min_length=2, max_length=100, description="Doctor's full name")
+    email: Optional[EmailStr] = Field(None, description="Doctor's email")
+    phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
+    # Doctor fields
+    specialization: Optional[str] = Field(None, min_length=1, max_length=100)
+    license_no: Optional[str] = Field(None, min_length=1, max_length=50)
+    experience_years: Optional[int] = Field(None, ge=0, le=100)
+    bio: Optional[str] = Field(None, max_length=1000)
+    status: Optional[str] = Field(None, pattern="^(active|inactive)$")
+
+
+class DoctorUpdateOwnRequest(BaseModel):
+    """Update own profile request (doctor can update all except name and email)."""
+    phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
+    specialization: Optional[str] = Field(None, min_length=1, max_length=100, description="Medical specialization")
+    license_no: Optional[str] = Field(None, min_length=1, max_length=50, description="Medical license number")
+    experience_years: Optional[int] = Field(None, ge=0, le=100, description="Years of experience")
+    bio: Optional[str] = Field(None, max_length=1000, description="Doctor biography")
+
+
+# ========== Response Schemas ==========
 
 class DoctorBasicInfo(BaseModel):
-    """Basic doctor information for patient frontend."""
+    """Basic doctor information for public/patient view."""
     id: str
     user_id: str
-    name: Optional[str]
-    email: Optional[str]
-    specialization: Optional[str]
-    experience_years: Optional[int]
-    bio: Optional[str]
-    clinic_name: Optional[str]
-    clinic_address: Optional[str]
+    name: Optional[str] = None
+    email: Optional[str] = None
+    specialization: Optional[str] = None
+    experience_years: Optional[int] = None
+    bio: Optional[str] = None
+    clinic_name: Optional[str] = None
+    clinic_address: Optional[str] = None
     status: str
 
     class Config:
         from_attributes = True
 
-class DoctorListResponse(BaseModel):
-    """Response for getting all doctors."""
-    doctors: List[DoctorBasicInfo]
-    total: int
 
 class DoctorDetailResponse(BaseModel):
-    """Detailed doctor information."""
+    """Detailed doctor information (includes license_no for clinic/doctor)."""
     id: str
     user_id: str
-    name: Optional[str]
-    email: Optional[str]
-    specialization: Optional[str]
-    license_no: Optional[str]
-    experience_years: Optional[int]
-    bio: Optional[str]
-    clinic_id: Optional[str]
-    clinic_name: Optional[str]
-    clinic_address: Optional[str]
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+    specialization: Optional[str] = None
+    license_no: Optional[str] = None
+    experience_years: Optional[int] = None
+    bio: Optional[str] = None
+    clinic_id: Optional[str] = None
+    clinic_name: Optional[str] = None
+    clinic_address: Optional[str] = None
     status: str
+    created_at: datetime
 
     class Config:
         from_attributes = True
+
+
+class DoctorListResponse(BaseModel):
+    """Paginated doctor list response."""
+    doctors: List[DoctorBasicInfo]
+    total: int
+    page: int = 1
+    page_size: int = 20
+
+
+# ========== Clinic Operations Responses ==========
+
+class ClinicDoctorsResponse(BaseModel):
+    """Response containing all doctors in a clinic."""
+    doctors: List[DoctorDetailResponse]
+    total: int
+    clinic_id: str
+    clinic_name: Optional[str] = None
+
+
+class DoctorCreateResponse(BaseModel):
+    message: str
+    clinic_doctors: ClinicDoctorsResponse
+
+
+class DoctorUpdateResponse(BaseModel):
+    """ Response after updating a doctor."""
+    message: str
+    clinic_doctors: ClinicDoctorsResponse
+
+
+class DoctorDeleteResponse(BaseModel):
+    """ Response after deleting a doctor."""
+    message: str
+    clinic_doctors: ClinicDoctorsResponse

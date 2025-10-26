@@ -4,9 +4,9 @@ User and Admin models.
 from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class User(Base):
+class User(Base, SoftDeletableMixin):
     """User model - base user for all user types."""
     __tablename__ = "users"
     

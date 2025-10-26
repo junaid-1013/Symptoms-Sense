@@ -4,9 +4,9 @@ Prescription and Medicine models.
 from sqlalchemy import Column, String, Integer, Text, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Prescription(Base):
+class Prescription(Base, SoftDeletableMixin):
     """Prescription model."""
     __tablename__ = "prescription"
     
@@ -23,7 +23,7 @@ class Prescription(Base):
     patient = relationship("Patient", back_populates="prescriptions")
     prescription_medicines = relationship("PrescriptionMedicine", back_populates="prescription", cascade="all, delete-orphan")
 
-class Medicine(Base):
+class Medicine(Base, SoftDeletableMixin):
     """Medicine model."""
     __tablename__ = "medicine"
     
@@ -36,7 +36,7 @@ class Medicine(Base):
     # Relationships
     prescription_medicines = relationship("PrescriptionMedicine", back_populates="medicine", cascade="all, delete-orphan")
 
-class PrescriptionMedicine(Base):
+class PrescriptionMedicine(Base, SoftDeletableMixin):
     """PrescriptionMedicine junction table."""
     __tablename__ = "prescription_medicine"
     

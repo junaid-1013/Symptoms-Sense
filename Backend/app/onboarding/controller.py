@@ -3,43 +3,63 @@ Onboarding controller with FastAPI routes.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from typing import Callable, TypeVar, Type
+from pydantic import BaseModel
 
 from app.db.database import get_db
-from app.onboarding.schema import PatientOnboardingRequest, PatientOnboardingResponse, DoctorOnboardingRequest, DoctorOnboardingResponse, ClinicOnboardingRequest, ClinicOnboardingResponse
+from app.auth.dependencies import get_current_user
+from app.onboarding.schema import (
+    PatientOnboardingRequest, PatientOnboardingResponse,
+    DoctorOnboardingRequest, DoctorOnboardingResponse,
+    ClinicOnboardingRequest, ClinicOnboardingResponse
+)
 from app.onboarding.service import OnboardingService
 from app.models.user import User
-from app.auth.controller import get_current_user
 from app.core.exceptions import UserNotFoundException, UserAlreadyExistsException
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])
 
-@router.post("/patient", response_model=PatientOnboardingResponse)
+T = TypeVar('T', bound=BaseModel)
+
+# ========== Helper Function to Eliminate Duplication ==========
+
+def create_profile(
+    service_method: Callable,
+    user_id: str,
+    data: BaseModel,
+    response_model: Type[T],
+    profile_type: str
+) -> T:
+    try:
+        result = service_method(user_id, data)
+        return response_model.model_validate(result)
+    except (UserNotFoundException, UserAlreadyExistsException) as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create {profile_type} profile"
+        )
+
+
+# ========== Patient Onboarding ==========
+
+@router.post("/patient", response_model=PatientOnboardingResponse, status_code=status.HTTP_201_CREATED)
 async def onboard_patient(
     onboarding_data: PatientOnboardingRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Onboard a patient"""
-    onboarding_service = OnboardingService(db)
+    service = OnboardingService(db)
+    return create_profile(
+        service.create_patient_profile,
+        current_user.id,
+        onboarding_data,
+        PatientOnboardingResponse,
+        "patient"
+    )
 
-    try:
-        patient = onboarding_service.create_patient_profile(current_user.id, onboarding_data)
-        return PatientOnboardingResponse.from_orm(patient)
-    except UserNotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
-    except UserAlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
 
 @router.get("/patient/get-profile", response_model=PatientOnboardingResponse)
 async def get_patient_profile(
@@ -47,44 +67,36 @@ async def get_patient_profile(
     db: Session = Depends(get_db)
 ):
     """Get current patient's onboarding data."""
-    onboarding_service = OnboardingService(db)
-
-    patient = onboarding_service.get_patient_by_user_id(current_user.id)
+    service = OnboardingService(db)
+    
+    patient = service.get_patient_by_user_id(current_user.id)
     if not patient:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient profile not found"
         )
+    
+    return PatientOnboardingResponse.model_validate(patient)
 
-    return PatientOnboardingResponse.from_orm(patient)
 
-@router.post("/doctor", response_model=DoctorOnboardingResponse)
+# ========== Doctor Onboarding ==========
+
+@router.post("/doctor", response_model=DoctorOnboardingResponse, status_code=status.HTTP_201_CREATED)
 async def onboard_doctor(
     onboarding_data: DoctorOnboardingRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Onboard a doctor"""
-    onboarding_service = OnboardingService(db)
+    service = OnboardingService(db)
+    return create_profile(
+        service.create_doctor_profile,
+        current_user.id,
+        onboarding_data,
+        DoctorOnboardingResponse,
+        "doctor"
+    )
 
-    try:
-        doctor = onboarding_service.create_doctor_profile(current_user.id, onboarding_data)
-        return DoctorOnboardingResponse.from_orm(doctor)
-    except UserNotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
-    except UserAlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
 
 @router.get("/doctor/get-profile", response_model=DoctorOnboardingResponse)
 async def get_doctor_profile(
@@ -92,44 +104,34 @@ async def get_doctor_profile(
     db: Session = Depends(get_db)
 ):
     """Get current doctor's onboarding data."""
-    onboarding_service = OnboardingService(db)
+    service = OnboardingService(db)
 
-    doctor = onboarding_service.get_doctor_by_user_id(current_user.id)
+    doctor = service.get_doctor_by_user_id(current_user.id)
     if not doctor:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Doctor profile not found"
         )
 
-    return DoctorOnboardingResponse.from_orm(doctor)
+    return DoctorOnboardingResponse.model_validate(doctor)
 
-@router.post("/clinic", response_model=ClinicOnboardingResponse)
+# ========== Clinic Onboarding ==========
+
+@router.post("/clinic", response_model=ClinicOnboardingResponse, status_code=status.HTTP_201_CREATED)
 async def onboard_clinic(
     onboarding_data: ClinicOnboardingRequest,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Onboard a clinic"""
-    onboarding_service = OnboardingService(db)
-
-    try:
-        clinic = onboarding_service.create_clinic_profile(current_user.id, onboarding_data)
-        return ClinicOnboardingResponse.from_orm(clinic)
-    except UserNotFoundException as e:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(e)
-        )
-    except UserAlreadyExistsException as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+    service = OnboardingService(db)
+    return create_profile(
+        service.create_clinic_profile,
+        current_user.id,
+        onboarding_data,
+        ClinicOnboardingResponse,
+        "clinic"
+    )
 
 @router.get("/clinic/get-profile", response_model=ClinicOnboardingResponse)
 async def get_clinic_profile(
@@ -137,16 +139,16 @@ async def get_clinic_profile(
     db: Session = Depends(get_db)
 ):
     """Get current clinic's onboarding data."""
-    onboarding_service = OnboardingService(db)
-
-    clinic = onboarding_service.get_clinic_by_user_id(current_user.id)
+    service = OnboardingService(db)
+    
+    clinic = service.get_clinic_by_user_id(current_user.id)
     if not clinic:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Clinic profile not found"
         )
-
-    return ClinicOnboardingResponse.from_orm(clinic)
+  
+    return ClinicOnboardingResponse.model_validate(clinic)
 
 # @router.put("/patient/update-profile", response_model=PatientOnboardingResponse)
 # async def update_patient_profile(
