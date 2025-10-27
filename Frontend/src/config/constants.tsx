@@ -1,4 +1,5 @@
-import { Bot, Stethoscope, Workflow } from "lucide-react";
+
+import { Bot, Stethoscope, Workflow, Building } from "lucide-react";
 
 export const MEDICINE_TYPES = [
     "tablet",
@@ -82,3 +83,35 @@ export const NAV_LINKS = [
     { label: "Testimonials", href: "/#feedback" },
     { label: "Contact Us", href: "/#contact-us" },
 ];
+
+
+
+export const USER_TYPES = [
+  {
+    id: "patient",
+    title: "Patient",
+    description: "Do you want to select your user type as Patient?",
+    icon: Stethoscope,
+    color: "text-red-500",
+  },
+  {
+    id: "clinic",
+    title: "Clinic",
+    description: "Do you want to select your user type as Clinic?",
+    icon: Building,
+    color: "text-blue-500",
+  },
+]
+
+export const GENDERS = ["Male", "Female", "Other"]
+
+export const BLOOD_GROUPS = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+]
