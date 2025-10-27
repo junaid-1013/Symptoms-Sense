@@ -115,3 +115,30 @@ export const BLOOD_GROUPS = [
   "O+",
   "O-",
 ]
+
+export const CLIINIC_SIDE_PANEL_ITEMS = [
+    { text: "Add Doctor", icon: <Stethoscope size={18} /> }
+  ];
+
+export const DOCTOR_SPECIALIZATIONS = [
+  "Cardiologist",
+  "Dermatologist",
+  "Neurologist",
+  "Pediatrician",
+  "Orthopedic Surgeon",
+  "General Physician",
+  "Gynecologist",
+  "Dentist",
+  "Psychiatrist",
+  "Radiologist",
+  "ENT Specialist",
+  "Ophthalmologist",
+  "Oncologist",
+  "Urologist",
+  "Endocrinologist",
+  "Pulmonologist",
+  "Nephrologist",
+  "Gastroenterologist",
+  "Physiotherapist",
+  "Anesthesiologist",
+];
