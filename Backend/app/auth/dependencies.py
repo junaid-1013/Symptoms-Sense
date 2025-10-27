@@ -2,6 +2,8 @@
 Authentication dependencies.
 """
 from fastapi import Depends, Header, HTTPException, status
+from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
+
 from sqlalchemy.orm import Session
 from typing import Optional
 
@@ -11,23 +13,24 @@ from app.core.exceptions import InvalidCredentialsException, UserNotFoundExcepti
 from app.models.user import User
 from app.auth.service import AuthService
 
+security = HTTPBearer()
 
 def get_current_user(
-    authorization: Optional[str] = Header(None),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """Get current authenticated user from JWT token."""
-    if not authorization:
-        raise InvalidCredentialsException("Missing authorization header")
+    # if not authorization:
+    #     raise InvalidCredentialsException("Missing authorization header")
     
-    if not authorization.startswith("Bearer "):
-        raise InvalidCredentialsException("Invalid authorization format. Use: Bearer <token>")
+    # if not authorization.startswith("Bearer "):
+    #     raise InvalidCredentialsException("Invalid authorization format. Use: Bearer <token>")
     
-    try:
-        token = authorization.split(" ")[1]
-    except IndexError:
-        raise InvalidCredentialsException("Invalid authorization format")
-    
+    # try:
+    #     token = authorization.split(" ")[1]
+    # except IndexError:
+    #     raise InvalidCredentialsException("Invalid authorization format")
+    token = credentials.credentials
     # Verify token
     payload = SecurityUtils.verify_token(token, "access")
     if not payload:
