@@ -51,14 +51,18 @@ async def onboard_patient(
     db: Session = Depends(get_db)
 ):
     """Onboard a patient"""
-    service = OnboardingService(db)
-    return create_profile(
-        service.create_patient_profile,
-        current_user.id,
-        onboarding_data,
-        PatientOnboardingResponse,
-        "patient"
-    )
+    try:
+        service = OnboardingService(db)
+        patient = service.create_patient_profile(current_user.id, onboarding_data)
+        response_data = service.build_patient_response(patient)
+        return PatientOnboardingResponse.model_validate(response_data)
+    except (UserNotFoundException, UserAlreadyExistsException) as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create patient profile: {str(e)}"
+        )
 
 
 @router.get("/patient/get-profile", response_model=PatientOnboardingResponse)
@@ -76,7 +80,15 @@ async def get_patient_profile(
             detail="Patient profile not found"
         )
     
-    return PatientOnboardingResponse.model_validate(patient)
+    # Load user relationship for complete response
+    from sqlalchemy.orm import joinedload
+    from app.models.patient import Patient
+    patient = db.query(Patient).options(
+        joinedload(Patient.user)
+    ).filter(Patient.id == patient.id).first()
+    
+    response_data = service.build_patient_response(patient)
+    return PatientOnboardingResponse.model_validate(response_data)
 
 
 # ========== Doctor Onboarding ==========
@@ -124,14 +136,18 @@ async def onboard_clinic(
     db: Session = Depends(get_db)
 ):
     """Onboard a clinic"""
-    service = OnboardingService(db)
-    return create_profile(
-        service.create_clinic_profile,
-        current_user.id,
-        onboarding_data,
-        ClinicOnboardingResponse,
-        "clinic"
-    )
+    try:
+        service = OnboardingService(db)
+        clinic = service.create_clinic_profile(current_user.id, onboarding_data)
+        response_data = service.build_clinic_response(clinic)
+        return ClinicOnboardingResponse.model_validate(response_data)
+    except (UserNotFoundException, UserAlreadyExistsException) as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to create clinic profile: {str(e)}"
+        )
 
 @router.get("/clinic/get-profile", response_model=ClinicOnboardingResponse)
 async def get_clinic_profile(
@@ -147,8 +163,16 @@ async def get_clinic_profile(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Clinic profile not found"
         )
-  
-    return ClinicOnboardingResponse.model_validate(clinic)
+    
+    # Load user relationship for complete response
+    from sqlalchemy.orm import joinedload
+    from app.models.clinic import Clinic
+    clinic = db.query(Clinic).options(
+        joinedload(Clinic.user)
+    ).filter(Clinic.id == clinic.id).first()
+    
+    response_data = service.build_clinic_response(clinic)
+    return ClinicOnboardingResponse.model_validate(response_data)
 
 # @router.put("/patient/update-profile", response_model=PatientOnboardingResponse)
 # async def update_patient_profile(
