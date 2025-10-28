@@ -1,4 +1,5 @@
-import { Bot, Stethoscope, Workflow } from "lucide-react";
+
+import { Bot, Stethoscope, Workflow, Building } from "lucide-react";
 
 export const MEDICINE_TYPES = [
     "tablet",
@@ -81,4 +82,63 @@ export const NAV_LINKS = [
     { label: "Services", href: "/#services" },
     { label: "Testimonials", href: "/#feedback" },
     { label: "Contact Us", href: "/#contact-us" },
+];
+
+
+
+export const USER_TYPES = [
+  {
+    id: "patient",
+    title: "Patient",
+    description: "Do you want to select your user type as Patient?",
+    icon: Stethoscope,
+    color: "text-red-500",
+  },
+  {
+    id: "clinic",
+    title: "Clinic",
+    description: "Do you want to select your user type as Clinic?",
+    icon: Building,
+    color: "text-blue-500",
+  },
+]
+
+export const GENDERS = ["Male", "Female", "Other"]
+
+export const BLOOD_GROUPS = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+]
+
+export const CLIINIC_SIDE_PANEL_ITEMS = [
+    { text: "Add Doctor", icon: <Stethoscope size={18} /> }
+  ];
+
+export const DOCTOR_SPECIALIZATIONS = [
+  "Cardiologist",
+  "Dermatologist",
+  "Neurologist",
+  "Pediatrician",
+  "Orthopedic Surgeon",
+  "General Physician",
+  "Gynecologist",
+  "Dentist",
+  "Psychiatrist",
+  "Radiologist",
+  "ENT Specialist",
+  "Ophthalmologist",
+  "Oncologist",
+  "Urologist",
+  "Endocrinologist",
+  "Pulmonologist",
+  "Nephrologist",
+  "Gastroenterologist",
+  "Physiotherapist",
+  "Anesthesiologist",
 ];

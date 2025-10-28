@@ -4,9 +4,9 @@ Clinic model.
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Clinic(Base):
+class Clinic(Base, SoftDeletableMixin):
     """Clinic model."""
     __tablename__ = "clinic"
     

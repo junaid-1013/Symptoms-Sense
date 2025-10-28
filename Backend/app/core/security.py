@@ -8,15 +8,10 @@ from typing import Optional, Dict, Any
 from passlib.context import CryptContext
 from jose import JWTError, jwt
 import httpx
-
-from app.core.config import (
-    SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, 
-    REFRESH_TOKEN_EXPIRE_DAYS, BCRYPT_ROUNDS,
-    GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
-)
+from app.core.config import config
 
 # Password hashing context
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=BCRYPT_ROUNDS)
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__rounds=config.BCRYPT_ROUNDS)
 
 class SecurityUtils:
     """Security utilities class."""
@@ -38,10 +33,10 @@ class SecurityUtils:
         if expires_delta:
             expire = datetime.now(timezone.utc) + expires_delta
         else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            expire = datetime.now(timezone.utc) + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
         
         to_encode.update({"exp": expire, "type": "access"})
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
         return encoded_jwt
     
     @staticmethod
@@ -49,7 +44,7 @@ class SecurityUtils:
         """Create a JWT refresh token."""
         to_encode = data.copy()
         now = datetime.now(timezone.utc)
-        expire = now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expire = now + timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS)
         # Include iat and a random jti to ensure token uniqueness
         to_encode.update({
             "exp": expire,
@@ -57,14 +52,14 @@ class SecurityUtils:
             "type": "refresh",
             "jti": SecurityUtils.generate_random_token(24)
         })
-        encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+        encoded_jwt = jwt.encode(to_encode, config.SECRET_KEY, algorithm=config.ALGORITHM)
         return encoded_jwt
     
     @staticmethod
     def verify_token(token: str, token_type: str = "access") -> Optional[Dict[str, Any]]:
         """Verify and decode a JWT token."""
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
             if payload.get("type") != token_type:
                 return None
             return payload
@@ -81,11 +76,11 @@ class SecurityUtils:
         """Exchange Google authorization code for access token."""
         token_url = "https://oauth2.googleapis.com/token"
         data = {
-            "client_id": GOOGLE_CLIENT_ID,
-            "client_secret": GOOGLE_CLIENT_SECRET,
+            "client_id": config.GOOGLE_CLIENT_ID,
+            "client_secret": config.GOOGLE_CLIENT_SECRET,
             "code": code,
             "grant_type": "authorization_code",
-            "redirect_uri": GOOGLE_REDIRECT_URI
+            "redirect_uri": config.GOOGLE_REDIRECT_URI
         }
         
         async with httpx.AsyncClient() as client:
@@ -110,8 +105,8 @@ class SecurityUtils:
         """Get Google OAuth2 authorization URL."""
         return (
             f"https://accounts.google.com/o/oauth2/v2/auth?"
-            f"client_id={GOOGLE_CLIENT_ID}&"
-            f"redirect_uri={GOOGLE_REDIRECT_URI}&"
+            f"client_id={config.GOOGLE_CLIENT_ID}&"
+            f"redirect_uri={config.GOOGLE_REDIRECT_URI}&"
             f"response_type=code&"
             f"scope=openid email profile&"
             f"access_type=offline"

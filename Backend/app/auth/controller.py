@@ -7,6 +7,7 @@ from typing import Optional
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.auth.dependencies import get_current_user
 from app.auth.schema import (
     UserLogin, UserRegister, UserResponse, TokenResponse, 
     RefreshTokenRequest, PasswordResetRequest, PasswordResetConfirm,
@@ -23,29 +24,8 @@ from app.core.security import SecurityUtils
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
-def get_current_user(token: str, db: Session = Depends(get_db)) -> User:
-    """Get current authenticated user from JWT token."""
-    # Verify token
-    payload = SecurityUtils.verify_token(token)
-    if not payload:
-        raise InvalidCredentialsException()
-    
-    user_id = payload.get("sub")
-    if not user_id:
-        raise InvalidCredentialsException()
-    
-    # Get user from database
-    auth_service = AuthService(db)
-    user = auth_service.get_user_by_id(user_id)
-    if not user:
-        raise UserNotFoundException()
-    
-    if not user.is_active:
-        raise UserInactiveException()
-    
-    return user
 
-@router.post("/register", response_model=dict)
+@router.post("/register", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def register(
     user_data: UserRegister,
     db: Session = Depends(get_db)
@@ -57,7 +37,7 @@ async def register(
         user, tokens = auth_service.register(user_data)
         return {
             "message": "User registered successfully",
-            "user": UserResponse.from_orm(user),
+            "user": UserResponse.model_validate(user),
             "tokens": tokens
         }
     except UserAlreadyExistsException as e:
@@ -80,7 +60,7 @@ async def login(
         user, tokens = auth_service.login(login_data)
         return {
             "message": "Login successful",
-            "user": UserResponse.from_orm(user),
+            "user": UserResponse.model_validate(user),
             "tokens": tokens
         }
     except (InvalidCredentialsException, UserInactiveException) as e:
@@ -132,7 +112,7 @@ async def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     """Get current user information."""
-    return UserResponse.from_orm(current_user)
+    return UserResponse.model_validate(current_user)
 
 @router.post("/google", response_model=dict)
 async def google_oauth_login(
@@ -146,7 +126,7 @@ async def google_oauth_login(
         user, tokens = await auth_service.google_oauth_login(google_data.code)
         return {
             "message": "Google login successful",
-            "user": UserResponse.from_orm(user),
+            "user": UserResponse.model_validate(user),
             "tokens": tokens
         }
     except GoogleOAuthException as e:
