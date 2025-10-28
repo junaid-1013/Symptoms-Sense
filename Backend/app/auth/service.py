@@ -4,6 +4,7 @@ Authentication service for business logic.
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from app.core.security import SecurityUtils
 from app.core.exceptions import (
@@ -12,8 +13,7 @@ from app.core.exceptions import (
 )
 from app.models.user import User, RefreshToken
 from app.auth.schema import UserRegister, UserLogin, TokenResponse
-from app.core.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_TOKEN_EXPIRE_DAYS, FRONTEND_URL
-from sqlalchemy import and_
+from app.core.config import config
 
 class AuthService:
     """Authentication service class."""
@@ -23,15 +23,24 @@ class AuthService:
     
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Get user by email."""
-        return self.db.query(User).filter(User.email == email).first()
+        return self.db.query(User).filter(
+            User.email == email,
+            User.deleted_at.is_(None)
+        ).first()
     
     def get_user_by_id(self, user_id: str) -> Optional[User]:
         """Get user by ID."""
-        return self.db.query(User).filter(User.id == user_id).first()
+        return self.db.query(User).filter(
+            User.id == user_id,
+            User.deleted_at.is_(None)
+        ).first()
     
     def get_user_by_google_id(self, google_id: str) -> Optional[User]:
         """Get user by Google ID."""
-        return self.db.query(User).filter(User.google_id == google_id).first()
+        return self.db.query(User).filter(
+            User.google_id == google_id,
+            User.deleted_at.is_(None)
+        ).first()
     
     def create_user(self, user_data: UserRegister) -> User:
         """Create a new user."""
@@ -82,7 +91,7 @@ class AuthService:
         token_response = TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            expires_in=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
         
         return user, token_response
@@ -104,7 +113,7 @@ class AuthService:
         token_response = TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            expires_in=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
         
         # Store refresh token in database
@@ -115,7 +124,7 @@ class AuthService:
     def store_refresh_token(self, user_id: str, token: str) -> None:
         """Store refresh token in database."""
         # Create new refresh token
-        expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+        expires_at = datetime.now(timezone.utc) + timedelta(days=config.REFRESH_TOKEN_EXPIRE_DAYS)
         refresh_token = RefreshToken(
             user_id=user_id,
             token=token,
@@ -150,7 +159,7 @@ class AuthService:
             raise InvalidCredentialsException("Invalid refresh token")
         
         # Get user
-        user = self.get_user_by_id(user_id)
+        user = self.get_user_by_id(user_id) 
         if not user:
             raise UserNotFoundException()
         
@@ -162,8 +171,8 @@ class AuthService:
         
         return TokenResponse(
             access_token=access_token,
-            refresh_token=refresh_token,  # Keep the same refresh token
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            refresh_token=refresh_token,
+            expires_in=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
     
     async def google_oauth_login(self, code: str) -> Tuple[User, TokenResponse]:
@@ -207,7 +216,7 @@ class AuthService:
         else:
             # Update user info
             user.avatar_url = avatar_url
-            user.last_login = datetime.utcnow()
+            user.last_login = datetime.now(timezone.utc)
         
         self.db.commit()
         self.db.refresh(user)
@@ -225,7 +234,7 @@ class AuthService:
         token_response = TokenResponse(
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_in=ACCESS_TOKEN_EXPIRE_MINUTES * 60
+            expires_in=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
         
         return user, token_response
@@ -250,7 +259,8 @@ class AuthService:
         """Reset password using token."""
         user = self.db.query(User).filter(
             User.password_reset_token == token,
-            User.password_reset_expires > datetime.now(timezone.utc)
+            User.password_reset_expires > datetime.now(timezone.utc),
+            User.deleted_at.is_(None)
         ).first()
         
         if not user:
@@ -312,7 +322,7 @@ class AuthService:
     @staticmethod
     def build_google_callback_redirect(code: str, state: Optional[str] = None) -> str:
         """Build the frontend redirect URL for Google OAuth callback."""
-        frontend_login = (FRONTEND_URL.rstrip("/") if FRONTEND_URL else "http://localhost:3000") + "/login"
+        frontend_login = (config.FRONTEND_URL.rstrip("/") if config.FRONTEND_URL else "http://localhost:3000") + "/login"
         redirect_url = f"{frontend_login}?code={code}"
         if state:
             redirect_url += f"&state={state}"

@@ -4,9 +4,9 @@ Test model.
 from sqlalchemy import Column, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
 import uuid
-from app.db.base_class import Base
+from app.db.base_class import Base, SoftDeletableMixin
 
-class Test(Base):
+class Test(Base, SoftDeletableMixin):
     """Test model."""
     __tablename__ = "test"
     

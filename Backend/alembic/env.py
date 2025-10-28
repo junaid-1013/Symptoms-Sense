@@ -11,7 +11,7 @@ from pathlib import Path
 # Add parent directory to path to import app modules
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from app.core.config import DATABASE_URL
+from app.core.config import config as app_config
 from app.db.base_class import Base
 
 # Import all models to ensure they are registered with Base.metadata
@@ -22,7 +22,7 @@ from app.db.base import *  # noqa
 config = context.config
 
 # Set database URL
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", app_config.DATABASE_URL)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

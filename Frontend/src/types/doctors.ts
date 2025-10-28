@@ -28,3 +28,11 @@ export interface DoctorRegistrationFormValues {
     city: string;
     streetAddress: string;
 }
+
+export interface RegisterDoctorApiProps {specialization: string;
+  license_no: string;
+  experience_years: number;
+  bio?: string;
+  clinic_id: string;
+  token: string
+}

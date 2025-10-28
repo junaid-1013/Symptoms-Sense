@@ -27,7 +27,11 @@ const Login = () => {
                 const user = response.data?.user;
                 const tokens = response.data?.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
-                router.push("/");
+                if (!user?.user_type) {
+                    router.push("/userType");
+                    } else {
+                    router.push("/");
+                    }
                 toast({
                     title: "Success!",
                     description: "Login Successful",
@@ -59,7 +63,11 @@ const Login = () => {
                 })
                 // Remove query params before navigating
                 window.history.replaceState({}, document.title, window.location.pathname);
-                router.push("/");
+                if (!user?.user_type) {
+                    router.push("/userType");
+                    } else {
+                    router.push("/");
+                    }
             } catch (error) {
                 toast({
                     title: "Failed!",

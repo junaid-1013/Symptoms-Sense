@@ -1,3 +1,6 @@
 """
-Doctors API module for patient frontend.
+Doctor module exports.
 """
+from app.doctors.controller import router
+
+__all__ = ["router"]

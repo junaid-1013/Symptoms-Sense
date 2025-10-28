@@ -4,7 +4,7 @@ This file must import ALL models so Alembic can detect them.
 """
 from app.db.base_class import Base 
 # Import all models
-from app.models.user import User, Admin 
+from app.models.user import User, Admin, RefreshToken
 from app.models.clinic import Clinic
 from app.models.doctor import Doctor, Timeslot, DoctorSchedule
 from app.models.patient import Patient

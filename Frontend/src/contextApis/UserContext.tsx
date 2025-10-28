@@ -35,6 +35,9 @@ interface UserContextType {
   isAuthenticated: boolean;
   setAuthData: (data: { user?: User | null; tokens?: Tokens | null }) => void;
   clearAuthData: () => void;
+  updateUserType: (type: string) => void;
+  clinicId: string | null;
+  setClinicId: (id: string) => void;
 }
 
 // DEFAULT STATE
@@ -60,6 +63,9 @@ const UserContext = createContext<UserContextType>({
   isAuthenticated: false,
   setAuthData: () => { },
   clearAuthData: () => { },
+  updateUserType: () => { }, 
+  clinicId: null,
+  setClinicId: () => {}
 });
 
 
@@ -69,7 +75,12 @@ export function useUser() {
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(defaultState);
+  const [clinicId, setClinicIdState] = useState<string | null>(null);
 
+  const setClinicId = (id: string) => {
+    setClinicIdState(id);
+    localStorage.setItem(STORAGE_KEYS.clinicId, id);
+  };
   const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
     setState((prev) => {
       const normalizedTokens = normalizeTokens(tokens);
@@ -88,6 +99,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setState(defaultState);
     writeStorage(STORAGE_KEYS.user, null);
     writeStorage(STORAGE_KEYS.tokens, null);
+    writeStorage(STORAGE_KEYS.clinicId, null);
+  }, []);
+
+  const updateUserType = useCallback((type: string) => {
+    setState((prev) => {
+      if (!prev.user) return prev;
+      const updatedUser = { ...prev.user, user_type: type };
+      writeStorage(STORAGE_KEYS.user, updatedUser);
+      return { ...prev, user: updatedUser };
+    });
   }, []);
 
   //Get Data from Local Storage on load
@@ -99,6 +120,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (storedTokens || storedUser) {
       setAuthData({ user: storedUser ?? null, tokens: storedTokens ?? null });
     }
+
+    const storedClinicId = localStorage.getItem(STORAGE_KEYS.clinicId);
+    if (storedClinicId) {
+      setClinicIdState(storedClinicId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -108,7 +134,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     isAuthenticated: state.isAuthenticated,
     setAuthData,
     clearAuthData,
-  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData]);
+    updateUserType,
+    clinicId,
+    setClinicId
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, , updateUserType, clinicId, setClinicId]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
