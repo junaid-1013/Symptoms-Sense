@@ -23,7 +23,7 @@ def get_current_clinic(
         InsufficientPermissionsException: If user is not a clinic
         UserNotFoundException: If clinic profile not found
     """
-    if current_user.user_type != "Clinic":
+    if current_user.user_type != "clinic":
         raise InsufficientPermissionsException("Only clinics can access this endpoint")
     
     clinic = db.query(Clinic).filter(

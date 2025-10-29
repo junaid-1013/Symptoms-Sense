@@ -205,7 +205,7 @@ class OnboardingService:
             total_doctors=0 
         )
         # Set user_type to Clinic
-        user.user_type = "Clinic"
+        user.user_type = "clinic"
         self.db.add(clinic)
         self.db.commit()
         self.db.refresh(clinic)
