@@ -110,66 +110,61 @@ class OnboardingService:
             User.id == user_id,
             User.deleted_at.is_(None)
         ).first()
-        
+
         if not user:
             raise UserNotFoundException("User not found")
 
-        # Check if doctor profile already exists
-        existing_doctor = self.get_doctor_by_user_id(user_id)
-        if existing_doctor:
-            raise UserAlreadyExistsException("Doctor profile already exists")
+        
+        # Doctor must exist (created by clinic)
+        doctor_profile = self.db.query(Doctor).filter(
+            Doctor.user_id == user_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
 
-        if onboarding_data.clinic_id:
-            clinic = self.db.query(Clinic).filter(
-                Clinic.id == onboarding_data.clinic_id,
-                Clinic.deleted_at.is_(None)
-            ).first()
-            
-            if not clinic:
-                raise UserNotFoundException("Clinic not found")
+        if not doctor_profile:
+            raise UserNotFoundException("Doctor profile not found. Please ensure you were registered by a clinic first.")
 
-        # Create doctor profile
-        doctor = Doctor(
-            user_id=user_id,
-            specialization=onboarding_data.specialization,
-            license_no=onboarding_data.license_no,
-            experience_years=onboarding_data.experience_years,
-            bio=onboarding_data.bio,
-            clinic_id=onboarding_data.clinic_id
-        )
+        if doctor_profile.specialization and doctor_profile.license_no:
+            raise UserAlreadyExistsException("Doctor already onboarded")
+        
+        # Update doctor profile with onboarding data
+        doctor_profile.specialization = onboarding_data.specialization
+        doctor_profile.license_no = onboarding_data.license_no
+        doctor_profile.experience_years = onboarding_data.experience_years
+        doctor_profile.bio = onboarding_data.bio
+        # clinic_id is already set from clinic registration
 
         user.user_type = "doctor"
-        self.db.add(doctor)
         self.db.commit()
-        self.db.refresh(doctor)
-        return doctor
+        self.db.refresh(doctor_profile)
+        return doctor_profile
 
-    def update_doctor_profile(self, user_id: str, onboarding_data: DoctorOnboardingRequest) -> Doctor:
-        """Update existing doctor profile."""
-        doctor = self.get_doctor_by_user_id(user_id)
-        if not doctor:
-            raise UserNotFoundException("Doctor profile not found")
+    # def update_doctor_profile(self, user_id: str, onboarding_data: DoctorOnboardingRequest) -> Doctor:
+    #     """Update existing doctor profile."""
+    #     doctor = self.get_doctor_by_user_id(user_id)
+    #     if not doctor:
+    #         raise UserNotFoundException("Doctor profile not found")
 
-        # Verify clinic exists if clinic_id is provided
-        if onboarding_data.clinic_id:
-            clinic = self.db.query(Clinic).filter(
-                Clinic.id == onboarding_data.clinic_id,
-                Clinic.deleted_at.is_(None)
-            ).first()
+    #     # Verify clinic exists if clinic_id is provided
+    #     if onboarding_data.clinic_id:
+    #         clinic = self.db.query(Clinic).filter(
+    #             Clinic.id == onboarding_data.clinic_id,
+    #             Clinic.deleted_at.is_(None)
+    #         ).first()
             
-            if not clinic:
-                raise UserNotFoundException("Clinic not found")
+    #         if not clinic:
+    #             raise UserNotFoundException("Clinic not found")
 
-        # Update fields
-        doctor.specialization = onboarding_data.specialization
-        doctor.license_no = onboarding_data.license_no
-        doctor.experience_years = onboarding_data.experience_years
-        doctor.bio = onboarding_data.bio
-        doctor.clinic_id = onboarding_data.clinic_id
+    #     # Update fields
+    #     doctor.specialization = onboarding_data.specialization
+    #     doctor.license_no = onboarding_data.license_no
+    #     doctor.experience_years = onboarding_data.experience_years
+    #     doctor.bio = onboarding_data.bio
+    #     doctor.clinic_id = onboarding_data.clinic_id
 
-        self.db.commit()
-        self.db.refresh(doctor)
-        return doctor
+    #     self.db.commit()
+    #     self.db.refresh(doctor)
+    #     return doctor
 
     # ========== Clinic Methods ==========
 
