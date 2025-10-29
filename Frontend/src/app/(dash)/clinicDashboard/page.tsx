@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import ClinicSidePanel from "@/components/sidePanel/ClinicSidePanel";
+import ClinicSidePanel from "@/components/dashComps/sidePanel/ClinicSidePanel";
 import AddDoctor from "@/components/doctor/AddDoctor";
 
 export default function ClinicDashboardPage() {
