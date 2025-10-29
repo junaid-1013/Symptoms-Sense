@@ -10,11 +10,13 @@ import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Navbar = () => {
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const { clearAuthData, isAuthenticated, user, tokens } = useUser()
+  const router = useRouter();
 
   const profilePath = user?.user_type === "doctor" ? "/doctorProfile" : user?.user_type === "admin" ? "/adminDashboard" : "/profile"
 
@@ -26,6 +28,7 @@ const Navbar = () => {
           title: "Success!",
           description: "Successfully logged out",
         })
+        router.push("/login");
       })
       .catch((error) => {
         console.log("Logging out Failed", error.message)

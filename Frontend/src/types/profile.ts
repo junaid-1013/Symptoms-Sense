@@ -1,7 +1,13 @@
 export interface User {
-  username: string
-  email: string
-  image?: string
+  id: string;
+  email: string;
+  name: string;
+  phone?: string | null;
+  user_type?: string | null;
+  is_active: boolean;
+  is_email_verified: boolean;
+  avatar_url?: string | null;
+  last_login?: string | Date | null;
 }
 export interface Appointment {
   time: string
@@ -44,7 +50,6 @@ export interface ReminderCardProps {
   onCancel: () => void
 }
 export interface ProfileHeaderProps {
-  user: User
   stats: ProfileStats
 }
 export interface StatsGridProps {

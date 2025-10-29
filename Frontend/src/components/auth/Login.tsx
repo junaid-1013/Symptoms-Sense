@@ -29,9 +29,13 @@ const Login = () => {
                 setAuthData({ user, tokens });
                 if (!user?.user_type) {
                     router.push("/userType");
-                    } else {
-                    router.push("/");
-                    }
+                } else if (user?.user_type === "patient") {
+                    router.push("/profile");
+                } else if (user?.user_type === "clinic") {
+                    router.push("/clinicDashboard");
+                } else if (user?.user_type === "doctor") {
+                    router.push("/doctorProfile");
+                }
                 toast({
                     title: "Success!",
                     description: "Login Successful",
@@ -65,9 +69,9 @@ const Login = () => {
                 window.history.replaceState({}, document.title, window.location.pathname);
                 if (!user?.user_type) {
                     router.push("/userType");
-                    } else {
+                } else {
                     router.push("/");
-                    }
+                }
             } catch (error) {
                 toast({
                     title: "Failed!",

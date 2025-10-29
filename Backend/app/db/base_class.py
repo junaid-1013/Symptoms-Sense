@@ -40,6 +40,7 @@ class CustomBase:
 
     created_at = Column(
         DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
         server_default=func.now(),
         nullable=False,
         comment="Timestamp when record was created"

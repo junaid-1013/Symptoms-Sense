@@ -26,8 +26,15 @@ const Register = () => {
                 const user = response.data?.user;
                 const tokens = response.data?.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
-                console.log("Signup Success", response.data);
-                router.push("/");
+                if (!user?.user_type) {
+                    router.push("/userType");
+                }else if (user?.user_type === "patient") {
+                    router.push("/profile");
+                } else if (user?.user_type === "clinic") {
+                    router.push("/clinicDashboard");
+                } else if (user?.user_type === "doctor") {
+                    router.push("/doctorProfile");
+                }
                 toast({
                     title: "Success!",
                     description: "Signup Success.",

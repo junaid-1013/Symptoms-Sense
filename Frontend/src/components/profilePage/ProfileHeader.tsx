@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { useUser } from "@/contextApis/UserContext"
 import { ProfileHeaderProps } from "@/types"
 import {
   Activity,
@@ -14,7 +15,8 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 
-export const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
+export const ProfileHeader = ({ stats }: ProfileHeaderProps) => {
+  const { user } = useUser()
   return (
     <>
       <style jsx>{`
@@ -34,10 +36,10 @@ export const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
         }
       `}</style>
 
-        <Card className="mb-8 border-0 shadow-xl overflow-hidden bg-card/95 backdrop-blur">
-          <div className="h-48 relative overflow-hidden" style={{
-            background: 'linear-gradient(135deg, #192a56 0%, #273c75 100%)'
-          }}>
+      <Card className="mb-8 border-0 shadow-xl overflow-hidden bg-card/95 backdrop-blur">
+        <div className="h-48 relative overflow-hidden" style={{
+          background: 'linear-gradient(135deg, #192a56 0%, #273c75 100%)'
+        }}>
           {/* Abstract Medical Wave Pattern */}
           <div className="absolute inset-0">
             {/* Floating medical elements */}
@@ -133,7 +135,7 @@ export const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   alt="Profile"
-                  src={user.image || "/user.png"}
+                  src={user?.avatar_url || "/user.png"}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -145,15 +147,15 @@ export const ProfileHeader = ({ user, stats }: ProfileHeaderProps) => {
             <div className="flex-1 text-center md:text-left space-y-3">
               <div>
                 <h1 className="text-4xl font-bold text-foreground tracking-tight">
-                  {user.username}
+                  {user?.name}
                 </h1>
-                <p className="text-muted-foreground mt-1">Healthcare Patient</p>
+                <p className="text-muted-foreground mt-1">Patient</p>
               </div>
 
               <div className="flex flex-wrap gap-3 justify-center md:justify-start">
                 <Badge variant="secondary" className="gap-1.5 px-3 py-1.5">
                   <Mail className="w-3.5 h-3.5" />
-                  {user.email}
+                  {user?.email}
                 </Badge>
                 <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
                   <Activity className="w-3.5 h-3.5" />

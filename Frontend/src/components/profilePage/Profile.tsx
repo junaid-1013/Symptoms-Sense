@@ -1,7 +1,7 @@
 "use client"
 import { ProfileSkeleton } from "@/components/skeletons"
 import { useToast } from "@/components/ui/use-toast"
-import { Appointment, CompletedAppointment, ProfileStats, Reminder, User } from "@/types/profile"
+import { Appointment, CompletedAppointment, ProfileStats, Reminder } from "@/types/profile"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from "react"
@@ -12,13 +12,7 @@ import { TabsSection } from "./TabsSection"
 const Profile = () => {
   const router = useRouter()
   const { toast } = useToast()
-  const [appCheck, setApp] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [profileUser, setProfileUser] = useState<User>({
-    username: "",
-    email: "",
-    image: "/user.png"
-  })
+  const [loading, setLoading] = useState(false)
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [completedAppointments, setCompletedAppointments] = useState<CompletedAppointment[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
@@ -83,29 +77,8 @@ const Profile = () => {
   }, [appointments, completeAppointment])
 
   useEffect(() => {
-    axios
-      .get("/api/users/profile")
-      .then((response) => {
-        const ress = response.data
-        setProfileUser({
-          username: ress.username,
-          email: ress.email,
-          image: ress.image?.url || "/user.png"
-        })
-        setAppointments(ress.appointments || [])
-        setReminders(ress.reminders || [])
-        setCompletedAppointments(ress.CompletedAppointments || [])
-        setLoading(false)
-        setApp("hello")
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error)
-      })
-  }, [])
-
-  useEffect(() => {
     checkAppointments()
-  }, [appCheck, checkAppointments])
+  }, [checkAppointments])
 
   // Calculate stats
   const totalAppointments = appointments.length + completedAppointments.length
@@ -126,7 +99,7 @@ const Profile = () => {
         <ProfileSkeleton />
       ) : (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <ProfileHeader user={profileUser} stats={stats} />
+          <ProfileHeader stats={stats} />
           <StatsGrid stats={stats} />
           <TabsSection
             appointments={appointments}
