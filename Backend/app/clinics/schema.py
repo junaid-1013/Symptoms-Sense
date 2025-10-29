@@ -1,8 +1,9 @@
 """
 Clinics API schemas for patient frontend.
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
+from datetime import datetime
 
 class ClinicBasicInfo(BaseModel):
     """Basic clinic information for patient frontend."""
@@ -37,3 +38,35 @@ class ClinicDetailResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ========== Clinic Doctor Registration Schemas ==========
+
+class ClinicRegisterDoctorRequest(BaseModel):
+    """Request for clinic to register a doctor."""
+    email: EmailStr = Field(..., description="Doctor's email")
+    name: str = Field(..., min_length=2, max_length=100, description="Doctor's full name")
+    phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
+    password: str = Field(..., min_length=8, description="Password for doctor's account")
+
+class ClinicDoctorBasicInfo(BaseModel):
+    """Basic doctor information for clinic view."""
+    id: str
+    user_id: str
+    name: Optional[str]
+    email: Optional[str]
+    status: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ClinicDoctorsResponse(BaseModel):
+    """Response containing all doctors in a clinic."""
+    doctors: List[ClinicDoctorBasicInfo]
+    total: int
+    clinic_id: str
+    clinic_name: Optional[str] = None
+
+class ClinicRegisterDoctorResponse(BaseModel):
+    message: str
+    clinic_doctors: ClinicDoctorsResponse
