@@ -5,52 +5,24 @@ import { useToast } from "@/components/ui/use-toast";
 import AppDropdown from "@/components/uiUtils/AppDropdown";
 import { NAV_LINKS } from "@/config/constants";
 import { useUser } from "@/contextApis/UserContext";
-import { LogoutApi } from "@/endPoints/auth.endPoints";
+import { useLogout } from "@/hooks/useLogout";
+import { getUserInitials } from "@/utils/user";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const Navbar = () => {
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
-  const { clearAuthData, isAuthenticated, user, tokens } = useUser()
+  const { isAuthenticated, user } = useUser()
   const router = useRouter();
+  const { onLogout } = useLogout()
 
   const profilePath = user?.user_type === "doctor" ? "/doctorProfile" : user?.user_type === "admin" ? "/adminDashboard" : "/profile"
 
-  const onLogout = async () => {
-    LogoutApi(tokens?.refreshToken || "")
-      .then((response) => {
-        clearAuthData()
-        toast({
-          title: "Success!",
-          description: "Successfully logged out",
-        })
-        router.push("/login");
-      })
-      .catch((error) => {
-        console.log("Logging out Failed", error.message)
-        toast({
-          title: "Failed!",
-          description: "Logging out Failed",
-          variant: "destructive",
-        })
-      })
-  }
 
-  const getUserInitials = () => {
-    if (user?.name) {
-      return user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
-    }
-    return "U"
-  }
 
   return (
     <header className="flex items-center w-full bg-[#192a56] md:px-16 px-4 shadow-md">
