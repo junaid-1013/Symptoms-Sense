@@ -1,23 +1,44 @@
 "use client";
-
+import { AppSidebar } from "@/components/dashComps/AppSidebar";
+import { DashHeader } from "@/components/dashComps/DashHeader";
+import { ChartAreaInteractive } from "@/components/dashComps/chart-area-interactive";
+import { SectionCards } from "@/components/dashComps/section-cards";
+import AddDoctorHome from "@/components/doctor/AddDoctorHome";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useState } from "react";
-import ClinicSidePanel from "@/components/dashComps/sidePanel/ClinicSidePanel";
-import AddDoctor from "@/components/doctor/AddDoctor";
 
-export default function ClinicDashboardPage() {
-  const [panelName, setPanelName] = useState("Add Doctor");
+export default function Page() {
+  const [selectedSection, setSelectedSection] = useState("Dashboard")
 
   return (
-    <div className="flex">
-      <ClinicSidePanel setPanelName={setPanelName} />
-      <div className="flex-1 h-screen bg-gray-50">
-        <div className="p-4 border-b bg-white font-semibold text-gray-700">
-          {panelName}
-        </div>
-        <div className="p-4">
-          {panelName === "Add Doctor" && <AddDoctor />}
-        </div>
-      </div>
-    </div>
-  );
+    <SidebarProvider>
+      <AppSidebar
+        variant="inset"
+        selectedSection={selectedSection}
+        onSelectSection={setSelectedSection}
+      />
+      <SidebarInset>
+        <DashHeader title={selectedSection} />
+        <ScrollArea className="h-[90vh]">
+          <div className="flex flex-1 flex-col">
+            <div className="container flex flex-1 flex-col gap-2">
+              <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+                {selectedSection === "Doctors" ?
+                  <AddDoctorHome />
+                  : selectedSection === "Appointments" ?
+                    <div className="p-4">Appointments Section</div>
+                    :
+                    <>
+                      <SectionCards />
+                      <div className="px-4 lg:px-6"><ChartAreaInteractive /></div>
+                    </>
+                }
+              </div>
+            </div>
+          </div>
+        </ScrollArea>
+      </SidebarInset>
+    </SidebarProvider>
+  )
 }
