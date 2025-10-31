@@ -9,7 +9,7 @@ from app.db.database import get_db
 from app.auth.dependencies import get_current_user
 from app.doctors.dependencies import get_current_clinic, get_current_doctor, verify_clinic_owns_doctor
 from app.doctors.schema import (
-    DoctorListResponse, 
+    DoctorListResponse,
     DoctorDetailResponse,
     DoctorCreateRequest,
     DoctorCreateResponse,
@@ -19,6 +19,7 @@ from app.doctors.schema import (
     DoctorDeleteResponse,
     ClinicDoctorsResponse
 )
+from app.clinics.schema import ClinicDoctorBasicInfo
 from app.doctors.service import DoctorsService
 from app.models.user import User
 from app.models.clinic import Clinic
@@ -135,7 +136,7 @@ async def create_doctor(
         )
         
         # Get all clinic doctors (including the newly created one)
-        all_doctors = doctors_service.get_all_clinic_doctors_detailed(current_clinic.id)
+        all_doctors = doctors_service.get_all_clinic_doctors_basic(current_clinic.id)
         
         # Build response with all clinic doctors
         return DoctorCreateResponse(
@@ -180,7 +181,7 @@ async def update_doctor(
         )
         
         # Get all clinic doctors (including the just-updated one)
-        all_doctors = doctors_service.get_all_clinic_doctors_detailed(current_clinic.id)
+        all_doctors = doctors_service.get_all_clinic_doctors_basic(current_clinic.id)
         
         # Build response with all clinic doctors
         return DoctorUpdateResponse(
@@ -229,7 +230,7 @@ async def delete_doctor(
             )
         
         # Get remaining clinic doctors (automatically excludes soft-deleted)
-        remaining_doctors = doctors_service.get_all_clinic_doctors_detailed(current_clinic.id)
+        remaining_doctors = doctors_service.get_all_clinic_doctors_basic(current_clinic.id)
         
         # Build response with remaining doctors
         return DoctorDeleteResponse(
