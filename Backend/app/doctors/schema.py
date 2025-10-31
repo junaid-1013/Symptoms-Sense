@@ -4,6 +4,7 @@ Doctor schemas for request/response validation.
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from datetime import datetime
+from app.clinics.schema import ClinicDoctorBasicInfo
 
 
 # ========== Request Schemas ==========
@@ -95,7 +96,7 @@ class DoctorListResponse(BaseModel):
 
 class ClinicDoctorsResponse(BaseModel):
     """Response containing all doctors in a clinic."""
-    doctors: List[DoctorDetailResponse]
+    doctors: List[ClinicDoctorBasicInfo]
     total: int
     clinic_id: str
     clinic_name: Optional[str] = None

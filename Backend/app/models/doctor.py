@@ -1,7 +1,7 @@
 """
 Doctor and Timeslot models.
 """
-from sqlalchemy import Column, String, Integer, Text, Boolean, DateTime, ForeignKey
+from sqlalchemy import Column, String, Integer, Text, Boolean, DateTime, ForeignKey,Time
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -37,8 +37,8 @@ class DoctorSchedule(Base, SoftDeletableMixin):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     doctor_id = Column(String, ForeignKey("doctor.id", ondelete="CASCADE"), nullable=False)
     day_of_week = Column(String, nullable=False)  
-    start_time = Column(DateTime, nullable=False)     
-    end_time = Column(DateTime, nullable=False)       
+    start_time = Column(Time, nullable=False)     
+    end_time = Column(Time, nullable=False)       
     slot_duration = Column(Integer, default=30)   
     is_active = Column(Boolean, default=True, nullable=False)
 

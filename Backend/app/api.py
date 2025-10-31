@@ -9,6 +9,7 @@ from app.onboarding.controller import router as onboarding_router
 from app.doctors.controller import router as doctors_router
 from app.clinics.controller import router as clinics_router
 from app.prescriptions.controller import router as prescriptions_router
+from app.schedules.controller import router as schedules_router
 # from app.appointment.controller import router as appointment_router
 
 # Create main API router
@@ -20,4 +21,5 @@ api_router.include_router(onboarding_router)
 api_router.include_router(doctors_router)
 api_router.include_router(clinics_router)
 api_router.include_router(prescriptions_router)
+api_router.include_router(schedules_router)
 # api_router.include_router(appointment_router)
