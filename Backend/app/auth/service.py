@@ -12,7 +12,11 @@ from app.core.exceptions import (
     UserAlreadyExistsException, InvalidPasswordException, GoogleOAuthException
 )
 from app.models.user import User, RefreshToken
-from app.auth.schema import UserRegister, UserLogin, TokenResponse
+from app.auth.schema import UserRegister, UserLogin, TokenResponse, PatientLoginResponse, DoctorLoginResponse, ClinicLoginResponse
+from app.models.patient import Patient
+from app.models.doctor import Doctor
+from app.models.clinic import Clinic
+from sqlalchemy.orm import joinedload
 from app.core.config import config
 
 class AuthService:
@@ -74,18 +78,18 @@ class AuthService:
         user = self.authenticate_user(login_data.email, login_data.password)
         if not user:
             raise InvalidCredentialsException()
-        
+
         if not user.is_active:
             raise UserInactiveException()
-        
+
         # Update last login
         user.last_login = datetime.now(timezone.utc)
         self.db.commit()
-        
+
         # Create tokens
         access_token = SecurityUtils.create_access_token({"sub": user.id, "email": user.email})
         refresh_token = SecurityUtils.create_refresh_token({"sub": user.id})
-        
+
         self.store_refresh_token(user.id, refresh_token)
 
         token_response = TokenResponse(
@@ -93,8 +97,137 @@ class AuthService:
             refresh_token=refresh_token,
             expires_in=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60
         )
-        
+
         return user, token_response
+
+    def get_login_response_data(self, user: User):
+        """Get login response data based on user type."""
+        if user.user_type == "patient":
+            # Get patient data
+            patient = self.db.query(Patient).filter(Patient.user_id == user.id).first()
+            if patient:
+                return PatientLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login,
+                    patient_id=patient.id,
+                    age=patient.age,
+                    gender=patient.gender,
+                    blood_group=patient.blood_group,
+                    emergency_contact=patient.emergency_contact,
+                    address=patient.address
+                )
+            else:
+                # Return basic user data if no patient record
+                return PatientLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login
+                )
+
+        elif user.user_type == "doctor":
+            # Get doctor data with clinic info
+            doctor = self.db.query(Doctor).options(
+                joinedload(Doctor.clinic).joinedload(Clinic.user)
+            ).filter(Doctor.user_id == user.id).first()
+            if doctor:
+                clinic_name = doctor.clinic.user.name if doctor.clinic else None
+                clinic_address = doctor.clinic.address if doctor.clinic else None
+                return DoctorLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login,
+                    doctor_id=doctor.id,
+                    specialization=doctor.specialization,
+                    license_no=doctor.license_no,
+                    experience_years=doctor.experience_years,
+                    bio=doctor.bio,
+                    clinic_id=doctor.clinic_id,
+                    clinic_name=clinic_name,
+                    clinic_address=clinic_address,
+                    status=doctor.status
+                )
+            else:
+                # Return basic user data if no doctor record
+                return DoctorLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login
+                )
+
+        elif user.user_type == "clinic":
+            # Get clinic data
+            clinic = self.db.query(Clinic).filter(Clinic.user_id == user.id).first()
+            if clinic:
+                # Get clinic doctors details using ClinicsService
+                from app.clinics.service import ClinicsService
+                clinics_service = ClinicsService(self.db)
+                clinic_doctors = clinics_service.get_all_clinic_doctors_basic(clinic.id)
+
+                clinic_doctors_data = {
+                    "doctors": [doctor.model_dump() for doctor in clinic_doctors],
+                }
+
+                return ClinicLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login,
+                    clinic_id=clinic.id,
+                    address=clinic.address,
+                    registration_no=clinic.registration_no,
+                    established_year=clinic.established_year,
+                    total_doctors=clinic.total_doctors,
+                    status=clinic.status,
+                    clinic_doctors=clinic_doctors_data
+                )
+            else:
+                # Return basic user data if no clinic record
+                return ClinicLoginResponse(
+                    id=user.id,
+                    email=user.email,
+                    name=user.name,
+                    phone=user.phone,
+                    user_type=user.user_type,
+                    is_active=user.is_active,
+                    is_email_verified=user.is_email_verified,
+                    avatar_url=user.avatar_url,
+                    last_login=user.last_login
+                )
+
+        else:
+            # For admin or other user types, return basic user response
+            from app.auth.schema import UserResponse
+            return UserResponse.model_validate(user)
     
     def register(self, user_data: UserRegister) -> Tuple[User, TokenResponse]:
         """Register a new user and return tokens."""

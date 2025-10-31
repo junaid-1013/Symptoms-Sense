@@ -29,7 +29,85 @@ class UserResponse(BaseModel):
     is_email_verified: bool
     avatar_url: Optional[str]
     last_login: Optional[datetime]
-    
+
+    class Config:
+        from_attributes = True
+
+class PatientLoginResponse(BaseModel):
+    """Patient login response with user and patient data."""
+    # User fields
+    id: str
+    email: str
+    name: str
+    phone: Optional[str]
+    user_type: Optional[str]
+    is_active: bool
+    is_email_verified: bool
+    avatar_url: Optional[str]
+    last_login: Optional[datetime]
+
+    # Patient fields
+    patient_id: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    blood_group: Optional[str] = None
+    emergency_contact: Optional[str] = None
+    address: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class DoctorLoginResponse(BaseModel):
+    """Doctor login response with user and doctor data."""
+    # User fields
+    id: str
+    email: str
+    name: str
+    phone: Optional[str]
+    user_type: Optional[str]
+    is_active: bool
+    is_email_verified: bool
+    avatar_url: Optional[str]
+    last_login: Optional[datetime]
+
+    # Doctor fields
+    doctor_id: Optional[str] = None
+    specialization: Optional[str] = None
+    license_no: Optional[str] = None
+    experience_years: Optional[int] = None
+    bio: Optional[str] = None
+    clinic_id: Optional[str] = None
+    clinic_name: Optional[str] = None
+    clinic_address: Optional[str] = None
+    status: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+class ClinicLoginResponse(BaseModel):
+    """Clinic login response with user and clinic data."""
+    # User fields
+    id: str
+    email: str
+    name: str
+    phone: Optional[str]
+    user_type: Optional[str]
+    is_active: bool
+    is_email_verified: bool
+    avatar_url: Optional[str]
+    last_login: Optional[datetime]
+
+    # Clinic fields
+    clinic_id: Optional[str] = None
+    address: Optional[str] = None
+    registration_no: Optional[str] = None
+    established_year: Optional[int] = None
+    total_doctors: Optional[int] = None
+    status: Optional[str] = None
+
+    # Clinic doctors details
+    clinic_doctors: Optional[dict] = None  # Will contain doctors list, total, clinic_id, clinic_name
+
     class Config:
         from_attributes = True
 
