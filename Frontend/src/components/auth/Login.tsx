@@ -17,8 +17,8 @@ const Login = () => {
     const { toast } = useToast()
     type FormData = { email: string; password: string };
     const router = useRouter();
-    const { setAuthData } = useUser();
-    const { register, handleSubmit, getValues, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
+    const { setAuthData, setClinicDoctors } = useUser();
+    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
     const onLogin = async (data: FormData) => {
         LoginApi({ email: data.email, password: data.password })
@@ -32,6 +32,7 @@ const Login = () => {
                 } else if (user?.user_type === "patient") {
                     router.push("/profile");
                 } else if (user?.user_type === "clinic") {
+                    setClinicDoctors(response.data.user.clinic_doctors.doctors)
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
                     router.push("/doctorProfile");
