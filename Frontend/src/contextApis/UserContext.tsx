@@ -38,6 +38,8 @@ interface UserContextType {
   updateUserType: (type: string) => void;
   clinicId: string | null;
   setClinicId: (id: string) => void;
+  clinicDoctors: any[] | null;
+  setClinicDoctors: (docs: any[]) => void;
 }
 
 // DEFAULT STATE
@@ -63,9 +65,11 @@ const UserContext = createContext<UserContextType>({
   isAuthenticated: false,
   setAuthData: () => { },
   clearAuthData: () => { },
-  updateUserType: () => { }, 
+  updateUserType: () => { },
   clinicId: null,
-  setClinicId: () => {}
+  setClinicId: () => { },
+  clinicDoctors: null,
+  setClinicDoctors: () => { },
 });
 
 
@@ -76,6 +80,7 @@ export function useUser() {
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(defaultState);
   const [clinicId, setClinicIdState] = useState<string | null>(null);
+  const [clinicDoctors, setClinicDoctorsState] = useState<any[] | null>(null);
 
   const setClinicId = (id: string) => {
     setClinicIdState(id);
@@ -95,11 +100,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const setClinicDoctors = useCallback((data: any[]) => {
+    setClinicDoctorsState(data || []);
+    writeStorage(STORAGE_KEYS.clinicDoctors, data)
+  }, []);
+
   const clearAuthData = useCallback(() => {
     setState(defaultState);
-    writeStorage(STORAGE_KEYS.user, null);
-    writeStorage(STORAGE_KEYS.tokens, null);
-    writeStorage(STORAGE_KEYS.clinicId, null);
+    localStorage.clear();
   }, []);
 
   const updateUserType = useCallback((type: string) => {
@@ -136,8 +144,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     clearAuthData,
     updateUserType,
     clinicId,
-    setClinicId
-  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, , updateUserType, clinicId, setClinicId]);
+    setClinicId,
+    clinicDoctors,
+    setClinicDoctors
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, , updateUserType, clinicId, setClinicId, clinicDoctors, setClinicDoctors]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

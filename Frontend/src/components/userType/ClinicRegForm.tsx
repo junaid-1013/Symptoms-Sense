@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { RegisterClientApi } from "@/endPoints/clinic.endPoints"; 
+import { RegisterClinicApi } from "@/endPoints/clinic.endPoints"; 
 import { useUser } from "@/contextApis/UserContext";
 import { allowOnlyNumbers } from "../utils/Functions";
 import { RegisterClinicApiProps } from "@/types";
@@ -29,11 +29,10 @@ export default function ClinicRegForm() {
     }
 
     setLoading(true);
-    RegisterClientApi({
+    RegisterClinicApi({
       address: data.address,
       registration_no: data.registration_no,
       established_year: Number(data.established_year),
-      total_doctors: Number(data.total_doctors),
       token: tokens.accessToken,
     })
       .then((response) => {
@@ -96,22 +95,7 @@ export default function ClinicRegForm() {
           />
           {errors.established_year && <p className="text-red-500 text-sm">{errors.established_year.message}</p>}
         </div>
-
-        {/* Total Doctors */}
-        <div>
-          <Label>Total Doctors</Label>
-          <Input
-            type="number"
-            placeholder="Enter total number of doctors"
-            {...register("total_doctors", {
-              required: "Total doctors count is required",
-              min: { value: 1, message: "At least one doctor required" },
-            })}
-            onKeyDown={allowOnlyNumbers}
-          />
-          {errors.total_doctors && <p className="text-red-500 text-sm">{errors.total_doctors.message}</p>}
-        </div>
-
+        
         {/* Submit Button */}
               <SpinnerButton
                   type="submit"
