@@ -100,6 +100,13 @@ async def onboard_doctor(
     db: Session = Depends(get_db)
 ):
     """Onboard a doctor"""
+    # Verify user is a doctor
+    if current_user.user_type != "doctor":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only doctors can onboard as doctors"
+        )
+
     service = OnboardingService(db)
     return create_profile(
         service.create_doctor_profile,

@@ -51,7 +51,6 @@ class DoctorOnboardingRequest(BaseModel):
     license_no: str = Field(..., min_length=1, max_length=50)
     experience_years: int = Field(..., ge=0, le=100)
     bio: Optional[str] = Field(None, min_length=1, max_length=1000)
-    clinic_id: Optional[str] = Field(None)
 
 
 class DoctorOnboardingResponse(BaseModel):
