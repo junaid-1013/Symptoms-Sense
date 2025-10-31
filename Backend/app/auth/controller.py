@@ -55,12 +55,14 @@ async def login(
 ):
     """Login user with email and password."""
     auth_service = AuthService(db)
-    
+
     try:
         user, tokens = auth_service.login(login_data)
+        # Get user-specific response data based on user type
+        user_data = auth_service.get_login_response_data(user)
         return {
             "message": "Login successful",
-            "user": UserResponse.model_validate(user),
+            "user": user_data,
             "tokens": tokens
         }
     except (InvalidCredentialsException, UserInactiveException) as e:
@@ -121,12 +123,14 @@ async def google_oauth_login(
 ):
     """Login with Google OAuth2."""
     auth_service = AuthService(db)
-    
+
     try:
         user, tokens = await auth_service.google_oauth_login(google_data.code)
+        # Get user-specific response data based on user type
+        user_data = auth_service.get_login_response_data(user)
         return {
             "message": "Google login successful",
-            "user": UserResponse.model_validate(user),
+            "user": user_data,
             "tokens": tokens
         }
     except GoogleOAuthException as e:
