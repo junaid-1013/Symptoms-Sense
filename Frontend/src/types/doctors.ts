@@ -13,6 +13,19 @@ export interface DocSchema {
     reservations: (string | any)[]
     feedbacks: (string | any)[]
 }
+export interface DoctorBasicInfo {
+    id: string;
+    user_id: string;
+    name?: string;
+    email?: string;
+    specialization?: string;
+    experience_years?: number;
+    bio?: string;
+    clinic_name?: string;
+    clinic_address?: string;
+    status: string;
+    img?: string;
+}
 export interface DoctorRegistrationFormValues {
     img: any;
     name: string;

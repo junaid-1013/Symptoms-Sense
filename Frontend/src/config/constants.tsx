@@ -1,4 +1,3 @@
-
 import { Bot, Stethoscope, Workflow, Building, BarChartIcon, UserCircle, HelpCircleIcon } from "lucide-react";
 import { FaUserDoctor } from "react-icons/fa6";
 
@@ -79,6 +78,7 @@ export const CONTACT_INFO = {
 };
 export const NAV_LINKS = [
     { label: "Home", href: "/" },
+    { label: "Doctors", href: "/doctors" },
     { label: "Chat", href: "/#chat" },
     { label: "Services", href: "/#services" },
     { label: "Testimonials", href: "/#feedback" },
