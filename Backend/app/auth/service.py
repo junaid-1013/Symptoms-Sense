@@ -18,7 +18,7 @@ from app.models.doctor import Doctor
 from app.models.clinic import Clinic
 from sqlalchemy.orm import joinedload
 from app.core.config import config
-
+from app.clinics.service import ClinicsService
 class AuthService:
     """Authentication service class."""
     
@@ -184,7 +184,7 @@ class AuthService:
             clinic = self.db.query(Clinic).filter(Clinic.user_id == user.id).first()
             if clinic:
                 # Get clinic doctors details using ClinicsService
-                from app.clinics.service import ClinicsService
+                
                 clinics_service = ClinicsService(self.db)
                 clinic_doctors = clinics_service.get_all_clinic_doctors_basic(clinic.id)
 

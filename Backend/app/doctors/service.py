@@ -24,7 +24,8 @@ from app.core.exceptions import (
     UserAlreadyExistsException
 )
 
-
+from app.clinics.schema import ClinicDoctorBasicInfo
+from app.clinics.service import ClinicsService
 class DoctorsService:
     """Doctor service class."""
 
@@ -446,9 +447,9 @@ class DoctorsService:
 
     # ==========  NEW METHOD - ADD THIS ========== 
 
-    def get_all_clinic_doctors_detailed(self, clinic_id: str) -> List[DoctorDetailResponse]:
+    def get_all_clinic_doctors_basic(self, clinic_id: str) -> List[ClinicDoctorBasicInfo]:
         """
-        Get all doctors in a clinic with detailed info (for clinic owner).
+        Get all doctors in a clinic with basic info (for clinic owner).
         """
         doctors = self.db.query(Doctor).options(
             joinedload(Doctor.user),
@@ -458,7 +459,9 @@ class DoctorsService:
             Doctor.deleted_at.is_(None)  # Exclude soft-deleted
         ).order_by(Doctor.created_at.desc()).all()
 
-        return [self._build_doctor_detail_response(doctor) for doctor in doctors]
+        
+        clinics_service = ClinicsService(self.db)
+        return [clinics_service._build_clinic_doctor_basic_info(doctor) for doctor in doctors]
 
     # ========== Helper Methods ==========
 
