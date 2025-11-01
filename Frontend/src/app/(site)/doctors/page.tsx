@@ -1,43 +1,50 @@
 "use client";
-import { useEffect, useState } from "react";
-import axiosInstance from "@/lib/axiosInstance";
-import { DoctorBasicInfo } from "@/types/doctors";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { GraduationCap, MapPin, UserCheck, Search, Filter } from "lucide-react";
-import Link from "next/link";
-import { DoctorCardSkeleton } from "@/components/skeletons";
-import { DOCTOR_SPECIALIZATIONS } from "@/config/constants";
 import DoctorCard from "@/components/landingPage/DoctorCard";
+import { DoctorCardSkeleton } from "@/components/skeletons";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
+import { DOCTOR_SPECIALIZATIONS } from "@/config/constants";
+import { GetAllDoctorsApi } from "@/endPoints/public.endPoints";
+import { DoctorBasicInfo } from "@/types/doctors";
+import { Filter, Search, UserCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+
 export default function DoctorsPage() {
   const [loading, setLoading] = useState(true);
   const [doctors, setDoctors] = useState<DoctorBasicInfo[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const [clinicId, setClinicId] = useState("");
+  const { toast } = useToast();
 
-  const fetchDoctors = async (search = "", specialization = "", clinic = "") => {
-    try {
-      setLoading(true);
-      const params = new URLSearchParams();
-      if (search) params.append("search", search);
-      if (specialization && specialization !== "all") params.append("specialization", specialization);
-      if (clinic) params.append("clinic_id", clinic);
-
-      const response = await axiosInstance.get(`/doctors/search?${params.toString()}`);
-      setDoctors(response.data.doctors);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching doctors:", error);
-      setLoading(false);
-    }
+  const fetchDoctors = (search = "", specialization = "", clinic = "") => {
+    setLoading(true);
+    GetAllDoctorsApi({ search, specialization, clinic })
+      .then((response) => {
+        setDoctors(response.data.doctors);
+        toast({
+          title: "Success",
+          description: "Doctors fetched successfully",
+        });
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching doctors:", error);
+        toast({
+          title: "Error",
+          description: error.response.data.detail || "An unkown error occurred. Please try again later.",
+          variant: "destructive",
+        });
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
     fetchDoctors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSearch = () => {
@@ -119,8 +126,8 @@ export default function DoctorsPage() {
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <DoctorCardSkeleton key={i} />)
             : doctors.map((doctor) => (
-                <DoctorCard key={doctor.id} doctor={doctor} />
-              ))}
+              <DoctorCard key={doctor.id} doctor={doctor} />
+            ))}
         </div>
 
         {doctors.length === 0 && !loading && (
@@ -135,4 +142,3 @@ export default function DoctorsPage() {
     </section>
   );
 }
-
