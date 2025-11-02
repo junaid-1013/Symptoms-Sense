@@ -1,7 +1,7 @@
-import DoctorRegistration from "@/components/DoctorRegistration";
+import DoctorRegForm from "@/components/doctor/DoctorRegForm";
 
 export default function doctorRegistration() {
     return (
-        <DoctorRegistration />
+        < DoctorRegForm/>
     )
 }

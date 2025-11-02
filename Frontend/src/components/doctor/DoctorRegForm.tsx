@@ -25,35 +25,34 @@ const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 export default function AddDoctor() {
   const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<RegisterDoctorApiProps>();
   const [loading, setLoading] = useState(false);
-  const { tokens, clinicId } = useUser();
+  const { tokens, updateUserDetails} = useUser();
   const [bio, setBio] = useState("");
 
   const onAddDoctor = (data: RegisterDoctorApiProps) => {
-    if (!tokens?.accessToken) {
-      toast({
-        title: "Unauthorized",
-        description: "Please log in again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
     DoctorOnboardingApi({
       specialization: data.specialization,
       license_no: data.license_no,
       experience_years: Number(data.experience_years),
       bio: bio,
-      clinic_id: clinicId ?? "",
-      token: tokens.accessToken,
+      token: tokens?.accessToken || "",
     })
-      .then(() => {
-        toast({
+      .then((response) => {
+        if(response){
+          updateUserDetails({
+          specialization: data.specialization,
+          license_no: data.license_no,
+          experience_years: Number(data.experience_years),
+          bio: bio,
+        });
+          reset();
+          setBio("");
+          setLoading(false);
+          toast({
           title: "Success!",
           description: "Doctor added successfully.",
         });
-        reset();
-        setBio("");
+        }
       })
       .catch((error) => {
         toast({
@@ -68,7 +67,7 @@ export default function AddDoctor() {
   return (
     <div className="flex justify-center items-center min-h-[calc(100vh-100px)] bg-gray-50 px-4 py-8">
       <div className="w-full max-w-2xl bg-white shadow-md rounded-2xl p-8 border border-blue-100">
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-700">Add Doctor</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center text-blue-900">Doctor Registration</h2>
 
         <form onSubmit={handleSubmit(onAddDoctor)} className="space-y-4">
           {/* Specialization Dropdown */}
@@ -136,7 +135,7 @@ export default function AddDoctor() {
           </div>
           {/* Submit Button */}
           <div className="pt-2">
-            <SpinnerButton type="submit" state={loading} name="Add Doctor" className="w-full" />
+            <SpinnerButton type="submit" state={loading} name="Register" className="w-full" />
           </div>
         </form>
       </div>

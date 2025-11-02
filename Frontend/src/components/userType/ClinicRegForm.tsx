@@ -16,7 +16,7 @@ export default function ClinicRegForm() {
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterClinicApiProps>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { tokens, updateUserType , setClinicId} = useUser();
+  const { tokens, updateUserType} = useUser();
 
   const onRegister = (data: RegisterClinicApiProps) => {
     if (!tokens?.accessToken) {
@@ -41,7 +41,6 @@ export default function ClinicRegForm() {
           description: "Clinic registered successfully.",
         });
         updateUserType(response.data.user_type);
-        setClinicId(response.data.id);
         router.push("/clinicDashboard");
       })
       .catch((error) => {
