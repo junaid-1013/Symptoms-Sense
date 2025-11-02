@@ -44,6 +44,7 @@ class DoctorSchedule(Base, SoftDeletableMixin):
 
     # Relationships
     doctor = relationship("Doctor", back_populates="schedules")
+    timeslots = relationship("Timeslot", back_populates="schedule")
 
 class Timeslot(Base, SoftDeletableMixin):
     """Actual bookable slot generated dynamically from DoctorSchedule."""
@@ -59,4 +60,4 @@ class Timeslot(Base, SoftDeletableMixin):
     # Relationships
     doctor = relationship("Doctor", back_populates="timeslots")
     appointments = relationship("Appointment", back_populates="timeslot")
-    schedule = relationship("DoctorSchedule")
+    schedule = relationship("DoctorSchedule", back_populates="timeslots")
