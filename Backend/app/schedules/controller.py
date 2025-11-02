@@ -21,7 +21,6 @@ from app.schedules.schema import (
     TimeslotsResponse,
     GenerateTimeslotsRequest,
     GenerateTimeslotsResponse,
-    DayScheduleResponse,
     AllDoctorsSchedulesResponse
 )
 from app.schedules.service import DoctorScheduleService
