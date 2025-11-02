@@ -14,6 +14,17 @@ interface User {
   is_email_verified: boolean;
   avatar_url?: string | null;
   last_login?: string | Date | null;
+
+  specialization?: string | null;
+  license_no?: string | null;
+  experience_years?: number | null;
+  bio?: string | null;
+  doctor_id?: string | null;
+  clinic_id?: string | null;
+  clinic_name?: string | null;
+  clinic_address?: string | null;
+  status?: string | null;
+
 }
 
 interface Tokens {
@@ -36,10 +47,9 @@ interface UserContextType {
   setAuthData: (data: { user?: User | null; tokens?: Tokens | null }) => void;
   clearAuthData: () => void;
   updateUserType: (type: string) => void;
-  clinicId: string | null;
-  setClinicId: (id: string) => void;
   clinicDoctors: any[] | null;
   setClinicDoctors: (docs: any[]) => void;
+  updateUserDetails: (updates: Partial<User>) => void;
 }
 
 // DEFAULT STATE
@@ -66,10 +76,9 @@ const UserContext = createContext<UserContextType>({
   setAuthData: () => { },
   clearAuthData: () => { },
   updateUserType: () => { },
-  clinicId: null,
-  setClinicId: () => { },
   clinicDoctors: null,
   setClinicDoctors: () => { },
+  updateUserDetails: () => { }
 });
 
 
@@ -79,13 +88,8 @@ export function useUser() {
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(defaultState);
-  const [clinicId, setClinicIdState] = useState<string | null>(null);
   const [clinicDoctors, setClinicDoctorsState] = useState<any[] | null>(null);
 
-  const setClinicId = (id: string) => {
-    setClinicIdState(id);
-    localStorage.setItem(STORAGE_KEYS.clinicId, id);
-  };
   const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
     setState((prev) => {
       const normalizedTokens = normalizeTokens(tokens);
@@ -119,6 +123,16 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+const updateUserDetails = useCallback((updates: Partial<User>) => {
+  setState((prev) => {
+    if (!prev.user) return prev;
+    const updatedUser = { ...prev.user, ...updates };
+    writeStorage(STORAGE_KEYS.user, updatedUser);
+    return { ...prev, user: updatedUser };
+  });
+}, []);
+
+
   //Get Data from Local Storage on load
   useEffect(() => {
     const storedTokensRaw = readStorage(STORAGE_KEYS.tokens);
@@ -127,11 +141,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     if (storedTokens || storedUser) {
       setAuthData({ user: storedUser ?? null, tokens: storedTokens ?? null });
-    }
-
-    const storedClinicId = localStorage.getItem(STORAGE_KEYS.clinicId);
-    if (storedClinicId) {
-      setClinicIdState(storedClinicId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -143,11 +152,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setAuthData,
     clearAuthData,
     updateUserType,
-    clinicId,
-    setClinicId,
     clinicDoctors,
-    setClinicDoctors
-  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, , updateUserType, clinicId, setClinicId, clinicDoctors, setClinicDoctors]);
+    setClinicDoctors,
+    updateUserDetails
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, updateUserType, clinicDoctors, setClinicDoctors]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

@@ -7,7 +7,6 @@ export const DoctorOnboardingApi = async ({
   license_no,
   experience_years,
   bio,
-  clinic_id,
   token
 }: RegisterDoctorApiProps) => {
   const response = await axiosInstance.post(
@@ -17,7 +16,6 @@ export const DoctorOnboardingApi = async ({
       license_no,
       experience_years,
       bio,
-      clinic_id,
       token
     },
     {
