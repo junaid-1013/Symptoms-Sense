@@ -1,17 +1,6 @@
 "use client";
-
-import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
-import { useState } from "react";
-import { DoctorOnboardingApi } from "@/endPoints/doctor.endPoints";
-import { RegisterDoctorApiProps } from "@/types";
-import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
-import { useUser } from "@/contextApis/UserContext";
-import dynamic from "next/dynamic";
-import "react-quill/dist/quill.snow.css";
-import { DOCTOR_SPECIALIZATIONS } from "@/config/constants";
 import {
   Select,
   SelectContent,
@@ -19,14 +8,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
+import { DOCTOR_SPECIALIZATIONS } from "@/config/constants";
+import { useUser } from "@/contextApis/UserContext";
+import { DoctorOnboardingApi } from "@/endPoints/doctor.endPoints";
+import { RegisterDoctorApiProps } from "@/types";
+import dynamic from "next/dynamic";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import "react-quill/dist/quill.snow.css";
 
 const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 export default function AddDoctor() {
   const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<RegisterDoctorApiProps>();
   const [loading, setLoading] = useState(false);
-  const { tokens, updateUserDetails} = useUser();
+  const { tokens, updateUserDetails } = useUser();
   const [bio, setBio] = useState("");
+  const router = useRouter();
 
   const onAddDoctor = (data: RegisterDoctorApiProps) => {
     setLoading(true);
@@ -38,20 +39,21 @@ export default function AddDoctor() {
       token: tokens?.accessToken || "",
     })
       .then((response) => {
-        if(response){
+        if (response) {
           updateUserDetails({
-          specialization: data.specialization,
-          license_no: data.license_no,
-          experience_years: Number(data.experience_years),
-          bio: bio,
-        });
+            specialization: data.specialization,
+            license_no: data.license_no,
+            experience_years: Number(data.experience_years),
+            bio: bio,
+          });
           reset();
           setBio("");
           setLoading(false);
           toast({
-          title: "Success!",
-          description: "Doctor added successfully.",
-        });
+            title: "Success!",
+            description: "Doctor added successfully.",
+          });
+          router.push("/doctorProfile");
         }
       })
       .catch((error) => {
@@ -79,7 +81,7 @@ export default function AddDoctor() {
               <SelectTrigger>
                 <SelectValue placeholder="Select specialization" />
               </SelectTrigger>
-               <SelectContent className="max-h-56 overflow-y-auto"> 
+              <SelectContent className="max-h-56 overflow-y-auto">
                 {DOCTOR_SPECIALIZATIONS.map((specialization) => (
                   <SelectItem key={specialization} value={specialization}>
                     {specialization}

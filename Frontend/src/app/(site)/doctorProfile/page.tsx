@@ -1,10 +1,7 @@
 import DocProfile from '@/components/doctor/DocProfile'
-import React from 'react'
 
-const page = () => {
+export default function DoctorProfilePage() {
     return (
         <DocProfile />
     )
 }
-
-export default page
