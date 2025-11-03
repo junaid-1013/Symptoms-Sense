@@ -17,13 +17,14 @@ from app.core.exceptions import (
     UserNotFoundException,
     ValidationException
 )
+from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
 
 # ========== Appointment Creation ==========
 
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=APIResponseGeneric[dict], status_code=status.HTTP_201_CREATED)
 async def create_appointment(
     appointment_data: AppointmentCreateRequest,
     current_user: User = Depends(get_current_user),
@@ -104,14 +105,13 @@ async def create_appointment(
             # Clinic gets all appointments for their clinic
             all_appointments = appointment_service.get_clinic_appointments(clinic.id)
 
-        # Build response in standard format
-        return {
-            "status": "success",
-            "message": "Appointment created successfully",
-            "data": {
+        # Build response in standardized APIResponse
+        return APIResponse(
+            message="Appointment created successfully",
+            data={
                 "appointments": all_appointments,
             }
-        }
+        ).dict()
     except (UserNotFoundException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -126,7 +126,7 @@ async def create_appointment(
 
 # ========== Appointment Update ==========
 
-@router.put("/{appointment_id}", response_model=dict)
+@router.put("/{appointment_id}", response_model=APIResponseGeneric[dict])
 async def update_appointment(
     appointment_id: str,
     appointment_data: AppointmentUpdateRequest,
@@ -219,14 +219,13 @@ async def update_appointment(
             ).first()
             all_appointments = appointment_service.get_clinic_appointments(clinic.id)
 
-        # Build response in standard format
-        return {
-            "status": "success",
-            "message": "Appointment updated successfully",
-            "data": {
+        # Build response in standardized APIResponse
+        return APIResponse(
+            message="Appointment updated successfully",
+            data={
                 "appointments": all_appointments,
             }
-        }
+        ).dict()
     except (UserNotFoundException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -241,7 +240,7 @@ async def update_appointment(
 
 # ========== Appointment Approval ==========
 
-@router.post("/{appointment_id}/approve", response_model=dict)
+@router.post("/{appointment_id}/approve", response_model=APIResponseGeneric[dict])
 async def approve_appointment(
     appointment_id: str,
     current_user: User = Depends(get_current_user),
@@ -326,14 +325,13 @@ async def approve_appointment(
         else:
             all_appointments = appointment_service.get_clinic_appointments(approver_id)
 
-        # Build response in standard format
-        return {
-            "status": "success",
-            "message": "Appointment scheduled successfully",
-            "data": {
+        # Build response in standardized APIResponse
+        return APIResponse(
+            message="Appointment scheduled successfully",
+            data={
                 "appointments": all_appointments,
             }
-        }
+        ).dict()
     except (UserNotFoundException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -348,7 +346,7 @@ async def approve_appointment(
 
 # ========== Appointment Cancellation ==========
 
-@router.post("/{appointment_id}/cancel", response_model=dict)
+@router.post("/{appointment_id}/cancel", response_model=APIResponseGeneric[dict])
 async def cancel_appointment(
     appointment_id: str,
     current_user: User = Depends(get_current_user),
@@ -459,14 +457,13 @@ async def cancel_appointment(
         else:  # clinic
             all_appointments = appointment_service.get_clinic_appointments(canceller_id)
 
-        # Build response in standard format
-        return {
-            "status": "success",
-            "message": "Appointment cancelled successfully",
-            "data": {
+        # Build response in standardized APIResponse
+        return APIResponse(
+            message="Appointment cancelled successfully",
+            data={
                 "appointments": all_appointments,
             }
-        }
+        ).dict()
     except (UserNotFoundException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -481,7 +478,7 @@ async def cancel_appointment(
 
 # ========== Get My Appointments ==========
 
-@router.get("/my-appointments", response_model=dict)
+@router.get("/my-appointments", response_model=APIResponseGeneric[dict])
 async def get_my_appointments(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -545,14 +542,13 @@ async def get_my_appointments(
                 detail="Invalid user type"
             )
 
-        # Build response in standard format
-        return {
-            "status": "success",
-            "message": "Appointments retrieved successfully",
-            "data": {
+        # Build response in standardized APIResponse
+        return APIResponse(
+            message="Appointments retrieved successfully",
+            data={
                 "appointments": appointments,
             }
-        }
+        ).dict()
     except HTTPException:
         raise
     except Exception as e:

@@ -23,13 +23,14 @@ from app.core.exceptions import (
     ValidationException,
     InsufficientPermissionsException
 )
+from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/prescriptions", tags=["prescriptions"])
 
 
 # ========== Doctor Endpoints ==========
 
-@router.post("/", response_model=PrescriptionResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=APIResponseGeneric[PrescriptionResponse], status_code=status.HTTP_201_CREATED)
 async def create_prescription(
     prescription_data: PrescriptionCreateRequest,
     current_doctor: Doctor = Depends(get_current_doctor_for_prescription),
@@ -44,7 +45,10 @@ async def create_prescription(
             data=prescription_data
         )
 
-        return prescription_service._build_prescription_response(prescription)
+        return APIResponse(
+            message="Prescription created successfully",
+            data=prescription_service._build_prescription_response(prescription)
+        ).dict()
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -62,7 +66,7 @@ async def create_prescription(
         )
 
 
-@router.get("/", response_model=PrescriptionListResponse)
+@router.get("/", response_model=APIResponseGeneric[PrescriptionListResponse])
 async def get_doctor_prescriptions(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
@@ -77,15 +81,18 @@ async def get_doctor_prescriptions(
         page_size=page_size
     )
 
-    return PrescriptionListResponse(
-        prescriptions=[prescription_service._build_prescription_response(p) for p in prescriptions],
-        total=total,
-        page=page,
-        page_size=page_size
-    )
+    return APIResponse(
+        message="Prescriptions retrieved successfully",
+        data=PrescriptionListResponse(
+            prescriptions=[prescription_service._build_prescription_response(p) for p in prescriptions],
+            total=total,
+            page=page,
+            page_size=page_size
+        )
+    ).dict()
 
 
-@router.get("/{prescription_id}", response_model=PrescriptionResponse)
+@router.get("/{prescription_id}", response_model=APIResponseGeneric[PrescriptionResponse])
 async def get_prescription_detail(
     prescription_id: str,
     current_doctor: Doctor = Depends(get_current_doctor_for_prescription),
@@ -98,10 +105,13 @@ async def get_prescription_detail(
     prescription = verify_doctor_owns_prescription(prescription_id, current_doctor, db)
 
     prescription = prescription_service.get_prescription_with_details(prescription_id)
-    return prescription_service._build_prescription_response(prescription)
+    return APIResponse(
+        message="Prescription details retrieved successfully",
+        data=prescription_service._build_prescription_response(prescription)
+    ).dict()
 
 
-@router.put("/{prescription_id}", response_model=PrescriptionResponse)
+@router.put("/{prescription_id}", response_model=APIResponseGeneric[PrescriptionResponse])
 async def update_prescription(
     prescription_id: str,
     prescription_data: PrescriptionUpdateRequest,
@@ -121,7 +131,10 @@ async def update_prescription(
             data=prescription_data
         )
 
-        return prescription_service._build_prescription_response(prescription)
+        return APIResponse(
+            message="Prescription updated successfully",
+            data=prescription_service._build_prescription_response(prescription)
+        ).dict()
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -144,7 +157,7 @@ async def update_prescription(
         )
 
 
-@router.delete("/{prescription_id}")
+@router.delete("/{prescription_id}", response_model=APIResponseGeneric[dict])
 async def delete_prescription(
     prescription_id: str,
     current_doctor: Doctor = Depends(get_current_doctor_for_prescription),
@@ -168,7 +181,7 @@ async def delete_prescription(
                 detail="Prescription not found"
             )
 
-        return {"message": "Prescription deleted successfully"}
+        return APIResponse(message="Prescription deleted successfully").dict()
     except UserNotFoundException as e:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -188,7 +201,7 @@ async def delete_prescription(
 
 # ========== Patient Endpoints ==========
 
-@router.get("/patient/my-prescriptions", response_model=PrescriptionListResponse)
+@router.get("/patient/my-prescriptions", response_model=APIResponseGeneric[PrescriptionListResponse])
 async def get_patient_prescriptions(
     page: int = Query(1, ge=1, description="Page number"),
     page_size: int = Query(20, ge=1, le=100, description="Items per page"),
@@ -216,17 +229,20 @@ async def get_patient_prescriptions(
         page_size=page_size
     )
 
-    return PrescriptionListResponse(
-        prescriptions=[prescription_service._build_prescription_response(p) for p in prescriptions],
-        total=total,
-        page=page,
-        page_size=page_size
-    )
+    return APIResponse(
+        message="Patient prescriptions retrieved successfully",
+        data=PrescriptionListResponse(
+            prescriptions=[prescription_service._build_prescription_response(p) for p in prescriptions],
+            total=total,
+            page=page,
+            page_size=page_size
+        )
+    ).dict()
 
 
 # ========== Medicine Endpoints (Public) ==========
 
-@router.get("/medicines/", response_model=list[MedicineResponse])
+@router.get("/medicines/", response_model=APIResponseGeneric[list[MedicineResponse]])
 async def get_medicines(
     search: Optional[str] = Query(None, description="Search medicines by name, category, or manufacturer"),
     page: int = Query(1, ge=1, description="Page number"),
@@ -248,10 +264,13 @@ async def get_medicines(
             page_size=page_size
         )
 
-    return [MedicineResponse.model_validate(medicine) for medicine in medicines]
+    return APIResponse(
+        message="Medicines retrieved successfully",
+        data=[MedicineResponse.model_validate(medicine) for medicine in medicines]
+    ).dict()
 
 
-@router.get("/medicines/{medicine_id}", response_model=MedicineResponse)
+@router.get("/medicines/{medicine_id}", response_model=APIResponseGeneric[MedicineResponse])
 async def get_medicine_detail(
     medicine_id: str,
     db: Session = Depends(get_db)
@@ -266,4 +285,7 @@ async def get_medicine_detail(
             detail="Medicine not found"
         )
 
-    return MedicineResponse.model_validate(medicine)
+    return APIResponse(
+        message="Medicine details retrieved successfully",
+        data=MedicineResponse.model_validate(medicine)
+    ).dict()
