@@ -24,6 +24,7 @@ from app.core.exceptions import (
     ValidationException,
     InsufficientPermissionsException
 )
+from app.core.config import config
 
 
 class DoctorScheduleService:
@@ -81,6 +82,17 @@ class DoctorScheduleService:
         self.db.commit()
         self.db.refresh(schedule)
 
+        # Auto-generate timeslots for upcoming matching weekdays
+        try:
+            self._generate_timeslots_for_upcoming_days(
+                doctor_id=doctor_id,
+                schedule=schedule,
+                days_ahead=config.TIMESLOT_GENERATION_DAYS_AHEAD
+            )
+        except Exception:
+            # Do not fail schedule creation on generation issues
+            pass
+
         return schedule
 
     def update_schedule(
@@ -137,6 +149,19 @@ class DoctorScheduleService:
         self.db.commit()
         self.db.refresh(schedule)
 
+        # Cleanup future timeslots and regenerate according to updated schedule
+        try:
+            self._cleanup_future_timeslots_for_schedule(schedule.id)
+            if schedule.is_active:
+                self._generate_timeslots_for_upcoming_days(
+                    doctor_id=doctor_id,
+                    schedule=schedule,
+                    days_ahead=config.TIMESLOT_GENERATION_DAYS_AHEAD
+                )
+        except Exception:
+            # Keep update successful even if regeneration fails
+            pass
+
         return schedule
 
     def delete_schedule(
@@ -153,6 +178,12 @@ class DoctorScheduleService:
 
         if not schedule:
             raise UserNotFoundException("Schedule not found")
+
+        # Before soft delete, remove future unbooked generated timeslots
+        try:
+            self._cleanup_future_timeslots_for_schedule(schedule.id)
+        except Exception:
+            pass
 
         # Soft delete
         schedule.soft_delete()
@@ -312,6 +343,31 @@ class DoctorScheduleService:
             self.db.refresh(slot)
 
         return generated_timeslots
+
+    def _generate_timeslots_for_upcoming_days(self, doctor_id: str, schedule: DoctorSchedule, days_ahead: int = 14) -> None:
+        """Generate timeslots for the next N days matching the schedule's weekday."""
+        today = date.today()
+        target_weekday = schedule.day_of_week.lower()
+        for offset in range(0, days_ahead + 1):
+            d = today + timedelta(days=offset)
+            if calendar.day_name[d.weekday()].lower() == target_weekday:
+                self.generate_timeslots_for_date(doctor_id=doctor_id, target_date=d)
+
+    def _cleanup_future_timeslots_for_schedule(self, schedule_id: str) -> None:
+        """Soft-delete future timeslots generated from a schedule when no appointments exist."""
+        now = datetime.utcnow()
+        timeslots = self.db.query(Timeslot).options(joinedload(Timeslot.appointments)).filter(
+            Timeslot.generated_from_schedule == schedule_id,
+            Timeslot.start_time > now,
+            Timeslot.deleted_at.is_(None)
+        ).all()
+        changed = False
+        for slot in timeslots:
+            if not slot.appointments:
+                slot.soft_delete()
+                changed = True
+        if changed:
+            self.db.commit()
 
     def get_timeslots_for_date(
         self,

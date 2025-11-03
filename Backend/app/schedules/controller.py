@@ -270,40 +270,40 @@ async def delete_schedule(
 
 # ========== Timeslot Endpoints ==========
 
-@router.post("/timeslots/generate", response_model=APIResponseGeneric[GenerateTimeslotsResponse])
-async def generate_timeslots(
-    request: GenerateTimeslotsRequest,
-    current_doctor: Doctor = Depends(get_current_doctor),
-    db: Session = Depends(get_db)
-):
-    """Generate timeslots for a specific date based on doctor's schedules."""
-    schedule_service = DoctorScheduleService(db)
+# @router.post("/timeslots/generate", response_model=APIResponseGeneric[GenerateTimeslotsResponse])
+# async def generate_timeslots(
+#     request: GenerateTimeslotsRequest,
+#     current_doctor: Doctor = Depends(get_current_doctor),
+#     db: Session = Depends(get_db)
+# ):
+#     """Generate timeslots for a specific date based on doctor's schedules."""
+#     schedule_service = DoctorScheduleService(db)
 
-    try:
-        target_date = date.fromisoformat(request.date)
-        generated_slots = schedule_service.generate_timeslots_for_date(
-            doctor_id=current_doctor.id,
-            target_date=target_date
-        )
+#     try:
+#         target_date = date.fromisoformat(request.date)
+#         generated_slots = schedule_service.generate_timeslots_for_date(
+#             doctor_id=current_doctor.id,
+#             target_date=target_date
+#         )
 
-        return APIResponse(
-            message="Timeslots generated successfully",
-            data=GenerateTimeslotsResponse(
-                message=f"Generated {len(generated_slots)} timeslots for {request.date}",
-                generated_count=len(generated_slots),
-                timeslots=[schedule_service._build_timeslot_response(slot) for slot in generated_slots]
-            )
-        ).dict()
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use YYYY-MM-DD"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while generating timeslots: {str(e)}"
-        )
+#         return APIResponse(
+#             message="Timeslots generated successfully",
+#             data=GenerateTimeslotsResponse(
+#                 message=f"Generated {len(generated_slots)} timeslots for {request.date}",
+#                 generated_count=len(generated_slots),
+#                 timeslots=[schedule_service._build_timeslot_response(slot) for slot in generated_slots]
+#             )
+#         ).dict()
+#     except ValueError:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Invalid date format. Use YYYY-MM-DD"
+#         )
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"An unexpected error occurred while generating timeslots: {str(e)}"
+#         )
 
 
 @router.get("/timeslots/{date_str}", response_model=APIResponseGeneric[TimeslotsResponse])
