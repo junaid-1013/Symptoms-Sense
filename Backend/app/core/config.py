@@ -44,6 +44,9 @@ class Config:
     BCRYPT_ROUNDS: int = int(os.getenv("BCRYPT_ROUNDS", "12"))
     PASSWORD_MIN_LENGTH: int = 8
 
+    # ========== Scheduling ==========
+    TIMESLOT_GENERATION_DAYS_AHEAD: int = int(os.getenv("TIMESLOT_GENERATION_DAYS_AHEAD", "14"))
+
 
 # Create config instance
 config = Config()
