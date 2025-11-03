@@ -5,7 +5,9 @@ import { GetAllDoctorsUrl } from "./URLs";
 export const GetAllDoctorsApi = async ({
     search,
     specialization,
-    clinic
+    clinic,
+    page,
+    page_size
 }: GetAllDoctorsApiProps) => {
     const response = await axiosInstance.get(
         `${GetAllDoctorsUrl}`,
@@ -14,6 +16,8 @@ export const GetAllDoctorsApi = async ({
                 search: search ?? undefined,
                 specialization: specialization ?? undefined,
                 clinic_id: clinic ?? undefined,
+                page: page ?? undefined,
+                page_size: page_size ?? undefined,
             }
         }
     )
