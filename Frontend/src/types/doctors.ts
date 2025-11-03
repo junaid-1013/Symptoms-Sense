@@ -1,3 +1,4 @@
+import { DoctorAppointmentItem } from "./appointments";
 export interface DocSchema {
     id: string,
     name: string,
@@ -41,10 +42,22 @@ export interface DoctorRegistrationFormValues {
     city: string;
     streetAddress: string;
 }
-
-export interface RegisterDoctorApiProps {specialization: string;
-  license_no: string;
-  experience_years: number;
-  bio?: string;
-  token: string
+export interface RegisterDoctorApiProps {
+    specialization: string;
+    license_no: string;
+    experience_years: number;
+    bio?: string;
+    token: string
+}
+export interface DoctorAppointmentCardProps {
+    item: DoctorAppointmentItem;
+    className?: string;
+}
+export interface ScheduleCardProps {
+    selectedDate: Date | undefined;
+    onSelect: (date: Date | undefined) => void;
+    fromDate?: Date;
+    onConfirm: () => void;
+    title?: string;
+    description?: string;
 }
