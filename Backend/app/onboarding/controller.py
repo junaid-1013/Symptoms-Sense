@@ -14,6 +14,7 @@ from app.onboarding.schema import (
     ClinicOnboardingRequest, ClinicOnboardingResponse
 )
 from app.onboarding.service import OnboardingService
+from app.core.response import APIResponse, APIResponseGeneric
 from app.models.user import User
 from app.core.exceptions import UserNotFoundException, UserAlreadyExistsException
 
@@ -44,7 +45,7 @@ def create_profile(
 
 # ========== Patient Onboarding ==========
 
-@router.post("/patient", response_model=PatientOnboardingResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/patient", response_model=APIResponseGeneric[PatientOnboardingResponse], status_code=status.HTTP_201_CREATED)
 async def onboard_patient(
     onboarding_data: PatientOnboardingRequest,
     current_user: User = Depends(get_current_user),
@@ -55,7 +56,10 @@ async def onboard_patient(
         service = OnboardingService(db)
         patient = service.create_patient_profile(current_user.id, onboarding_data)
         response_data = service.build_patient_response(patient)
-        return PatientOnboardingResponse.model_validate(response_data)
+        return APIResponse(
+            message="Patient onboarded successfully",
+            data=PatientOnboardingResponse.model_validate(response_data)
+        ).dict()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise e
     except Exception as e:
@@ -65,7 +69,7 @@ async def onboard_patient(
         )
 
 
-@router.get("/patient/get-profile", response_model=PatientOnboardingResponse)
+@router.get("/patient/get-profile", response_model=APIResponseGeneric[PatientOnboardingResponse])
 async def get_patient_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -88,12 +92,15 @@ async def get_patient_profile(
     ).filter(Patient.id == patient.id).first()
     
     response_data = service.build_patient_response(patient)
-    return PatientOnboardingResponse.model_validate(response_data)
+    return APIResponse(
+        message="Patient profile retrieved successfully",
+        data=PatientOnboardingResponse.model_validate(response_data)
+    ).dict()
 
 
 # ========== Doctor Onboarding ==========
 
-@router.post("/doctor", response_model=DoctorOnboardingResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/doctor", response_model=APIResponseGeneric[DoctorOnboardingResponse], status_code=status.HTTP_201_CREATED)
 async def onboard_doctor(
     onboarding_data: DoctorOnboardingRequest,
     current_user: User = Depends(get_current_user),
@@ -108,16 +115,20 @@ async def onboard_doctor(
         )
 
     service = OnboardingService(db)
-    return create_profile(
+    doc = create_profile(
         service.create_doctor_profile,
         current_user.id,
         onboarding_data,
         DoctorOnboardingResponse,
         "doctor"
     )
+    return APIResponse(
+        message="Doctor onboarded successfully",
+        data=DoctorOnboardingResponse.model_validate(doc)
+    ).dict()
 
 
-@router.get("/doctor/get-profile", response_model=DoctorOnboardingResponse)
+@router.get("/doctor/get-profile", response_model=APIResponseGeneric[DoctorOnboardingResponse])
 async def get_doctor_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -132,11 +143,14 @@ async def get_doctor_profile(
             detail="Doctor profile not found"
         )
 
-    return DoctorOnboardingResponse.model_validate(doctor)
+    return APIResponse(
+        message="Doctor profile retrieved successfully",
+        data=DoctorOnboardingResponse.model_validate(doctor)
+    ).dict()
 
 # ========== Clinic Onboarding ==========
 
-@router.post("/clinic", response_model=ClinicOnboardingResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/clinic", response_model=APIResponseGeneric[ClinicOnboardingResponse], status_code=status.HTTP_201_CREATED)
 async def onboard_clinic(
     onboarding_data: ClinicOnboardingRequest,
     current_user: User = Depends(get_current_user),
@@ -147,7 +161,10 @@ async def onboard_clinic(
         service = OnboardingService(db)
         clinic = service.create_clinic_profile(current_user.id, onboarding_data)
         response_data = service.build_clinic_response(clinic)
-        return ClinicOnboardingResponse.model_validate(response_data)
+        return APIResponse(
+            message="Clinic onboarded successfully",
+            data=ClinicOnboardingResponse.model_validate(response_data)
+        ).dict()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise e
     except Exception as e:
@@ -156,7 +173,7 @@ async def onboard_clinic(
             detail=f"Failed to create clinic profile: {str(e)}"
         )
 
-@router.get("/clinic/get-profile", response_model=ClinicOnboardingResponse)
+@router.get("/clinic/get-profile", response_model=APIResponseGeneric[ClinicOnboardingResponse])
 async def get_clinic_profile(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -179,7 +196,10 @@ async def get_clinic_profile(
     ).filter(Clinic.id == clinic.id).first()
     
     response_data = service.build_clinic_response(clinic)
-    return ClinicOnboardingResponse.model_validate(response_data)
+    return APIResponse(
+        message="Clinic profile retrieved successfully",
+        data=ClinicOnboardingResponse.model_validate(response_data)
+    ).dict()
 
 # @router.put("/patient/update-profile", response_model=PatientOnboardingResponse)
 # async def update_patient_profile(

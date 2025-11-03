@@ -102,19 +102,19 @@ class DoctorSchedulesResponse(BaseModel):
 
 class DoctorScheduleCreateResponse(BaseModel):
     """Response after creating a schedule."""
-    message: str
+  
     schedule: DoctorScheduleResponse
 
 
 class DoctorScheduleUpdateResponse(BaseModel):
     """Response after updating a schedule."""
-    message: str
+ 
     schedule: DoctorScheduleResponse
 
 
 class DoctorScheduleDeleteResponse(BaseModel):
     """Response after deleting a schedule."""
-    message: str
+ 
     remaining_schedules: DoctorSchedulesResponse
 
 
