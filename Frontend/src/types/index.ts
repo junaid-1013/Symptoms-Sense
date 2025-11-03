@@ -1,3 +1,4 @@
+export * from './appointments';
 export * from './auth.endPoints.types';
 export * from './clinics';
 export * from './doctors';
