@@ -2,7 +2,7 @@
 Doctor schedule service with business logic.
 """
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import and_, or_, cast, Time
+from sqlalchemy import and_, or_, text
 from typing import List, Optional, Tuple, Dict
 from datetime import datetime, time, timedelta, date
 import calendar
@@ -32,13 +32,6 @@ class DoctorScheduleService:
     def __init__(self, db: Session):
         self.db = db
 
-    # ========== Helper Methods ==========
-
-    def _time_to_datetime(self, time_obj: time) -> datetime:
-        """Convert time object to datetime using a reference date."""
-        reference_date = date(2000, 1, 1)
-        return datetime.combine(reference_date, time_obj)
-
     # ========== Schedule CRUD Methods ==========
 
     def create_schedule(
@@ -56,10 +49,6 @@ class DoctorScheduleService:
         if not doctor:
             raise UserNotFoundException("Doctor not found")
 
-        # Convert time to datetime for database storage
-        start_datetime = self._time_to_datetime(data.start_time)
-        end_datetime = self._time_to_datetime(data.end_time)
-
         # Check for overlapping schedules on the same day
         existing_schedule = self.db.query(DoctorSchedule).filter(
             DoctorSchedule.doctor_id == doctor_id,
@@ -67,8 +56,8 @@ class DoctorScheduleService:
             DoctorSchedule.deleted_at.is_(None),
             or_(
                 and_(
-                    cast(DoctorSchedule.start_time, Time) < data.end_time,
-                    cast(DoctorSchedule.end_time, Time) > data.start_time
+                    DoctorSchedule.start_time < data.end_time,
+                    DoctorSchedule.end_time > data.start_time
                 )
             )
         ).first()
@@ -82,19 +71,14 @@ class DoctorScheduleService:
         schedule = DoctorSchedule(
             doctor_id=doctor_id,
             day_of_week=data.day_of_week,
-            start_time=start_datetime,
-            end_time=end_datetime,
+            start_time=data.start_time,
+            end_time=data.end_time,
             slot_duration=data.slot_duration,
             is_active=True,
         )
 
         self.db.add(schedule)
-        
-        try:
-            self.db.commit()
-        except Exception as e:
-            self.db.rollback()
-            raise
+        self.db.commit()
         self.db.refresh(schedule)
 
         return schedule
@@ -121,12 +105,6 @@ class DoctorScheduleService:
             start_time = data.start_time if data.start_time else schedule.start_time
             end_time = data.end_time if data.end_time else schedule.end_time
 
-            # Convert datetime to time if needed for comparison
-            if isinstance(start_time, datetime):
-                start_time = start_time.time()
-            if isinstance(end_time, datetime):
-                end_time = end_time.time()
-
             # Check for overlapping schedules (excluding current schedule)
             existing_schedule = self.db.query(DoctorSchedule).filter(
                 DoctorSchedule.doctor_id == doctor_id,
@@ -134,8 +112,8 @@ class DoctorScheduleService:
                 DoctorSchedule.id != schedule_id,
                 DoctorSchedule.deleted_at.is_(None),
                 and_(
-                    cast(DoctorSchedule.start_time, Time) < end_time,
-                    cast(DoctorSchedule.end_time, Time) > start_time
+                    DoctorSchedule.start_time < end_time,
+                    DoctorSchedule.end_time > start_time
                 )
             ).first()
 
@@ -148,9 +126,9 @@ class DoctorScheduleService:
         if data.day_of_week:
             schedule.day_of_week = data.day_of_week
         if data.start_time:
-            schedule.start_time = self._time_to_datetime(data.start_time)
+            schedule.start_time = data.start_time
         if data.end_time:
-            schedule.end_time = self._time_to_datetime(data.end_time)
+            schedule.end_time = data.end_time
         if data.slot_duration:
             schedule.slot_duration = data.slot_duration
         if data.is_active is not None:
@@ -226,14 +204,10 @@ class DoctorScheduleService:
             if day in schedule_dict:
                 schedule = schedule_dict[day]
                 
-                # Extract time from datetime if needed
-                start_time = schedule.start_time.time() if isinstance(schedule.start_time, datetime) else schedule.start_time
-                end_time = schedule.end_time.time() if isinstance(schedule.end_time, datetime) else schedule.end_time
-                
                 weekly_schedule.append(DayScheduleResponse(
                     day=day.capitalize(),
-                    startHour=self._format_time_12hr(start_time),
-                    endHour=self._format_time_12hr(end_time),
+                    startHour=self._format_time_12hr(schedule.start_time),
+                    endHour=self._format_time_12hr(schedule.end_time),
                     repeats="Weekly",
                     offDay=not schedule.is_active,
                 ))
@@ -299,13 +273,9 @@ class DoctorScheduleService:
         generated_timeslots = []
 
         for schedule in schedules:
-            # Extract time from datetime if stored as datetime
-            start_time_obj = schedule.start_time.time() if isinstance(schedule.start_time, datetime) else schedule.start_time
-            end_time_obj = schedule.end_time.time() if isinstance(schedule.end_time, datetime) else schedule.end_time
-            
             # Combine date with schedule times
-            schedule_start = datetime.combine(target_date, start_time_obj)
-            schedule_end = datetime.combine(target_date, end_time_obj)
+            schedule_start = datetime.combine(target_date, schedule.start_time)
+            schedule_end = datetime.combine(target_date, schedule.end_time)
 
             is_available = True  # By default, slots are available
             # Generate slots
@@ -382,14 +352,10 @@ class DoctorScheduleService:
 
     # ========== Helper Methods ==========
 
-    def _format_time_12hr(self, time_obj) -> str:
-        """Convert time or datetime object to 12-hour format string."""
+    def _format_time_12hr(self, time_obj: time) -> str:
+        """Convert time object to 12-hour format string."""
         if not time_obj:
             return "08:00 AM"
-        
-        # Handle datetime objects - extract time
-        if isinstance(time_obj, datetime):
-            time_obj = time_obj.time()
         
         # Convert to datetime for formatting
         dt = datetime.combine(date.today(), time_obj)
@@ -397,24 +363,13 @@ class DoctorScheduleService:
 
     def _build_schedule_response(self, schedule: DoctorSchedule) -> DoctorScheduleResponse:
         """Build DoctorScheduleResponse from schedule model."""
-  
-        # Extract time from datetime if needed
-        if isinstance(schedule.start_time, datetime):
-            start_time = schedule.start_time.time()
-        else:
-            start_time = schedule.start_time
-            
-        if isinstance(schedule.end_time, datetime):
-            end_time = schedule.end_time.time()
-        else:
-            end_time = schedule.end_time
-                
+        
         return DoctorScheduleResponse(
             id=schedule.id,
             doctor_id=schedule.doctor_id,
             day_of_week=schedule.day_of_week,
-            start_time=start_time,
-            end_time=end_time,
+            start_time=schedule.start_time,
+            end_time=schedule.end_time,
             slot_duration=schedule.slot_duration,
             is_active=schedule.is_active,
             created_at=schedule.created_at,
