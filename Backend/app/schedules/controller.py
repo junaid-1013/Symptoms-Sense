@@ -31,6 +31,7 @@ from app.core.exceptions import (
     ValidationException,
     InsufficientPermissionsException
 )
+from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/schedules", tags=["doctor-schedules"])
 
@@ -50,7 +51,7 @@ async def get_all_doctors_weekly_schedules(
     return schedule_service.get_all_doctors_weekly_schedules()
 
 
-@router.get("/weekly/me")
+@router.get("/weekly/me", response_model=APIResponseGeneric[dict])
 async def get_my_weekly_schedule(
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
@@ -65,16 +66,15 @@ async def get_my_weekly_schedule(
     # Get doctor name
     doctor_name = f"{current_doctor.user.name}" if current_doctor.user else f"Doctor {current_doctor.id}"
     
-    return {
-        "message": "Doctor schedule retrieved successfully",
-        "success": True,
-        "data": {
+    return APIResponse(
+        message="Doctor schedule retrieved successfully",
+        data={
             doctor_name: weekly_schedule
         }
-    }
+    ).dict()
 
 
-@router.get("/weekly/{doctor_id}")
+@router.get("/weekly/{doctor_id}", response_model=APIResponseGeneric[dict])
 async def get_doctor_weekly_schedule(
     doctor_id: str,
     current_user: User = Depends(get_current_user),
@@ -102,18 +102,17 @@ async def get_doctor_weekly_schedule(
     # Get doctor name
     doctor_name = f"{doctor.user.name}" if doctor.user else f"Doctor {doctor_id}"
     
-    return {
-        "message": "Doctor schedule retrieved successfully",
-        "success": True,
-        "data": {
+    return APIResponse(
+        message="Doctor schedule retrieved successfully",
+        data={
             doctor_name: weekly_schedule
         }
-    }
+    ).dict()
 
 
 # ========== Original Doctor Schedule Endpoints ==========
 
-@router.post("/", response_model=DoctorScheduleCreateResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=APIResponseGeneric[DoctorScheduleCreateResponse], status_code=status.HTTP_201_CREATED)
 async def create_schedule(
     schedule_data: DoctorScheduleCreateRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -128,10 +127,12 @@ async def create_schedule(
             data=schedule_data
         )
 
-        return DoctorScheduleCreateResponse(
+        return APIResponse(
             message="Schedule created successfully",
-            schedule=schedule_service._build_schedule_response(schedule)
-        )
+            data=DoctorScheduleCreateResponse(
+                schedule=schedule_service._build_schedule_response(schedule)
+            )
+        ).dict()
     except (ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -144,7 +145,7 @@ async def create_schedule(
         )
 
 
-@router.get("/", response_model=DoctorSchedulesResponse)
+@router.get("/", response_model=APIResponseGeneric[DoctorSchedulesResponse])
 async def get_my_schedules(
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
@@ -153,14 +154,17 @@ async def get_my_schedules(
     schedule_service = DoctorScheduleService(db)
     schedules = schedule_service.get_doctor_schedules(current_doctor.id)
 
-    return DoctorSchedulesResponse(
-        schedules=schedules,
-        total=len(schedules),
-        doctor_id=current_doctor.id
-    )
+    return APIResponse(
+        message="Doctor schedules retrieved successfully",
+        data=DoctorSchedulesResponse(
+            schedules=schedules,
+            total=len(schedules),
+            doctor_id=current_doctor.id
+        )
+    ).dict()
 
 
-@router.get("/{schedule_id}")
+@router.get("/{schedule_id}", response_model=APIResponseGeneric[dict])
 async def get_schedule(
     schedule_id: str,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -176,10 +180,13 @@ async def get_schedule(
             detail="Schedule not found"
         )
 
-    return schedule
+    return APIResponse(
+        message="Schedule retrieved successfully",
+        data=schedule
+    ).dict()
 
 
-@router.put("/{schedule_id}", response_model=DoctorScheduleUpdateResponse)
+@router.put("/{schedule_id}", response_model=APIResponseGeneric[DoctorScheduleUpdateResponse])
 async def update_schedule(
     schedule_id: str,
     schedule_data: DoctorScheduleUpdateRequest,
@@ -196,10 +203,12 @@ async def update_schedule(
             data=schedule_data
         )
 
-        return DoctorScheduleUpdateResponse(
+        return APIResponse(
             message="Schedule updated successfully",
-            schedule=schedule_service._build_schedule_response(schedule)
-        )
+            data=DoctorScheduleUpdateResponse(
+                schedule=schedule_service._build_schedule_response(schedule)
+            )
+        ).dict()
     except (UserNotFoundException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -212,7 +221,7 @@ async def update_schedule(
         )
 
 
-@router.delete("/{schedule_id}", response_model=DoctorScheduleDeleteResponse)
+@router.delete("/{schedule_id}", response_model=APIResponseGeneric[DoctorScheduleDeleteResponse])
 async def delete_schedule(
     schedule_id: str,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -237,14 +246,16 @@ async def delete_schedule(
         # Get remaining schedules
         remaining_schedules = schedule_service.get_doctor_schedules(current_doctor.id)
 
-        return DoctorScheduleDeleteResponse(
+        return APIResponse(
             message="Schedule deleted successfully",
-            remaining_schedules=DoctorSchedulesResponse(
-                schedules=remaining_schedules,
-                total=len(remaining_schedules),
-                doctor_id=current_doctor.id
+            data=DoctorScheduleDeleteResponse(
+                remaining_schedules=DoctorSchedulesResponse(
+                    schedules=remaining_schedules,
+                    total=len(remaining_schedules),
+                    doctor_id=current_doctor.id
+                )
             )
-        )
+        ).dict()
     except (UserNotFoundException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -259,7 +270,7 @@ async def delete_schedule(
 
 # ========== Timeslot Endpoints ==========
 
-@router.post("/timeslots/generate", response_model=GenerateTimeslotsResponse)
+@router.post("/timeslots/generate", response_model=APIResponseGeneric[GenerateTimeslotsResponse])
 async def generate_timeslots(
     request: GenerateTimeslotsRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -275,11 +286,14 @@ async def generate_timeslots(
             target_date=target_date
         )
 
-        return GenerateTimeslotsResponse(
-            message=f"Generated {len(generated_slots)} timeslots for {request.date}",
-            generated_count=len(generated_slots),
-            timeslots=[schedule_service._build_timeslot_response(slot) for slot in generated_slots]
-        )
+        return APIResponse(
+            message="Timeslots generated successfully",
+            data=GenerateTimeslotsResponse(
+                message=f"Generated {len(generated_slots)} timeslots for {request.date}",
+                generated_count=len(generated_slots),
+                timeslots=[schedule_service._build_timeslot_response(slot) for slot in generated_slots]
+            )
+        ).dict()
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -292,7 +306,7 @@ async def generate_timeslots(
         )
 
 
-@router.get("/timeslots/{date_str}", response_model=TimeslotsResponse)
+@router.get("/timeslots/{date_str}", response_model=APIResponseGeneric[TimeslotsResponse])
 async def get_timeslots_for_date(
     date_str: str,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -308,12 +322,15 @@ async def get_timeslots_for_date(
             target_date=target_date
         )
 
-        return TimeslotsResponse(
-            timeslots=timeslots,
-            total=len(timeslots),
-            doctor_id=current_doctor.id,
-            date=date_str
-        )
+        return APIResponse(
+            message="Timeslots retrieved successfully",
+            data=TimeslotsResponse(
+                timeslots=timeslots,
+                total=len(timeslots),
+                doctor_id=current_doctor.id,
+                date=date_str
+            )
+        ).dict()
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -326,7 +343,7 @@ async def get_timeslots_for_date(
         )
 
 
-@router.get("/timeslots/{date_str}/available", response_model=TimeslotsResponse)
+@router.get("/timeslots/{date_str}/available", response_model=APIResponseGeneric[TimeslotsResponse])
 async def get_available_timeslots_for_date(
     date_str: str,
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -342,12 +359,15 @@ async def get_available_timeslots_for_date(
             target_date=target_date
         )
 
-        return TimeslotsResponse(
-            timeslots=timeslots,
-            total=len(timeslots),
-            doctor_id=current_doctor.id,
-            date=date_str
-        )
+        return APIResponse(
+            message="Available timeslots retrieved successfully",
+            data=TimeslotsResponse(
+                timeslots=timeslots,
+                total=len(timeslots),
+                doctor_id=current_doctor.id,
+                date=date_str
+            )
+        ).dict()
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

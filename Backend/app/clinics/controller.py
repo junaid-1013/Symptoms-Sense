@@ -14,10 +14,11 @@ from app.doctors.dependencies import get_current_clinic
 from app.models.clinic import Clinic
 from app.core.exceptions import UserAlreadyExistsException, ValidationException
 from app.clinics.schema import ClinicRegisterDoctorRequest, ClinicRegisterDoctorResponse, ClinicDoctorsResponse as ClinicDoctorsResponseSchema
+from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/clinics", tags=["clinics"])
 
-@router.get("/", response_model=ClinicListResponse)
+@router.get("/", response_model=APIResponseGeneric[ClinicListResponse])
 async def get_all_clinics(
     db: Session = Depends(get_db)
 ):
@@ -25,10 +26,13 @@ async def get_all_clinics(
     clinics_service = ClinicsService(db)
 
     clinics = clinics_service.get_all_clinics()
-    return ClinicListResponse(clinics=clinics, total=len(clinics))
+    return APIResponse(
+        message="Clinics retrieved successfully",
+        data=ClinicListResponse(clinics=clinics, total=len(clinics))
+    ).dict()
 
 
-@router.get("/search/", response_model=ClinicListResponse)
+@router.get("/search/", response_model=APIResponseGeneric[ClinicListResponse])
 async def search_clinics(
     address: Optional[str] = Query(None, description="Filter by address"),
     db: Session = Depends(get_db)
@@ -37,11 +41,14 @@ async def search_clinics(
     clinics_service = ClinicsService(db)
 
     clinics = clinics_service.search_clinics(address=address)
-    return ClinicListResponse(clinics=clinics, total=len(clinics))
+    return APIResponse(
+        message="Clinic search results",
+        data=ClinicListResponse(clinics=clinics, total=len(clinics))
+    ).dict()
 
 # ========== Clinic Doctor Registration Endpoints ==========
 
-@router.post("/register-doctor", response_model=ClinicRegisterDoctorResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register-doctor", response_model=APIResponseGeneric[ClinicDoctorsResponseSchema], status_code=status.HTTP_201_CREATED)
 async def register_doctor(
     doctor_data: ClinicRegisterDoctorRequest,
     current_clinic: Clinic = Depends(get_current_clinic),
@@ -61,15 +68,15 @@ async def register_doctor(
         all_doctors = clinics_service.get_all_clinic_doctors_basic(current_clinic.id)
 
         # Build response with all clinic doctors
-        return ClinicRegisterDoctorResponse(
+        return APIResponse(
             message="Doctor registered successfully",
-            clinic_doctors=ClinicDoctorsResponseSchema(
+            data=ClinicDoctorsResponseSchema(
                 doctors=all_doctors,
                 total=len(all_doctors),
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        )
+        ).dict()
     except (UserAlreadyExistsException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -81,7 +88,7 @@ async def register_doctor(
             detail=f"An unexpected error occurred while registering the doctor: {str(e)}"
         )
 
-@router.get("/doctors", response_model=ClinicDoctorsResponseSchema)
+@router.get("/doctors", response_model=APIResponseGeneric[ClinicDoctorsResponseSchema])
 async def get_clinic_doctors(
     current_clinic: Clinic = Depends(get_current_clinic),
     db: Session = Depends(get_db)
@@ -91,15 +98,18 @@ async def get_clinic_doctors(
 
     doctors = clinics_service.get_all_clinic_doctors_basic(current_clinic.id)
 
-    return ClinicDoctorsResponseSchema(
-        doctors=doctors,
-        total=len(doctors),
-        clinic_id=current_clinic.id,
-        clinic_name=current_clinic.user.name if current_clinic.user else None
-    )
+    return APIResponse(
+        message="Clinic doctors retrieved successfully",
+        data=ClinicDoctorsResponseSchema(
+            doctors=doctors,
+            total=len(doctors),
+            clinic_id=current_clinic.id,
+            clinic_name=current_clinic.user.name if current_clinic.user else None
+        )
+    ).dict()
 
 
-@router.get("/{clinic_id}", response_model=ClinicDetailResponse)
+@router.get("/{clinic_id}", response_model=APIResponseGeneric[ClinicDetailResponse])
 async def get_clinic_detail(
     clinic_id: str,
     db: Session = Depends(get_db)
@@ -114,4 +124,7 @@ async def get_clinic_detail(
             detail="Clinic not found"
         )
 
-    return clinic
+    return APIResponse(
+        message="Clinic details retrieved successfully",
+        data=clinic
+    ).dict()
