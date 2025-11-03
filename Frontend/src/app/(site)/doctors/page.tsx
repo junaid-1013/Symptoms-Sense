@@ -24,7 +24,7 @@ export default function DoctorsPage() {
     setLoading(true);
     GetAllDoctorsApi({ search, specialization, clinic })
       .then((response) => {
-        setDoctors(response.data.doctors);
+        setDoctors(response?.data?.data?.doctors);
         toast({
           title: "Success",
           description: "Doctors fetched successfully",
