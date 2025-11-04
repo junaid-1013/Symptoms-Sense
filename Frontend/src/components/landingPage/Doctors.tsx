@@ -248,28 +248,7 @@ export default function Doctors() {
                 {/* View All Doctors Button Section */}
                 <div className="mt-16 text-center space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-300">
                     {/* Additional info with animated counter */}
-                    <div className="flex flex-col items-center gap-3">
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                                <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                                </span>
-                                <span>{Math.floor(totalDoctors * 0.7)} doctors online now</span>
-                            </span>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="hidden sm:inline">Available 24/7</span>
-                        </div>
-                        
-                        <p className="text-base text-muted-foreground max-w-md mx-auto">
-                            Browse our complete directory of{" "}
-                            <span className="font-semibold text-foreground">
-                                {totalDoctors > 0 ? `${totalDoctors}+` : 'expert'}
-                            </span>{" "}
-                            healthcare professionals across{" "}
-                            <span className="font-semibold text-foreground">25+ specialties</span>
-                        </p>
-                    </div>
+                  
 
                     {/* Main CTA Button */}
                     <Link href="/doctors">
