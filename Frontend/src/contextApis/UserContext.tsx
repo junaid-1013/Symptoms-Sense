@@ -50,6 +50,8 @@ interface UserContextType {
   clinicDoctors: any[] | null;
   setClinicDoctors: (docs: any[]) => void;
   updateUserDetails: (updates: Partial<User>) => void;
+  doctorSchedule: any[] | null;
+  setDoctorSchedule: (schedule: any[] | null) => void;
 }
 
 // DEFAULT STATE
@@ -78,7 +80,9 @@ const UserContext = createContext<UserContextType>({
   updateUserType: () => { },
   clinicDoctors: null,
   setClinicDoctors: () => { },
-  updateUserDetails: () => { }
+  updateUserDetails: () => { },
+  doctorSchedule: null,
+  setDoctorSchedule: () => { }
 });
 
 
@@ -89,6 +93,7 @@ export function useUser() {
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(defaultState);
   const [clinicDoctors, setClinicDoctorsState] = useState<any[] | null>(null);
+  const [doctorSchedule, setDoctorScheduleState] = useState<any[] | null>(null);
 
   const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
     setState((prev) => {
@@ -107,6 +112,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const setClinicDoctors = useCallback((data: any[]) => {
     setClinicDoctorsState(data || []);
     writeStorage(STORAGE_KEYS.clinicDoctors, data)
+  }, []);
+
+  const setDoctorSchedule = useCallback((data: any[] | null) => {
+    setDoctorScheduleState(data);
+    writeStorage(STORAGE_KEYS.doctorSchedule, data);
   }, []);
 
   const clearAuthData = useCallback(() => {
@@ -154,8 +164,10 @@ const updateUserDetails = useCallback((updates: Partial<User>) => {
     updateUserType,
     clinicDoctors,
     setClinicDoctors,
-    updateUserDetails
-  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, updateUserType, clinicDoctors, setClinicDoctors]);
+    updateUserDetails,
+    doctorSchedule,
+    setDoctorSchedule
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, updateUserType, clinicDoctors, setClinicDoctors, updateUserDetails, doctorSchedule, setDoctorSchedule]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
