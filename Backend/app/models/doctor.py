@@ -25,6 +25,7 @@ class Doctor(Base, SoftDeletableMixin):
     clinic = relationship("Clinic", back_populates="doctors")
     schedules = relationship("DoctorSchedule", back_populates="doctor", cascade="all, delete-orphan")
     timeslots = relationship("Timeslot", back_populates="doctor", cascade="all, delete-orphan")
+    blocked_slots = relationship("BlockedSlot", back_populates="doctor", cascade="all, delete-orphan")
     appointments = relationship("Appointment", back_populates="doctor", cascade="all, delete-orphan")
     diagnoses = relationship("Diagnosis", back_populates="doctor", cascade="all, delete-orphan")
     prescriptions = relationship("Prescription", back_populates="doctor", cascade="all, delete-orphan")
@@ -47,7 +48,12 @@ class DoctorSchedule(Base, SoftDeletableMixin):
     timeslots = relationship("Timeslot", back_populates="schedule")
 
 class Timeslot(Base, SoftDeletableMixin):
-    """Actual bookable slot generated dynamically from DoctorSchedule."""
+    """
+    Actual bookable slot.
+    - Can be generated dynamically from DoctorSchedule (on-demand)
+    - Can be manually created for custom slots
+    - Only stored in DB when booked or manually blocked
+    """
     __tablename__ = "timeslot"
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -56,8 +62,29 @@ class Timeslot(Base, SoftDeletableMixin):
     end_time = Column(DateTime, nullable=False)
     is_available = Column(Boolean, default=True, nullable=False)
     generated_from_schedule = Column(String, ForeignKey("doctor_schedule.id", ondelete="SET NULL"), nullable=True)
+    slot_type = Column(String, default="generated", nullable=False)  # "generated", "manual", "blocked"
     
     # Relationships
     doctor = relationship("Doctor", back_populates="timeslots")
     appointments = relationship("Appointment", back_populates="timeslot")
     schedule = relationship("DoctorSchedule", back_populates="timeslots")
+
+
+class BlockedSlot(Base, SoftDeletableMixin):
+    """
+    Blocks specific time periods for a doctor.
+    Used to mark slots as unavailable (e.g., lunch break, personal time, emergency).
+    Can be for a specific date or recurring (e.g., every Monday 12-1 PM).
+    """
+    __tablename__ = "blocked_slot"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    doctor_id = Column(String, ForeignKey("doctor.id", ondelete="CASCADE"), nullable=False)
+    start_time = Column(DateTime, nullable=False)  # Specific date-time or recurring start
+    end_time = Column(DateTime, nullable=False)    # Specific date-time or recurring end
+    is_recurring = Column(Boolean, default=False, nullable=False)  # If True, applies to recurring dates
+    day_of_week = Column(String, nullable=True)  # For recurring blocks (monday, tuesday, etc.)
+    reason = Column(String, nullable=True)  # Optional reason for blocking (lunch, break, etc.)
+    
+    # Relationships
+    doctor = relationship("Doctor", back_populates="blocked_slots")

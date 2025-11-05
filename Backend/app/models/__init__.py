@@ -3,7 +3,7 @@ SQLAlchemy models - import all models here for easy access.
 """
 from app.models.user import User, Admin
 from app.models.clinic import Clinic
-from app.models.doctor import Doctor, Timeslot, DoctorSchedule
+from app.models.doctor import Doctor, Timeslot, DoctorSchedule, BlockedSlot
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.diagnosis import Diagnosis
@@ -17,6 +17,7 @@ __all__ = [
     "Doctor",
     "Timeslot",
     "DoctorSchedule",
+    "BlockedSlot",
     "Patient",
     "Appointment",
     "Diagnosis",

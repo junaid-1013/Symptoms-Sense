@@ -1,54 +1,102 @@
 """
 Doctor schedule controller with FastAPI routes.
 """
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
 
 from app.db.database import get_db
-from app.schedules.dependencies import verify_doctor_owns_schedule
 from app.doctors.dependencies import get_current_doctor
 from app.auth.dependencies import get_current_user
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.schedules.schema import (
-    DoctorScheduleCreateRequest,
-    DoctorScheduleUpdateRequest,
-    DoctorSchedulesResponse,
-    DoctorScheduleCreateResponse,
-    DoctorScheduleUpdateResponse,
-    DoctorScheduleDeleteResponse,
     TimeslotsResponse,
-    GenerateTimeslotsRequest,
-    GenerateTimeslotsResponse,
-    AllDoctorsSchedulesResponse
+    BulkWeeklyScheduleUpdateRequest,
+    BulkWeeklyScheduleUpdateResponse,
+    BlockedSlotCreateRequest,
+    BlockedSlotResponse,
+    BlockedSlotsResponse,
+    DoctorScheduleCreateRequest,
+    DoctorScheduleCreateResponse
 )
 from app.schedules.service import DoctorScheduleService
 from app.models.user import User
 from app.models.doctor import Doctor
 from app.core.exceptions import (
     UserNotFoundException,
-    ValidationException,
-    InsufficientPermissionsException
+    ValidationException
 )
 from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/schedules", tags=["doctor-schedules"])
 
+# Optional authentication for public endpoints
+optional_security = HTTPBearer(auto_error=False)
+
+def get_optional_user(
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(optional_security),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Get current user if authenticated, otherwise return None."""
+    if not credentials:
+        return None
+    try:
+        # Use the token directly
+        from app.core.security import SecurityUtils
+        payload = SecurityUtils.verify_token(credentials.credentials, "access")
+        if not payload:
+            return None
+        user_id = payload.get("sub")
+        if not user_id:
+            return None
+        from app.auth.service import AuthService
+        auth_service = AuthService(db)
+        user = auth_service.get_user_by_id(user_id)
+        if user and user.is_active:
+            return user
+        return None
+    except Exception:
+        return None
+
 
 # ========== Weekly Schedule Endpoints ==========
 
-@router.get("/weekly", response_model=AllDoctorsSchedulesResponse)
-async def get_all_doctors_weekly_schedules(
-    current_user: User = Depends(get_current_user),
+@router.post("/", response_model=APIResponseGeneric[DoctorScheduleCreateResponse], status_code=status.HTTP_201_CREATED)
+async def create_schedule(
+    schedule_data: DoctorScheduleCreateRequest,
+    current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
 ):
     """
-    Get weekly schedules for all doctors.
-    Returns all 7 days for each doctor, even if not scheduled.
+    Create a single day schedule for the current doctor.
+    Use this to add a schedule for one day, or use bulk update for weekly schedule.
     """
     schedule_service = DoctorScheduleService(db)
-    return schedule_service.get_all_doctors_weekly_schedules()
+
+    try:
+        schedule = schedule_service.create_schedule(
+            doctor_id=current_doctor.id,
+            data=schedule_data
+        )
+
+        return APIResponse(
+            message="Schedule created successfully",
+            data=DoctorScheduleCreateResponse(
+                schedule=schedule_service._build_schedule_response(schedule)
+            )
+        ).dict()
+    except (ValidationException, UserNotFoundException) as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred while creating the schedule: {str(e)}"
+        )
 
 
 @router.get("/weekly/me", response_model=APIResponseGeneric[dict])
@@ -110,106 +158,97 @@ async def get_doctor_weekly_schedule(
     ).dict()
 
 
-# ========== Original Doctor Schedule Endpoints ==========
+# ========== Timeslot Endpoints ==========
 
-@router.post("/", response_model=APIResponseGeneric[DoctorScheduleCreateResponse], status_code=status.HTTP_201_CREATED)
-async def create_schedule(
-    schedule_data: DoctorScheduleCreateRequest,
-    current_doctor: Doctor = Depends(get_current_doctor),
-    db: Session = Depends(get_db)
+@router.get("/doctors/{doctor_id}/timeslots/{date_str}/available", response_model=APIResponseGeneric[TimeslotsResponse])
+async def get_doctor_available_timeslots_for_date(
+    doctor_id: str,
+    date_str: str,
+    db: Session = Depends(get_db),
+    current_user: Optional[User] = Depends(get_optional_user)
 ):
-    """Create a new schedule for the current doctor."""
+    """
+    Public endpoint to get available timeslots for a specific doctor and date.
+    Can be accessed by anyone (patients, clinics) to view available slots for booking.
+    """
+    # Verify doctor exists
+    doctor = db.query(Doctor).filter(
+        Doctor.id == doctor_id,
+        Doctor.deleted_at.is_(None)
+    ).first()
+    
+    if not doctor:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doctor not found"
+        )
+    
     schedule_service = DoctorScheduleService(db)
 
     try:
-        schedule = schedule_service.create_schedule(
-            doctor_id=current_doctor.id,
-            data=schedule_data
+        target_date = date.fromisoformat(date_str)
+        
+        # Validate date is not in the past
+        if target_date < date.today():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot view timeslots for past dates"
+            )
+        
+        timeslots = schedule_service.get_available_timeslots_for_date(
+            doctor_id=doctor_id,
+            target_date=target_date
         )
 
         return APIResponse(
-            message="Schedule created successfully",
-            data=DoctorScheduleCreateResponse(
-                schedule=schedule_service._build_schedule_response(schedule)
+            message="Available timeslots retrieved successfully",
+            data=TimeslotsResponse(
+                timeslots=timeslots,
+                total=len(timeslots),
+                doctor_id=doctor_id,
+                date=date_str
             )
         ).dict()
-    except (ValidationException) as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
+            detail="Invalid date format. Use YYYY-MM-DD"
         )
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while creating the schedule: {str(e)}"
+            detail=f"An unexpected error occurred while fetching available timeslots: {str(e)}"
         )
 
 
-@router.get("/", response_model=APIResponseGeneric[DoctorSchedulesResponse])
-async def get_my_schedules(
+# ========== Bulk Weekly Schedule Update Endpoints ==========
+
+@router.put("/weekly/bulk", response_model=APIResponseGeneric[BulkWeeklyScheduleUpdateResponse], status_code=status.HTTP_200_OK)
+async def bulk_update_weekly_schedule(
+    schedule_data: BulkWeeklyScheduleUpdateRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
 ):
-    """Get all schedules for the current doctor."""
+    """
+    Bulk update weekly schedule from 7-day array.
+    Frontend always sends 7 days array (Monday to Sunday).
+    Days marked as offDay=True will have no schedule created.
+    """
     schedule_service = DoctorScheduleService(db)
-    schedules = schedule_service.get_doctor_schedules(current_doctor.id)
 
-    return APIResponse(
-        message="Doctor schedules retrieved successfully",
-        data=DoctorSchedulesResponse(
-            schedules=schedules,
-            total=len(schedules),
-            doctor_id=current_doctor.id
-        )
-    ).dict()
-
-
-@router.get("/{schedule_id}", response_model=APIResponseGeneric[dict])
-async def get_schedule(
-    schedule_id: str,
-    current_doctor: Doctor = Depends(get_current_doctor),
-    db: Session = Depends(get_db)
-):
-    """Get a specific schedule by ID."""
-    schedule_service = DoctorScheduleService(db)
-    schedule = schedule_service.get_schedule_by_id(schedule_id, current_doctor.id)
-
-    if not schedule:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Schedule not found"
-        )
-
-    return APIResponse(
-        message="Schedule retrieved successfully",
-        data=schedule
-    ).dict()
-
-
-@router.put("/{schedule_id}", response_model=APIResponseGeneric[DoctorScheduleUpdateResponse])
-async def update_schedule(
-    schedule_id: str,
-    schedule_data: DoctorScheduleUpdateRequest,
-    current_doctor: Doctor = Depends(get_current_doctor),
-    db: Session = Depends(get_db)
-):
-    """Update a specific schedule."""
-    schedule_service = DoctorScheduleService(db)
-    verify_doctor_owns_schedule(schedule_id, current_doctor, db)
     try:
-        schedule = schedule_service.update_schedule(
-            schedule_id=schedule_id,
+        result = schedule_service.bulk_update_weekly_schedule(
             doctor_id=current_doctor.id,
             data=schedule_data
         )
 
         return APIResponse(
-            message="Schedule updated successfully",
-            data=DoctorScheduleUpdateResponse(
-                schedule=schedule_service._build_schedule_response(schedule)
-            )
+            message=result.message,
+            data=result
         ).dict()
-    except (UserNotFoundException, ValidationException) as e:
+    except (ValidationException, UserNotFoundException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
@@ -221,42 +260,28 @@ async def update_schedule(
         )
 
 
-@router.delete("/{schedule_id}", response_model=APIResponseGeneric[DoctorScheduleDeleteResponse])
-async def delete_schedule(
-    schedule_id: str,
+# ========== Blocked Slot Endpoints ==========
+
+@router.post("/blocked-slots", response_model=APIResponseGeneric[BlockedSlotResponse], status_code=status.HTTP_201_CREATED)
+async def create_blocked_slot(
+    blocked_slot_data: BlockedSlotCreateRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
 ):
-    """Delete a specific schedule."""
+    """Create a blocked slot for the current doctor."""
     schedule_service = DoctorScheduleService(db)
-    verify_doctor_owns_schedule(schedule_id, current_doctor, db)
 
     try:
-        success = schedule_service.delete_schedule(
-            schedule_id=schedule_id,
-            doctor_id=current_doctor.id
+        blocked_slot = schedule_service.create_blocked_slot(
+            doctor_id=current_doctor.id,
+            data=blocked_slot_data
         )
 
-        if not success:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Failed to delete schedule"
-            )
-
-        # Get remaining schedules
-        remaining_schedules = schedule_service.get_doctor_schedules(current_doctor.id)
-
         return APIResponse(
-            message="Schedule deleted successfully",
-            data=DoctorScheduleDeleteResponse(
-                remaining_schedules=DoctorSchedulesResponse(
-                    schedules=remaining_schedules,
-                    total=len(remaining_schedules),
-                    doctor_id=current_doctor.id
-                )
-            )
+            message="Blocked slot created successfully",
+            data=schedule_service._build_blocked_slot_response(blocked_slot)
         ).dict()
-    except (UserNotFoundException) as e:
+    except (ValidationException, UserNotFoundException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
@@ -264,117 +289,62 @@ async def delete_schedule(
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while deleting the schedule: {str(e)}"
+            detail=f"An unexpected error occurred while creating the blocked slot: {str(e)}"
         )
 
 
-# ========== Timeslot Endpoints ==========
-
-# @router.post("/timeslots/generate", response_model=APIResponseGeneric[GenerateTimeslotsResponse])
-# async def generate_timeslots(
-#     request: GenerateTimeslotsRequest,
-#     current_doctor: Doctor = Depends(get_current_doctor),
-#     db: Session = Depends(get_db)
-# ):
-#     """Generate timeslots for a specific date based on doctor's schedules."""
-#     schedule_service = DoctorScheduleService(db)
-
-#     try:
-#         target_date = date.fromisoformat(request.date)
-#         generated_slots = schedule_service.generate_timeslots_for_date(
-#             doctor_id=current_doctor.id,
-#             target_date=target_date
-#         )
-
-#         return APIResponse(
-#             message="Timeslots generated successfully",
-#             data=GenerateTimeslotsResponse(
-#                 message=f"Generated {len(generated_slots)} timeslots for {request.date}",
-#                 generated_count=len(generated_slots),
-#                 timeslots=[schedule_service._build_timeslot_response(slot) for slot in generated_slots]
-#             )
-#         ).dict()
-#     except ValueError:
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail="Invalid date format. Use YYYY-MM-DD"
-#         )
-#     except Exception as e:
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail=f"An unexpected error occurred while generating timeslots: {str(e)}"
-#         )
-
-
-@router.get("/timeslots/{date_str}", response_model=APIResponseGeneric[TimeslotsResponse])
-async def get_timeslots_for_date(
-    date_str: str,
+@router.get("/blocked-slots", response_model=APIResponseGeneric[BlockedSlotsResponse])
+async def get_blocked_slots(
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
 ):
-    """Get all timeslots for a specific date."""
+    """Get all blocked slots for the current doctor."""
+    schedule_service = DoctorScheduleService(db)
+    blocked_slots = schedule_service.get_blocked_slots(current_doctor.id)
+
+    return APIResponse(
+        message="Blocked slots retrieved successfully",
+        data=BlockedSlotsResponse(
+            blocked_slots=blocked_slots,
+            total=len(blocked_slots),
+            doctor_id=current_doctor.id
+        )
+    ).dict()
+
+
+@router.delete("/blocked-slots/{blocked_slot_id}", response_model=APIResponseGeneric[dict])
+async def delete_blocked_slot(
+    blocked_slot_id: str,
+    current_doctor: Doctor = Depends(get_current_doctor),
+    db: Session = Depends(get_db)
+):
+    """Delete a blocked slot."""
     schedule_service = DoctorScheduleService(db)
 
     try:
-        target_date = date.fromisoformat(date_str)
-        timeslots = schedule_service.get_timeslots_for_date(
-            doctor_id=current_doctor.id,
-            target_date=target_date
+        success = schedule_service.delete_blocked_slot(
+            blocked_slot_id=blocked_slot_id,
+            doctor_id=current_doctor.id
         )
 
-        return APIResponse(
-            message="Timeslots retrieved successfully",
-            data=TimeslotsResponse(
-                timeslots=timeslots,
-                total=len(timeslots),
-                doctor_id=current_doctor.id,
-                date=date_str
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to delete blocked slot"
             )
+
+        return APIResponse(
+            message="Blocked slot deleted successfully",
+            data={"deleted": True}
         ).dict()
-    except ValueError:
+    except (UserNotFoundException) as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use YYYY-MM-DD"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while fetching timeslots: {str(e)}"
+            detail=f"An unexpected error occurred while deleting the blocked slot: {str(e)}"
         )
 
-
-@router.get("/timeslots/{date_str}/available", response_model=APIResponseGeneric[TimeslotsResponse])
-async def get_available_timeslots_for_date(
-    date_str: str,
-    current_doctor: Doctor = Depends(get_current_doctor),
-    db: Session = Depends(get_db)
-):
-    """Get available timeslots for a specific date."""
-    schedule_service = DoctorScheduleService(db)
-
-    try:
-        target_date = date.fromisoformat(date_str)
-        timeslots = schedule_service.get_available_timeslots_for_date(
-            doctor_id=current_doctor.id,
-            target_date=target_date
-        )
-
-        return APIResponse(
-            message="Available timeslots retrieved successfully",
-            data=TimeslotsResponse(
-                timeslots=timeslots,
-                total=len(timeslots),
-                doctor_id=current_doctor.id,
-                date=date_str
-            )
-        ).dict()
-    except ValueError:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid date format. Use YYYY-MM-DD"
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred while fetching available timeslots: {str(e)}"
-        )
