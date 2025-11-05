@@ -10,6 +10,8 @@ from app.models.patient import Patient
 from app.models.doctor import Doctor
 from app.models.clinic import Clinic
 from app.models.doctor import Timeslot
+from app.schedules.service import DoctorScheduleService
+from app.schedules.schema import CreateTimeslotFromVirtualRequest
 from app.appointments.schema import (
     AppointmentCreateRequest,
     AppointmentUpdateRequest,
@@ -60,35 +62,80 @@ class AppointmentService:
         if not clinic:
             raise UserNotFoundException("Clinic not found")
 
-        # Timeslot is required and must be validated
-        if not data.timeslot_id:
-            raise ValidationException("Timeslot ID is required for appointments")
+        # Handle timeslot - either use existing or create from virtual slot
+        timeslot = None
         
-        timeslot = self.db.query(Timeslot).filter(
-            Timeslot.id == data.timeslot_id,
-            Timeslot.doctor_id == data.doctor_id,
-            Timeslot.deleted_at.is_(None)
-        ).first()
+        if data.timeslot_id:
+            # Use existing timeslot
+            timeslot = self.db.query(Timeslot).filter(
+                Timeslot.id == data.timeslot_id,
+                Timeslot.doctor_id == data.doctor_id,
+                Timeslot.deleted_at.is_(None)
+            ).first()
 
-        if not timeslot:
-            raise UserNotFoundException("Timeslot not found")
+            if not timeslot:
+                raise UserNotFoundException("Timeslot not found")
 
-        if not timeslot.is_available:
-            raise ValidationException("The selected timeslot is no longer available")
+            if not timeslot.is_available:
+                raise ValidationException("The selected timeslot is no longer available")
 
-        # Check if timeslot already has an appointment
-        existing_appointment = self.db.query(Appointment).filter(
-            Appointment.timeslot_id == data.timeslot_id,
-            Appointment.status.in_(['pending', 'scheduled']),
-            Appointment.deleted_at.is_(None)
-        ).first()
+            # Check if timeslot already has an appointment (race condition check)
+            existing_appointment = self.db.query(Appointment).filter(
+                Appointment.timeslot_id == data.timeslot_id,
+                Appointment.status.in_(['pending', 'scheduled']),
+                Appointment.deleted_at.is_(None)
+            ).first()
 
-        if existing_appointment:
-            raise ValidationException("This timeslot is already booked")
+            if existing_appointment:
+                raise ValidationException("This timeslot is already booked")
+        else:
+            # Create timeslot from virtual slot data
+            if not data.start_time or not data.end_time:
+                raise ValidationException("Either timeslot_id or both start_time and end_time must be provided")
+            
+            # Validate slot is in the future
+            if data.start_time <= datetime.utcnow():
+                raise ValidationException("Cannot book appointments in the past")
+            
+            # Use schedule service to create timeslot from virtual slot
+            schedule_service = DoctorScheduleService(self.db)
+            try:
+                timeslot = schedule_service.create_timeslot_from_virtual(
+                    doctor_id=data.doctor_id,
+                    data=CreateTimeslotFromVirtualRequest(
+                        start_time=data.start_time,
+                        end_time=data.end_time,
+                        generated_from_schedule=data.generated_from_schedule
+                    )
+                )
+                
+                # Re-check availability after creation (race condition)
+                if not timeslot.is_available:
+                    raise ValidationException("The selected timeslot is no longer available")
+                
+                # Final check for existing appointment
+                existing_appointment = self.db.query(Appointment).filter(
+                    Appointment.timeslot_id == timeslot.id,
+                    Appointment.status.in_(['pending', 'scheduled']),
+                    Appointment.deleted_at.is_(None)
+                ).first()
+
+                if existing_appointment:
+                    raise ValidationException("This timeslot was just booked by another user")
+                    
+            except Exception as e:
+                if isinstance(e, (ValidationException, UserNotFoundException)):
+                    raise
+                raise ValidationException(f"Failed to create timeslot: {str(e)}")
 
         # Verify doctor belongs to clinic
         if doctor.clinic_id != data.clinic_id:
             raise ValidationException("Doctor does not belong to the specified clinic")
+
+        # Final validation: Check slot is still available (race condition protection)
+        self.db.refresh(timeslot)
+        if not timeslot.is_available:
+            raise ValidationException("The selected timeslot is no longer available")
 
         # Mark timeslot as unavailable before creating appointment
         timeslot.is_available = False
@@ -98,7 +145,7 @@ class AppointmentService:
             patient_id=data.patient_id,
             doctor_id=data.doctor_id,
             clinic_id=data.clinic_id,
-            timeslot_id=data.timeslot_id,
+            timeslot_id=timeslot.id,  # Use the timeslot ID (either existing or newly created)
             status='pending',  # Default status
             appointment_type=data.appointment_type,
             chief_complaint=data.chief_complaint
