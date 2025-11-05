@@ -1,7 +1,7 @@
 """
 Doctor schedule schemas for request/response validation.
 """
-from pydantic import BaseModel, Field, validator, model_validator
+from pydantic import BaseModel, Field, validator, model_validator, field_validator
 from typing import Optional, List, Dict
 from datetime import datetime, time
 
@@ -166,8 +166,8 @@ class GenerateTimeslotsResponse(BaseModel):
 class WeeklyDaySchedule(BaseModel):
     """Single day schedule for bulk update."""
     day: str = Field(..., description="Day of the week (Monday, Tuesday, etc.)")
-    startHour: str = Field(..., description="Start time in 12-hour format (e.g., '08:00 AM')")
-    endHour: str = Field(..., description="End time in 12-hour format (e.g., '05:00 PM')")
+    startHour: Optional[str]= Field(None, description="Start time in 12-hour format (e.g., '08:00 AM')")
+    endHour: Optional[str] = Field(None, description="End time in 12-hour format (e.g., '05:00 PM')")
     offDay: bool = Field(False, description="Whether this day is off")
 
     @validator('day')
@@ -176,9 +176,11 @@ class WeeklyDaySchedule(BaseModel):
         if v.lower() not in valid_days:
             raise ValueError(f'day must be one of: {", ".join(valid_days)}')
         return v.lower()
-
-    @validator('startHour', 'endHour')
+        
+    @field_validator("startHour", "endHour", mode="before")
     def validate_time_format(cls, v):
+        if v is None:
+            return v
         """Validate 12-hour time format."""
         try:
             # Try to parse as 12-hour format
