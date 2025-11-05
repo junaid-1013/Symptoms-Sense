@@ -16,15 +16,11 @@ import { useUser } from "@/contextApis/UserContext";
 import { CalendarCheck, History, Stethoscope } from "lucide-react";
 import { useState } from "react";
 import AppointmentSection from "./AppointmentSection";
-import ScheduleCard from "./ScheduleCard";
+import WeeklyScheduleTable from "./WeeklyScheduleTable";
 
 const DoctorProfile = () => {
   const { user } = useUser();
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-  const [activeTab, setActiveTab] = useState("upcoming");
-  const currentDate = new Date();
-
-  const handleReservationSubmit = async () => { };
+  const [activeTab, setActiveTab] = useState("schedule");
 
   return (
     <div className="py-10 px-6 space-y-14 bg-gradient-to-b from-gray-50 to-white">
@@ -83,25 +79,38 @@ const DoctorProfile = () => {
       <Card className="border-0 shadow-xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="border-b px-6 pt-6">
-            <TabsList className="grid w-full max-w-lg grid-cols-2 bg-muted/50 h-12">
-              <TabsTrigger
-                value="upcoming"
-                className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-              >
-                <CalendarCheck className="w-4 h-4" />
-                Upcoming Appointments
-              </TabsTrigger>
-              <TabsTrigger
-                value="completed"
-                className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-              >
-                <History className="w-4 h-4" />
-                Completed Appointments
-              </TabsTrigger>
-            </TabsList>
+            <TabsList className="grid w-full max-w-lg grid-cols-3 gap-x-4 bg-muted/50 h-12">
+            <TabsTrigger
+              value="schedule"
+              className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              <Stethoscope className="w-4 h-4" />
+              Weekly Schedule
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="upcoming"
+              className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              <CalendarCheck className="w-4 h-4" />
+              Upcoming
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="completed"
+              className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap"
+            >
+              <History className="w-4 h-4" />
+              Completed
+            </TabsTrigger>
+          </TabsList>
+
           </div>
 
           <div className="p-6">
+            <TabsContent value="schedule" className="mt-0">
+              <WeeklyScheduleTable />
+            </TabsContent>
             <TabsContent value="upcoming" className="mt-0">
               <AppointmentSection
                 title="Upcoming Appointments"
@@ -120,14 +129,6 @@ const DoctorProfile = () => {
           </div>
         </Tabs>
       </Card>
-
-      <ScheduleCard
-        selectedDate={selectedDate}
-        onSelect={setSelectedDate}
-        fromDate={currentDate}
-        onConfirm={handleReservationSubmit}
-      />
-
     </div>
   );
 };

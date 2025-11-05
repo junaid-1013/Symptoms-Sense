@@ -23,9 +23,9 @@ const Login = () => {
     const onLogin = async (data: FormData) => {
         LoginApi({ email: data.email, password: data.password })
             .then((response) => {
-                console.log("Login Success", response.data);
-                const user = response.data?.user;
-                const tokens = response.data?.tokens || response.data?.data?.tokens || null;
+                console.log("Login Success", response.data.data);
+                const user = response.data.data?.user;
+                const tokens = response.data.data?.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
                 if (!user?.user_type) {
                     router.push("/userType");

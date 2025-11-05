@@ -157,3 +157,5 @@ export const DOCTOR_SPECIALIZATIONS = [
     "Physiotherapist",
     "Anesthesiologist",
 ];
+
+export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
