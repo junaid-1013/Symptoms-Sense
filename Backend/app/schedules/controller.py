@@ -2,6 +2,7 @@
 Doctor schedule controller with FastAPI routes.
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import date
@@ -225,29 +226,47 @@ async def get_doctor_available_timeslots_for_date(
 
 # ========== Bulk Weekly Schedule Update Endpoints ==========
 
-@router.put("/weekly/bulk", response_model=APIResponseGeneric[BulkWeeklyScheduleUpdateResponse], status_code=status.HTTP_200_OK)
+@router.put("/weekly/bulk", response_model=APIResponseGeneric[BulkWeeklyScheduleUpdateResponse])
 async def bulk_update_weekly_schedule(
     schedule_data: BulkWeeklyScheduleUpdateRequest,
     current_doctor: Doctor = Depends(get_current_doctor),
     db: Session = Depends(get_db)
 ):
     """
-    Bulk update weekly schedule from 7-day array.
+    Create or update weekly schedule from 7-day array.
+    - First-time creation: Returns 201 Created
+    - Subsequent updates: Returns 200 OK
     Frontend always sends 7 days array (Monday to Sunday).
     Days marked as offDay=True will have no schedule created.
     """
     schedule_service = DoctorScheduleService(db)
 
     try:
+        # Check if this is first-time creation (no existing schedules)
+        from app.models.doctor import DoctorSchedule
+        existing_schedules = db.query(DoctorSchedule).filter(
+            DoctorSchedule.doctor_id == current_doctor.id,
+            DoctorSchedule.deleted_at.is_(None)
+        ).first()
+        
+        is_first_time = existing_schedules is None
+
         result = schedule_service.bulk_update_weekly_schedule(
             doctor_id=current_doctor.id,
             data=schedule_data
         )
 
-        return APIResponse(
+        response_data = APIResponse(
             message=result.message,
             data=result
         ).dict()
+        
+        # Return 201 Created for first-time creation, 200 OK for updates
+        status_code = status.HTTP_201_CREATED if is_first_time else status.HTTP_200_OK
+        return JSONResponse(
+            content=response_data,
+            status_code=status_code
+        )
     except (ValidationException, UserNotFoundException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

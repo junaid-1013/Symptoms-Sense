@@ -1,7 +1,7 @@
 """
 Doctor schedule schemas for request/response validation.
 """
-from pydantic import BaseModel, Field, validator, model_validator, field_validator
+from pydantic import BaseModel, Field, validator, model_validator
 from typing import Optional, List, Dict
 from datetime import datetime, time
 
@@ -166,9 +166,9 @@ class GenerateTimeslotsResponse(BaseModel):
 class WeeklyDaySchedule(BaseModel):
     """Single day schedule for bulk update."""
     day: str = Field(..., description="Day of the week (Monday, Tuesday, etc.)")
-    startHour: Optional[str]= Field(None, description="Start time in 12-hour format (e.g., '08:00 AM')")
-    endHour: Optional[str] = Field(None, description="End time in 12-hour format (e.g., '05:00 PM')")
-    offDay: bool = Field(False, description="Whether this day is off")
+    startHour: Optional[str] = Field(None, description="Start time in 12-hour format (e.g., '08:00 AM'). Required when offDay is false.")
+    endHour: Optional[str] = Field(None, description="End time in 12-hour format (e.g., '05:00 PM'). Required when offDay is false.")
+    offDay: bool = Field(False, description="Whether this day is off. When true, startHour and endHour are ignored.")
 
     @validator('day')
     def validate_day(cls, v):
@@ -177,14 +177,15 @@ class WeeklyDaySchedule(BaseModel):
             raise ValueError(f'day must be one of: {", ".join(valid_days)}')
         return v.lower()
         
-    @field_validator("startHour", "endHour", mode="before")
+    @validator('startHour', 'endHour')
     def validate_time_format(cls, v):
+     
+        """Validate 12-hour time format."""
         if v is None:
             return v
-        """Validate 12-hour time format."""
         try:
             # Try to parse as 12-hour format
-            from datetime import datetime
+          
             datetime.strptime(v, '%I:%M %p')
             return v
         except ValueError:
@@ -194,6 +195,16 @@ class WeeklyDaySchedule(BaseModel):
                 return dt.strftime('%I:%M %p').lstrip('0')
             except ValueError:
                 raise ValueError('Time must be in format HH:MM AM/PM or HH:MM')
+
+    @model_validator(mode='after')
+    def validate_off_day_logic(self):
+        """Validate that startHour and endHour are provided when offDay is false."""
+        if not self.offDay:
+            if not self.startHour:
+                raise ValueError('startHour is required when offDay is false')
+            if not self.endHour:
+                raise ValueError('endHour is required when offDay is false')
+        return self
 
 
 class BulkWeeklyScheduleUpdateRequest(BaseModel):
