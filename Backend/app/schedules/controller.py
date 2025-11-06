@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import date
 
 from app.db.database import get_db
-from app.doctors.dependencies import get_current_doctor
+from app.doctors.dependencies import get_current_doctor, get_current_clinic
 from app.auth.dependencies import get_current_user
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -20,11 +20,13 @@ from app.schedules.schema import (
     BlockedSlotResponse,
     BlockedSlotsResponse,
     DoctorScheduleCreateRequest,
-    DoctorScheduleCreateResponse
+    DoctorScheduleCreateResponse,
+    DoctorTimeslotViewResponse
 )
 from app.schedules.service import DoctorScheduleService
 from app.models.user import User
 from app.models.doctor import Doctor
+from app.models.clinic import Clinic
 from app.core.exceptions import (
     UserNotFoundException,
     ValidationException
@@ -106,19 +108,21 @@ async def get_my_weekly_schedule(
     db: Session = Depends(get_db)
 ):
     """
-    Get weekly schedule for the current doctor.
+    Get weekly schedule for the current doctor with blocked slots.
     Returns all 7 days, even if not scheduled.
+    - Recurring blocked slots are shown per day in schedules
+    - One-time blocked slots are shown separately with dates
     """
     schedule_service = DoctorScheduleService(db)
-    weekly_schedule = schedule_service.get_doctor_weekly_schedule(current_doctor.id)
+    weekly_data = schedule_service.get_doctor_weekly_schedule_with_blocked_slots(current_doctor.id)
     
     # Get doctor name
     doctor_name = f"{current_doctor.user.name}" if current_doctor.user else f"Doctor {current_doctor.id}"
     
     return APIResponse(
-        message="Doctor schedule retrieved successfully",
+        message="Doctor schedule with blocked slots retrieved successfully",
         data={
-            doctor_name: weekly_schedule
+            doctor_name: weekly_data
         }
     ).dict()
 
@@ -126,12 +130,16 @@ async def get_my_weekly_schedule(
 @router.get("/weekly/{doctor_id}", response_model=APIResponseGeneric[dict])
 async def get_doctor_weekly_schedule(
     doctor_id: str,
-    current_user: User = Depends(get_current_user),
+    current_clinic: Clinic = Depends(get_current_clinic),
     db: Session = Depends(get_db)
 ):
     """
-    Get weekly schedule for a specific doctor.
+    Get weekly schedule for a specific doctor with blocked slots (Clinic only).
     Returns all 7 days, even if not scheduled.
+    - Recurring blocked slots are shown per day in schedules
+    - One-time blocked slots are shown separately with dates
+    
+    Only accessible by clinics to view their doctors' schedules.
     """
     # Verify doctor exists
     doctor = db.query(Doctor).filter(
@@ -145,21 +153,66 @@ async def get_doctor_weekly_schedule(
             detail="Doctor not found"
         )
     
+    # Verify clinic owns this doctor (optional - remove if clinics can view any doctor)
+    if doctor.clinic_id != current_clinic.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can only view schedules for doctors in your clinic"
+        )
+    
     schedule_service = DoctorScheduleService(db)
-    weekly_schedule = schedule_service.get_doctor_weekly_schedule(doctor_id)
+    weekly_data = schedule_service.get_doctor_weekly_schedule_with_blocked_slots(doctor_id)
     
     # Get doctor name
     doctor_name = f"{doctor.user.name}" if doctor.user else f"Doctor {doctor_id}"
     
     return APIResponse(
-        message="Doctor schedule retrieved successfully",
+        message="Doctor schedule with blocked slots retrieved successfully",
         data={
-            doctor_name: weekly_schedule
+            doctor_name: weekly_data
         }
     ).dict()
 
 
 # ========== Timeslot Endpoints ==========
+
+# @router.get("/timeslots/{date_str}/view", response_model=APIResponseGeneric[DoctorTimeslotViewResponse])
+# async def get_doctor_timeslot_view(
+#     date_str: str,
+#     current_doctor: Doctor = Depends(get_current_doctor),
+#     db: Session = Depends(get_db)
+# ):
+#     """
+#     Get complete timeslot view for the current doctor for a specific date.
+#     Shows all slots: available, booked (with appointment details), and blocked.
+#     This is the main endpoint for doctors to view their schedule/timetable.
+#     """
+#     schedule_service = DoctorScheduleService(db)
+    
+#     try:
+#         target_date = date.fromisoformat(date_str)
+        
+#         # Allow viewing past dates for historical reference
+#         view = schedule_service.get_doctor_timeslot_view_for_date(
+#             doctor_id=current_doctor.id,
+#             target_date=target_date
+#         )
+        
+#         return APIResponse(
+#             message="Doctor timeslot view retrieved successfully",
+#             data=view
+#         ).dict()
+#     except ValueError:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Invalid date format. Use YYYY-MM-DD"
+#         )
+#     except Exception as e:
+#         raise HTTPException(
+#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+#             detail=f"An unexpected error occurred: {str(e)}"
+#         )
+
 
 @router.get("/doctors/{doctor_id}/timeslots/{date_str}/available", response_model=APIResponseGeneric[TimeslotsResponse])
 async def get_doctor_available_timeslots_for_date(

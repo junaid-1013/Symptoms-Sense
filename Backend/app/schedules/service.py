@@ -25,7 +25,9 @@ from app.schedules.schema import (
     BlockedSlotCreateRequest,
     BlockedSlotResponse,
     BlockedSlotsResponse,
-    CreateTimeslotFromVirtualRequest
+    CreateTimeslotFromVirtualRequest,
+    DoctorTimeslotViewResponse,
+    DoctorTimeslotViewItem
 )
 from app.core.exceptions import (
     UserNotFoundException,
@@ -78,9 +80,9 @@ class DoctorScheduleService:
             DoctorSchedule.doctor_id == doctor_id,
             DoctorSchedule.day_of_week == data.day_of_week,
             DoctorSchedule.deleted_at.is_(None),
-            and_(
-                DoctorSchedule.start_time < data.end_time,
-                DoctorSchedule.end_time > data.start_time
+                and_(
+                    DoctorSchedule.start_time < data.end_time,
+                    DoctorSchedule.end_time > data.start_time
             )
         ).first()
 
@@ -236,7 +238,7 @@ class DoctorScheduleService:
 
     # ========== New Weekly Schedule Methods ==========
 
-    def get_doctor_weekly_schedule(self, doctor_id: str) -> List[DayScheduleResponse]:
+    def get_doctor_weekly_schedule(self, doctor_id: str, include_blocked_slots: bool = False) -> List[DayScheduleResponse]:
         """Get complete 7-day weekly schedule for a doctor."""
         # Get all schedules for this doctor
         schedules = self.db.query(DoctorSchedule).filter(
@@ -247,6 +249,28 @@ class DoctorScheduleService:
         # Create a dictionary for quick lookup
         schedule_dict = {schedule.day_of_week.lower(): schedule for schedule in schedules}
 
+        # Get blocked slots if requested
+        recurring_blocked_slots_by_day = {}
+        if include_blocked_slots:
+            blocked_slots = self.db.query(BlockedSlot).filter(
+                BlockedSlot.doctor_id == doctor_id,
+                BlockedSlot.deleted_at.is_(None)
+            ).all()
+            
+            # Group recurring blocked slots by day_of_week
+            for block in blocked_slots:
+                if block.is_recurring and block.day_of_week:
+                    day = block.day_of_week.lower()
+                    if day not in recurring_blocked_slots_by_day:
+                        recurring_blocked_slots_by_day[day] = []
+                    
+                    recurring_blocked_slots_by_day[day].append({
+                        "id": block.id,
+                        "start_time": self._format_time_12hr(block.start_time.time()),
+                        "end_time": self._format_time_12hr(block.end_time.time()),
+                        "reason": block.reason
+                    })
+
         # Days of the week in order
         days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
         
@@ -256,24 +280,61 @@ class DoctorScheduleService:
             if day in schedule_dict:
                 schedule = schedule_dict[day]
                 
+                # Get blocked slots for this day
+                blocked_slots_for_day = recurring_blocked_slots_by_day.get(day, None) if include_blocked_slots else None
+                
                 weekly_schedule.append(DayScheduleResponse(
                     day=day.capitalize(),
                     startHour=self._format_time_12hr(schedule.start_time),
                     endHour=self._format_time_12hr(schedule.end_time),
                     repeats="Weekly",
                     offDay=not schedule.is_active,
+                    blockedSlots=blocked_slots_for_day,
                 ))
             else:
                 # No schedule for this day - mark as off day
+                # Still include blocked slots if any
+                blocked_slots_for_day = recurring_blocked_slots_by_day.get(day, None) if include_blocked_slots else None
+                
                 weekly_schedule.append(DayScheduleResponse(
                     day=day.capitalize(),
                     startHour="08:00 AM",
                     endHour="08:00 AM",
                     repeats="Weekly",
                     offDay=True,
+                    blockedSlots=blocked_slots_for_day,
                 ))
         
         return weekly_schedule
+    
+    def get_doctor_weekly_schedule_with_blocked_slots(self, doctor_id: str) -> dict:
+        """Get weekly schedule with blocked slots (recurring per day + one-time separate)."""
+        # Get weekly schedule with recurring blocked slots
+        weekly_schedule = self.get_doctor_weekly_schedule(doctor_id, include_blocked_slots=True)
+        
+        # Get one-time blocked slots (future dates only)
+        today = datetime.utcnow().date()
+        one_time_blocks = self.db.query(BlockedSlot).filter(
+            BlockedSlot.doctor_id == doctor_id,
+            BlockedSlot.is_recurring == False,
+            BlockedSlot.start_time >= datetime.combine(today, time.min),
+            BlockedSlot.deleted_at.is_(None)
+        ).order_by(BlockedSlot.start_time).all()
+        
+        one_time_blocked_slots = []
+        for block in one_time_blocks:
+            one_time_blocked_slots.append({
+                "id": block.id,
+                "date": block.start_time.date().isoformat(),
+                "start_time": self._format_time_12hr(block.start_time.time()),
+                "end_time": self._format_time_12hr(block.end_time.time()),
+                "reason": block.reason
+            })
+        
+        return {
+            "schedules": weekly_schedule,
+            "oneTimeBlockedSlots": one_time_blocked_slots
+        }
 
     def get_all_doctors_weekly_schedules(self) -> AllDoctorsSchedulesResponse:
         """Get weekly schedules for all doctors."""
@@ -434,7 +495,7 @@ class DoctorScheduleService:
         # Get existing booked/blocked timeslots for this date
         start_of_day = datetime.combine(target_date, time.min)
         end_of_day = datetime.combine(target_date, time.max)
-        
+
         existing_timeslots = self.db.query(Timeslot).filter(
             Timeslot.doctor_id == doctor_id,
             Timeslot.start_time >= start_of_day,
@@ -621,11 +682,32 @@ class DoctorScheduleService:
         if not doctor:
             raise UserNotFoundException("Doctor not found")
 
-        # Check for duplicate blocked slot
+        # Parse time strings to time objects
+        start_time_obj = data._parse_time_string(data.start_time)
+        end_time_obj = data._parse_time_string(data.end_time)
+        
+        # For recurring blocks, construct datetime from time strings + day_of_week
         if data.is_recurring:
-            # For recurring blocks, check if same time period and day_of_week already exists
-            # Compare time components (hour, minute, second) ignoring the date
-            # Get all recurring blocks for this doctor and day
+            # Get a date that matches the day_of_week (use next occurrence)
+            import calendar
+            day_map = {
+                'monday': 0, 'tuesday': 1, 'wednesday': 2, 'thursday': 3,
+                'friday': 4, 'saturday': 5, 'sunday': 6
+            }
+            target_weekday = day_map[data.day_of_week.lower()]
+            
+            # Use today or next occurrence of that weekday
+            today = datetime.utcnow().date()
+            days_ahead = target_weekday - today.weekday()
+            if days_ahead <= 0:  # Target day already happened this week
+                days_ahead += 7
+            target_date = today + timedelta(days=days_ahead)
+            
+            # Construct datetime from date and time
+            start_datetime = datetime.combine(target_date, start_time_obj)
+            end_datetime = datetime.combine(target_date, end_time_obj)
+            
+            # Check for duplicate recurring block
             recurring_blocks = self.db.query(BlockedSlot).filter(
                 BlockedSlot.doctor_id == doctor_id,
                 BlockedSlot.is_recurring == True,
@@ -633,36 +715,51 @@ class DoctorScheduleService:
                 BlockedSlot.deleted_at.is_(None)
             ).all()
             
-            # Check if any existing block has the same time (ignoring date)
             existing_block = None
-            request_start_time = data.start_time.time()
-            request_end_time = data.end_time.time()
-            
             for block in recurring_blocks:
-                if (block.start_time.time() == request_start_time and 
-                    block.end_time.time() == request_end_time):
+                if (block.start_time.time() == start_time_obj and 
+                    block.end_time.time() == end_time_obj):
                     existing_block = block
                     break
+            
+            if existing_block:
+                raise ValidationException(
+                    f"A recurring blocked slot already exists for {data.day_of_week} "
+                    f"({data.start_time} - {data.end_time}). "
+                    f"Use the existing blocked slot ID: {existing_block.id} or delete it first."
+                )
+            
+            # Use constructed datetimes
+            final_start_time = start_datetime
+            final_end_time = end_datetime
         else:
-            # For one-time blocks, check exact match on start_time, end_time
+            # For one-time blocks, construct datetime from time strings + date
+            target_date = datetime.strptime(data.date, '%Y-%m-%d').date()
+            start_datetime = datetime.combine(target_date, start_time_obj)
+            end_datetime = datetime.combine(target_date, end_time_obj)
+            
+            # Check for duplicate one-time block
             existing_block = self.db.query(BlockedSlot).filter(
                 BlockedSlot.doctor_id == doctor_id,
                 BlockedSlot.is_recurring == False,
-                BlockedSlot.start_time == data.start_time,
-                BlockedSlot.end_time == data.end_time,
+                BlockedSlot.start_time == start_datetime,
+                BlockedSlot.end_time == end_datetime,
                 BlockedSlot.deleted_at.is_(None)
             ).first()
-
-        if existing_block:
-            raise ValidationException(
-                f"A blocked slot already exists for this time period. "
-                f"Use the existing blocked slot ID: {existing_block.id} or delete it first."
-            )
+            
+            if existing_block:
+                raise ValidationException(
+                    f"A blocked slot already exists for this time period. "
+                    f"Use the existing blocked slot ID: {existing_block.id} or delete it first."
+                )
+            
+            final_start_time = start_datetime
+            final_end_time = end_datetime
 
         blocked_slot = BlockedSlot(
             doctor_id=doctor_id,
-            start_time=data.start_time,
-            end_time=data.end_time,
+            start_time=final_start_time,
+            end_time=final_end_time,
             is_recurring=data.is_recurring,
             day_of_week=data.day_of_week,
             reason=data.reason
@@ -899,4 +996,157 @@ class DoctorScheduleService:
             day_of_week=blocked_slot.day_of_week,
             reason=blocked_slot.reason,
             created_at=blocked_slot.created_at
+        )
+
+    def get_doctor_timeslot_view_for_date(
+        self,
+        doctor_id: str,
+        target_date: date
+    ) -> DoctorTimeslotViewResponse:
+        """
+        Get complete timeslot view for a doctor for a specific date.
+        Shows all slots: available, booked (with appointment details), and blocked.
+        """
+        from app.models.patient import Patient
+        
+        # Get day of week for target date
+        day_of_week = calendar.day_name[target_date.weekday()].lower()
+        
+        # Get active schedules for this day
+        schedules = self.db.query(DoctorSchedule).filter(
+            DoctorSchedule.doctor_id == doctor_id,
+            DoctorSchedule.day_of_week == day_of_week,
+            DoctorSchedule.is_active == True,
+            DoctorSchedule.deleted_at.is_(None)
+        ).all()
+        
+        # Get all timeslots for this date (booked slots stored in DB)
+        start_of_day = datetime.combine(target_date, time.min)
+        end_of_day = datetime.combine(target_date, time.max)
+        
+        existing_timeslots = self.db.query(Timeslot).filter(
+            Timeslot.doctor_id == doctor_id,
+            Timeslot.start_time >= start_of_day,
+            Timeslot.start_time <= end_of_day,
+            Timeslot.deleted_at.is_(None)
+        ).all()
+        
+        # Get appointments for booked timeslots
+        booked_timeslot_ids = [ts.id for ts in existing_timeslots if not ts.is_available]
+        appointments = []
+        if booked_timeslot_ids:
+            appointments_query = self.db.query(Appointment).filter(
+                Appointment.timeslot_id.in_(booked_timeslot_ids),
+                Appointment.deleted_at.is_(None)
+            ).all()
+            
+            for apt in appointments_query:
+                # Get patient info
+                patient = self.db.query(Patient).filter(
+                    Patient.id == apt.patient_id,
+                    Patient.deleted_at.is_(None)
+                ).first()
+                
+                appointments.append({
+                    "id": apt.id,
+                    "timeslot_id": apt.timeslot_id,
+                    "patient_id": apt.patient_id,
+                    "patient_name": f"{patient.user.first_name} {patient.user.last_name}" if patient and patient.user else "Unknown",
+                    "status": apt.status,
+                    "appointment_type": apt.appointment_type,
+                    "chief_complaint": apt.chief_complaint,
+                    "created_at": apt.created_at.isoformat() if apt.created_at else None
+                })
+        
+        # Create appointment lookup by timeslot_id
+        appointment_by_timeslot = {apt["timeslot_id"]: apt for apt in appointments}
+        
+        # Get blocked periods for this date
+        blocked_periods = self._get_blocked_periods_for_date(doctor_id, target_date)
+        
+        # Get blocked slot details for display
+        blocked_slots = self.db.query(BlockedSlot).filter(
+            BlockedSlot.doctor_id == doctor_id,
+            BlockedSlot.deleted_at.is_(None)
+        ).all()
+        
+        # Create blocked slot lookup
+        blocked_slot_by_period = {}
+        for block in blocked_slots:
+            if block.is_recurring:
+                if block.day_of_week and block.day_of_week.lower() == day_of_week:
+                    block_start = datetime.combine(target_date, block.start_time.time())
+                    block_end = datetime.combine(target_date, block.end_time.time())
+                    blocked_slot_by_period[(block_start, block_end)] = block
+            else:
+                if start_of_day <= block.start_time < end_of_day or \
+                   start_of_day < block.end_time <= end_of_day or \
+                   (block.start_time <= start_of_day and block.end_time >= end_of_day):
+                    blocked_slot_by_period[(block.start_time, block.end_time)] = block
+        
+        # Generate all possible slots from schedules
+        all_slots = []
+        booked_slot_times = {ts.start_time: ts for ts in existing_timeslots if not ts.is_available}
+        available_slot_times = {ts.start_time: ts for ts in existing_timeslots if ts.is_available}
+        
+        for schedule in schedules:
+            schedule_start = datetime.combine(target_date, schedule.start_time)
+            schedule_end = datetime.combine(target_date, schedule.end_time)
+            
+            current_time = schedule_start
+            while current_time + timedelta(minutes=schedule.slot_duration) <= schedule_end:
+                slot_end = current_time + timedelta(minutes=schedule.slot_duration)
+                
+                # Check if blocked
+                is_blocked = self._is_slot_blocked(current_time, slot_end, blocked_periods)
+                blocked_slot = None
+                if is_blocked:
+                    for period, block in blocked_slot_by_period.items():
+                        if current_time < period[1] and slot_end > period[0]:
+                            blocked_slot = block
+                            break
+                
+                # Check if booked
+                is_booked = current_time in booked_slot_times
+                timeslot = booked_slot_times.get(current_time) or available_slot_times.get(current_time)
+                appointment = appointment_by_timeslot.get(timeslot.id) if timeslot else None
+                
+                # Determine status
+                if is_blocked:
+                    status = "blocked"
+                elif is_booked:
+                    status = "booked"
+                else:
+                    status = "available"
+                
+                slot_item = DoctorTimeslotViewItem(
+                    id=timeslot.id if timeslot else None,
+                    start_time=current_time,
+                    end_time=slot_end,
+                    status=status,
+                    appointment=appointment,
+                    blocked_slot_id=blocked_slot.id if blocked_slot else None,
+                    reason=blocked_slot.reason if blocked_slot else None,
+                    is_recurring_block=blocked_slot.is_recurring if blocked_slot else None
+                )
+                
+                all_slots.append(slot_item)
+                current_time = slot_end
+        
+        # Sort by start time
+        all_slots.sort(key=lambda x: x.start_time)
+        
+        # Count by status
+        available_count = sum(1 for s in all_slots if s.status == "available")
+        booked_count = sum(1 for s in all_slots if s.status == "booked")
+        blocked_count = sum(1 for s in all_slots if s.status == "blocked")
+        
+        return DoctorTimeslotViewResponse(
+            date=target_date.isoformat(),
+            doctor_id=doctor_id,
+            slots=all_slots,
+            total=len(all_slots),
+            available_count=available_count,
+            booked_count=booked_count,
+            blocked_count=blocked_count
         )
