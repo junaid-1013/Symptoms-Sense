@@ -15,7 +15,10 @@ class DoctorCreateRequest(BaseModel):
     name: str = Field(..., min_length=2, max_length=100, description="Doctor's full name")
     phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
     password: Optional[str] = Field(None, min_length=8, description="Password for new user account")
-    specialization: str = Field(..., min_length=1, max_length=100, description="Medical specialization")
+    specializations: Optional[List[str]] = Field(None, description="List of specializations")
+    services: Optional[List[str]] = Field(None, description="List of services offered")
+    education: Optional[List[str]] = Field(None, description="List of education entries")
+    experience: Optional[List[str]] = Field(None, description="List of experience details")
     license_no: str = Field(..., min_length=1, max_length=50, description="Medical license number")
     experience_years: int = Field(..., ge=0, le=100, description="Years of experience")
     bio: Optional[str] = Field(None, max_length=1000, description="Doctor biography")
@@ -28,7 +31,10 @@ class DoctorUpdateByClinicRequest(BaseModel):
     email: Optional[EmailStr] = Field(None, description="Doctor's email")
     phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
     # Doctor fields
-    specialization: Optional[str] = Field(None, min_length=1, max_length=100)
+    specializations: Optional[List[str]] = Field(None, description="List of specializations")
+    services: Optional[List[str]] = Field(None, description="List of services offered")
+    education: Optional[List[str]] = Field(None, description="List of education entries")
+    experience: Optional[List[str]] = Field(None, description="List of experience details")
     license_no: Optional[str] = Field(None, min_length=1, max_length=50)
     experience_years: Optional[int] = Field(None, ge=0, le=100)
     bio: Optional[str] = Field(None, max_length=1000)
@@ -38,7 +44,10 @@ class DoctorUpdateByClinicRequest(BaseModel):
 class DoctorUpdateOwnRequest(BaseModel):
     """Update own profile request (doctor can update all except name and email)."""
     phone: Optional[str] = Field(None, max_length=20, description="Doctor's phone number")
-    specialization: Optional[str] = Field(None, min_length=1, max_length=100, description="Medical specialization")
+    specializations: Optional[List[str]] = Field(None, description="List of specializations")
+    services: Optional[List[str]] = Field(None, description="List of services offered")
+    education: Optional[List[str]] = Field(None, description="List of education entries")
+    experience: Optional[List[str]] = Field(None, description="List of experience details")
     license_no: Optional[str] = Field(None, min_length=1, max_length=50, description="Medical license number")
     experience_years: Optional[int] = Field(None, ge=0, le=100, description="Years of experience")
     bio: Optional[str] = Field(None, max_length=1000, description="Doctor biography")
@@ -52,7 +61,10 @@ class DoctorBasicInfo(BaseModel):
     user_id: str
     name: Optional[str] = None
     email: Optional[str] = None
-    specialization: Optional[str] = None
+    specializations: Optional[List[str]] = None
+    services: Optional[List[str]] = None
+    education: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
     experience_years: Optional[int] = None
     bio: Optional[str] = None
     clinic_name: Optional[str] = None
@@ -70,7 +82,10 @@ class DoctorDetailResponse(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
-    specialization: Optional[str] = None
+    specializations: Optional[List[str]] = None
+    services: Optional[List[str]] = None
+    education: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
     license_no: Optional[str] = None
     experience_years: Optional[int] = None
     bio: Optional[str] = None

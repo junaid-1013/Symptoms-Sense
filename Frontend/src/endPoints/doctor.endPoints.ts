@@ -1,9 +1,12 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { RegisterDoctorApiProps } from "@/types";
-import { RegisterDoctorUrl } from "./URLs";
+import { GetDoctorDetailUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
-  specialization,
+  specializations,
+  services,
+  education,
+  experience,
   license_no,
   experience_years,
   bio,
@@ -12,7 +15,10 @@ export const DoctorOnboardingApi = async ({
   const response = await axiosInstance.post(
     `${RegisterDoctorUrl}`,
     {
-      specialization,
+      specializations,
+      services,
+      education,
+      experience,
       license_no,
       experience_years,
       bio,
@@ -20,10 +26,14 @@ export const DoctorOnboardingApi = async ({
     },
     {
       headers: {
-       Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     }
   );
 
+  return response;
+};
+export const GetDoctorDetailApi = async ({ doctor_id }: { doctor_id: string }) => {
+  const response = await axiosInstance.get(`${GetDoctorDetailUrl}/${doctor_id}`);
   return response;
 };

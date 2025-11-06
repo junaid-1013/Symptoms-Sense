@@ -2,7 +2,7 @@
 Authentication schemas for request/response validation.
 """
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class UserLogin(BaseModel):
@@ -72,7 +72,10 @@ class DoctorLoginResponse(BaseModel):
 
     # Doctor fields
     doctor_id: Optional[str] = None
-    specialization: Optional[str] = None
+    specializations: Optional[List[str]] = None
+    services: Optional[List[str]] = None
+    education: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
     license_no: Optional[str] = None
     experience_years: Optional[int] = None
     bio: Optional[str] = None

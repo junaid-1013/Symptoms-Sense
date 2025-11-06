@@ -124,11 +124,14 @@ class OnboardingService:
         if not doctor_profile:
             raise UserNotFoundException("Doctor profile not found. Please ensure you were registered by a clinic first.")
 
-        if doctor_profile.specialization and doctor_profile.license_no:
+        if doctor_profile.specializations and doctor_profile.license_no:
             raise UserAlreadyExistsException("Doctor already onboarded")
         
         # Update doctor profile with onboarding data
-        doctor_profile.specialization = onboarding_data.specialization
+        doctor_profile.specializations = onboarding_data.specializations
+        doctor_profile.services = onboarding_data.services if onboarding_data.services else []
+        doctor_profile.education = onboarding_data.education
+        doctor_profile.experience = onboarding_data.experience if onboarding_data.experience else []
         doctor_profile.license_no = onboarding_data.license_no
         doctor_profile.experience_years = onboarding_data.experience_years
         doctor_profile.bio = onboarding_data.bio

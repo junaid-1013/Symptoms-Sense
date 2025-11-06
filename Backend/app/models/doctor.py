@@ -1,7 +1,7 @@
 """
 Doctor and Timeslot models.
 """
-from sqlalchemy import Column, String, Integer, Text, Boolean, DateTime, ForeignKey,Time
+from sqlalchemy import Column, String, Integer, Text, Boolean, DateTime, ForeignKey, Time, JSON
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -14,7 +14,10 @@ class Doctor(Base, SoftDeletableMixin):
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=True)
     clinic_id = Column(String, ForeignKey("clinic.id", ondelete="SET NULL"), nullable=True)
-    specialization = Column(String, nullable=True)
+    specializations = Column(JSON, nullable=True)  
+    services = Column(JSON, nullable=True)  
+    education = Column(JSON, nullable=True)  
+    experience = Column(JSON, nullable=True) 
     license_no = Column(String, nullable=True, unique=True)
     experience_years = Column(Integer, nullable=True)
     bio = Column(Text, nullable=True)

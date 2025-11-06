@@ -184,8 +184,14 @@ class ClinicsService:
             email=doctor.user.email if doctor.user else None,
             status=doctor.status,
             created_at=doctor.created_at,
-            specializtion=doctor.specialization,
-            phone=doctor.user.phone if doctor.user else None
+            specializations=doctor.specializations,
+            services=doctor.services,
+            education=doctor.education,
+            experience=doctor.experience,
+            phone=doctor.user.phone if doctor.user else None,
+            license_no=doctor.license_no,
+            experience_years=doctor.experience_years,
+            bio=doctor.bio
         )
 
     def _update_clinic_doctor_count(self, clinic_id: str) -> None:

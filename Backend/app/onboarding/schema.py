@@ -2,7 +2,7 @@
 Onboarding schemas for request/response validation.
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 # ========== Patient Schemas ==========
@@ -47,7 +47,10 @@ class PatientOnboardingResponse(BaseModel):
 # ========== Doctor Schemas ==========
 class DoctorOnboardingRequest(BaseModel):
     """Doctor onboarding request schema."""
-    specialization: str = Field(..., min_length=1, max_length=100)
+    specializations: List[str] = Field(..., min_items=1, description="List of specializations")
+    services: Optional[List[str]] = Field(default=None, description="List of services offered")
+    education: List[str] = Field(..., min_items=1, description="List of education entries")
+    experience: Optional[List[str]] = Field(default=None, description="List of experience details")
     license_no: str = Field(..., min_length=1, max_length=50)
     experience_years: int = Field(..., ge=0, le=100)
     bio: Optional[str] = Field(None, min_length=1, max_length=1000)
@@ -57,7 +60,10 @@ class DoctorOnboardingResponse(BaseModel):
     """Doctor onboarding response schema."""
     id: str
     user_id: str
-    specialization: Optional[str]
+    specializations: Optional[List[str]] = None
+    services: Optional[List[str]] = None
+    education: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
     license_no: Optional[str]
     experience_years: Optional[int]
     bio: Optional[str]

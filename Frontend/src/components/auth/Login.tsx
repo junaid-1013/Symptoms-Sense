@@ -24,15 +24,15 @@ const Login = () => {
         LoginApi({ email: data.email, password: data.password })
             .then((response) => {
                 console.log("Login Success", response.data);
-                const user = response.data?.user;
-                const tokens = response.data?.tokens || response.data?.data?.tokens || null;
+                const user = response.data?.data.user;
+                const tokens = response.data?.data.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
                 if (!user?.user_type) {
                     router.push("/userType");
                 } else if (user?.user_type === "patient") {
                     router.push("/profile");
                 } else if (user?.user_type === "clinic") {
-                    setClinicDoctors(response.data.user.clinic_doctors.doctors)
+                    setClinicDoctors(response.data.data.user.clinic_doctors.doctors)
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
                     if(user?.specialization == null){
@@ -64,8 +64,8 @@ const Login = () => {
         (async () => {
             try {
                 const response = await GoogleAuthApi({ code });
-                const user = response.data?.user;
-                const tokens = response.data?.tokens || response.data?.data?.tokens || null;
+                const user = response.data?.data.user;
+                const tokens = response.data?.data.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
                 toast({
                     title: "Success!",
