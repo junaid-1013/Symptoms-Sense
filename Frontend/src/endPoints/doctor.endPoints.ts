@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { RegisterDoctorApiProps } from "@/types";
-import { GetDoctorDetailUrl, RegisterDoctorUrl } from "./URLs";
+import { BulkUpdateDoctorScheduleApiProps, RegisterDoctorApiProps } from "@/types";
+import { BulkUpdateDoctorScheduleUrl, GetDoctorDetailUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
   specializations,
@@ -35,5 +35,22 @@ export const DoctorOnboardingApi = async ({
 };
 export const GetDoctorDetailApi = async ({ doctor_id }: { doctor_id: string }) => {
   const response = await axiosInstance.get(`${GetDoctorDetailUrl}/${doctor_id}`);
+  return response;
+};
+export const BulkUpdateDoctorScheduleApi = async ({
+  slotDuration, schedules, token
+}: BulkUpdateDoctorScheduleApiProps) => {
+  const response = await axiosInstance.put(
+    `${BulkUpdateDoctorScheduleUrl}`,
+    {
+      slotDuration, schedules, token
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
   return response;
 };
