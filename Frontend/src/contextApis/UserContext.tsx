@@ -15,7 +15,10 @@ interface User {
   avatar_url?: string | null;
   last_login?: string | Date | null;
 
-  specialization?: string | null;
+  specializations?: string[] | null;
+  services?: string[] | null;
+  education?: string[] | null;
+  experience?: string[] | null;
   license_no?: string | null;
   experience_years?: number | null;
   bio?: string | null;
@@ -123,14 +126,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-const updateUserDetails = useCallback((updates: Partial<User>) => {
-  setState((prev) => {
-    if (!prev.user) return prev;
-    const updatedUser = { ...prev.user, ...updates };
-    writeStorage(STORAGE_KEYS.user, updatedUser);
-    return { ...prev, user: updatedUser };
-  });
-}, []);
+  const updateUserDetails = useCallback((updates: Partial<User>) => {
+    setState((prev) => {
+      if (!prev.user) return prev;
+      const updatedUser = { ...prev.user, ...updates };
+      writeStorage(STORAGE_KEYS.user, updatedUser);
+      return { ...prev, user: updatedUser };
+    });
+  }, []);
 
 
   //Get Data from Local Storage on load

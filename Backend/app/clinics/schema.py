@@ -56,8 +56,14 @@ class ClinicDoctorBasicInfo(BaseModel):
     email: Optional[str]
     status: str
     created_at: datetime
-    specializtion: Optional[str] = None
+    specializations: Optional[List[str]] = None
+    services: Optional[List[str]] = None
+    education: Optional[List[str]] = None
+    experience: Optional[List[str]] = None
     phone: Optional[str] = None
+    license_no: Optional[str] = None
+    experience_years: Optional[int] = None
+    bio: Optional[str] = None
     class Config:
         from_attributes = True
 

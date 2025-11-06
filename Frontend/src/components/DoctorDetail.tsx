@@ -1,4 +1,5 @@
 'use client';
+import { Calendar } from "@/components/ui/calendar";
 import {
     Dialog,
     DialogClose,
@@ -10,10 +11,11 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { GetDoctorDetailApi } from "@/endPoints/doctor.endPoints";
+import { cn } from '@/lib/utils';
 import axios from "axios";
 import {
     addDays,
-    addHours,
     eachDayOfInterval,
     eachMinuteOfInterval,
     endOfDay,
@@ -26,50 +28,51 @@ import {
     set,
     startOfDay,
     startOfToday,
-    startOfWeek,
+    startOfWeek
 } from 'date-fns';
 import { Clock4 } from "lucide-react";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import 'react-clock/dist/Clock.css';
-import { Calendar } from "@/components/ui/calendar";
 import { FaHospitalAlt } from "react-icons/fa";
 import { MdOutlineLocationOn } from "react-icons/md";
 import 'react-time-picker/dist/TimePicker.css';
-import { cn } from '@/lib/utils';
+
+interface DoctorData {
+    id: string;
+    user_id: string;
+    name: string;
+    email: string;
+    phone: string;
+    specializations: string[];
+    license_no: string;
+    experience_years: number;
+    bio: string;
+    services: string[];
+    education: string[];
+    experience: string[];
+    clinic_id: string;
+    clinic_name: string;
+    clinic_address: string;
+    status: string;
+    created_at: string;
+}
+
 const DoctorDetail = () => {
     const router = useRouter();
     const { toast } = useToast()
     const searchParams = useSearchParams();
-    let id = searchParams.get("id");
-    let name = searchParams.get("name");
-    let img = searchParams.get("img");
-    let city = searchParams.get("city");
-    let address = searchParams.get("streetAddress");
-    let res: any = searchParams.get("reserveTime");
-    const reserveTime: string[] = res ? res.split('*') : [];
-    let spec = searchParams.get("specialization");
-    const specialization: string[] = spec!.split('*');
-    let educ = searchParams.get("education");
-    const education: string[] = educ!.split('*');
-    let exp = searchParams.get("experience");
-    const experience: string[] = exp!.split('*');
-    let ser: any = searchParams.get("services");
-    const services: string[] = ser ? ser.split('*') : [];
-    let about = searchParams.get("about");
-    let experienceYears = searchParams.get("experienceYears");
-    let fed: any = searchParams.get("fed");
-    const feedbacks: string[] | any = fed ? fed.split('*') : [];
-    let user: any = searchParams.get("user");
-    const users: string[] | any = user ? user.split('*') : [];
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    const id = searchParams.get("id");
 
+    const [doctorData, setDoctorData] = useState<DoctorData | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [selected, setSelected] = useState('')
+
     const handleDateSelect = (date: Date) => {
         setSelectedDate(date);
-
     };
 
     const minSelectableDate = addDays(new Date(), 0);
@@ -88,9 +91,7 @@ const DoctorDetail = () => {
     };
 
     let [freeTimes, setFreeTimes] = useState<Date[]>([]);
-    const reservations = reserveTime.map(time => {
-        return addDays(addHours(new Date(time), 0), 0).toString();
-    });
+    const [reservations, setReservations] = useState<string[]>([]);
 
     useMemo(() => {
         const StartOfToday = startOfDay(selectedDate);
@@ -109,7 +110,7 @@ const DoctorDetail = () => {
             (hour) => !reservations.includes(parseISO(hour.toISOString()).toString())
         );
         setFreeTimes(freeTimes);
-    }, [selectedDate]);
+    }, [selectedDate, reservations]);
 
 
     interface AppointmentData {
@@ -118,13 +119,20 @@ const DoctorDetail = () => {
         doctor: string | null;
     }
     const onSubmit = async () => {
-
         try {
+            if (!doctorData) {
+                toast({
+                    title: "Error",
+                    description: "Doctor data not loaded",
+                    variant: "destructive",
+                });
+                return;
+            }
 
             const data: AppointmentData = {
                 time: selectedTime,
-                id: id,
-                doctor: name,
+                id: doctorData.id,
+                doctor: doctorData.name,
             };
             if (selected != 's') {
                 throw new Error('Please select the time for the appointment');
@@ -151,10 +159,51 @@ const DoctorDetail = () => {
                     variant: "destructive",
                 })
             }
-
-        } finally {
-
         }
+    }
+
+    useEffect(() => {
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        GetDoctorDetailApi({ doctor_id: id })
+            .then((res) => {
+                if (res.data.status === 'success' && res.data.data) {
+                    const data = res.data.data;
+                    setDoctorData(data);
+                    setReservations([]);
+                }
+            })
+            .catch((error) => {
+                console.error('Error fetching doctor details:', error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load doctor details",
+                    variant: "destructive",
+                });
+            })
+            .finally(() => {
+                setLoading(false);
+            });
+    }, [id, toast]);
+
+    if (loading) {
+        return (
+            <div className="max-w-[1170px] px-5 mx-auto py-20 text-center">
+                <p className="text-xl text-gray-600">Loading doctor details...</p>
+            </div>
+        );
+    }
+
+    if (!doctorData) {
+        return (
+            <div className="max-w-[1170px] px-5 mx-auto py-20 text-center">
+                <p className="text-xl text-red-600">Doctor not found</p>
+            </div>
+        );
     }
 
     return (
@@ -165,40 +214,39 @@ const DoctorDetail = () => {
                     md:col-span-3 col-span-5 shadow-lg">
                         <div className="flex gap-5">
                             <div className="block shrink-0">
-                                {img && (
-                                    <img
-                                        alt="Dr. Imad ud din Yousaf Butt"
-                                        src={img}
-                                        className="h-28 w-28 rounded-full object-cover shadow-lg"
-                                    />
-                                )}
-
+                                <Image
+                                    alt={doctorData.name}
+                                    src="/doctor-placeholder2.svg"
+                                    width={112}
+                                    height={112}
+                                    className="h-28 w-28 rounded-full object-cover shadow-lg"
+                                />
                             </div>
-                            {specialization && education && experience && experienceYears && (
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                        {name}
-                                    </h3>
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                    {doctorData.name}
+                                </h3>
 
-                                    <p className="mt-1 text-xs font-medium text-gray-600">{specialization[0]}</p>
-                                    <div className="mt-4">
-                                        <p className="max-w-[40ch] text-sm text-gray-500">
-                                            {education[0]}
-                                        </p>
-                                    </div>
-
-                                    <dl className="mt-6 flex gap-4 sm:gap-6">
-                                        <div className="flex flex-col-reverse">
-                                            <dt className="text-sm font-medium text-gray-600">Experience</dt>
-                                            <dd className="text-xs text-gray-500">{experienceYears} Years</dd>
-                                        </div>
-                                        { /*   <div className="flex flex-col-reverse">
-                                            <dt className="text-sm font-medium text-gray-600">Satisfied Patients</dt>
-                                            <dd className="text-xs text-gray-500">2913</dd>
-                            </div>*/}
-                                    </dl>
+                                <p className="mt-1 text-xs font-medium text-gray-600">
+                                    {doctorData.specializations && doctorData.specializations.length > 0
+                                        ? doctorData.specializations.join(', ')
+                                        : 'No specialization'}
+                                </p>
+                                <div className="mt-4">
+                                    <p className="max-w-[40ch] text-sm text-gray-500">
+                                        {doctorData.education && doctorData.education.length > 0
+                                            ? doctorData.education[0]
+                                            : 'No education info'}
+                                    </p>
                                 </div>
-                            )}
+
+                                <dl className="mt-6 flex gap-4 sm:gap-6">
+                                    <div className="flex flex-col-reverse">
+                                        <dt className="text-sm font-medium text-gray-600">Experience</dt>
+                                        <dd className="text-xs text-gray-500">{doctorData.experience_years} Years</dd>
+                                    </div>
+                                </dl>
+                            </div>
                         </div>
                     </div>
 
@@ -226,7 +274,7 @@ const DoctorDetail = () => {
 
                                 <div className="flex justify-between">
                                     <p className="text-sm">Address:</p>
-                                    <p className="text-sm font-semibold">{address + " , "}{city}</p>
+                                    <p className="text-sm font-semibold">{doctorData.clinic_address}</p>
                                 </div>
                                 <hr className="-mt-6" />
 
@@ -245,7 +293,7 @@ const DoctorDetail = () => {
                                         <DialogHeader>
                                             <DialogTitle>Book Appointment</DialogTitle>
                                             <DialogDescription>
-                                                with {name}
+                                                with {doctorData.name}
                                             </DialogDescription>
                                         </DialogHeader>
 
@@ -305,186 +353,121 @@ const DoctorDetail = () => {
                         </div>
                     </div>
 
-                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
-                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
-                        <div className="flex gap-5">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    Services
-                                </h3>
-                                <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm columns-2 " style={{ "columnGap": "130px" }}>
-                                    {
-                                        services.map((data, index) => (
+                    {/* Services Section */}
+                    {doctorData.services && doctorData.services.length > 0 && (
+                        <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                        md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                            <div className="flex gap-5">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        Services
+                                    </h3>
+                                    <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm columns-2" style={{ columnGap: "130px" }}>
+                                        {doctorData.services.map((service, index) => (
                                             <li key={index}>
-                                                {data}
+                                                {service}
                                             </li>
-                                        ))
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
-
-                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
-                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
-                        <div className="flex gap-5">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    Education
-                                </h3>
-                                <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                    {
-                                        education.map((data, index) => (
-                                            <li key={index}>
-                                                {data}
-                                            </li>
-                                        ))
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
-
-                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
-                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
-                        <div className="flex gap-5">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    Specialization
-                                </h3>
-                                <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                    {
-                                        specialization.map((data, index) => (
-                                            <li key={index}>
-                                                {data}
-                                            </li>
-                                        ))
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
-
-                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
-                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
-                        <div className="flex gap-5">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    Experience
-                                </h3>
-                                <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
-                                    {
-                                        experience.map((data, index) => (
-                                            <li key={index}>
-                                                {data}
-                                            </li>
-                                        ))
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
-
-                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
-                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
-                        <div className="flex gap-5 text-sm">
-                            <div>
-                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
-                                    About
-                                </h3>
-
-                                <p className="mt-8 my-4">{about}</p>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div >
-                        < section className="bg-white" >
-                            <div className="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-                                <h2 className="text-center text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
-                                    Reviews
-                                </h2>
-                                <div className="mt-8 [column-fill:_balance] sm:columns-2 sm:gap-6 lg:columns-2 lg:gap-8">
-                                    {feedbacks.map((data: any, index: any) => (
-                                        <div key={index} className="mb-8 sm:break-inside-avoid">
-                                            <blockquote className="rounded-lg bg-gray-50 p-6 shadow-sm sm:p-8">
-                                                <div className="flex items-center gap-4">
-                                                    <img
-                                                        alt="Man"
-                                                        src="/user.png"
-                                                        className="h-14 w-14 rounded-full object-cover"
-                                                    />
-                                                    <div>
-                                                        <div className="flex justify-center gap-0.5 text-[#facc15]">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="#facc15"
-                                                            >
-                                                                <path
-                                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                                                />
-                                                            </svg>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="#facc15"
-                                                            >
-                                                                <path
-                                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                                                />
-                                                            </svg>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="#facc15"
-                                                            >
-                                                                <path
-                                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                                                />
-                                                            </svg>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="#facc15"
-                                                            >
-                                                                <path
-                                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                                                />
-                                                            </svg>
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                className="h-5 w-5"
-                                                                viewBox="0 0 20 20"
-                                                                fill="#facc15"
-                                                            >
-                                                                <path
-                                                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                                                />
-                                                            </svg>
-                                                        </div>
-                                                        <p className="mt-0.5 text-lg font-medium text-gray-900">{users[index]}</p>
-                                                    </div>
-                                                </div>
-                                                <p className="mt-4 text-gray-700">
-                                                    {data}
-                                                </p>
-
-                                            </blockquote>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </ul>
                                 </div>
                             </div>
-                        </section >
+                        </div>
+                    )}
+                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
 
+                    {/* Education Section */}
+                    {doctorData.education && doctorData.education.length > 0 && (
+                        <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                        md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                            <div className="flex gap-5">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        Education
+                                    </h3>
+                                    <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                        {doctorData.education.map((edu, index) => (
+                                            <li key={index}>
+                                                {edu}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
+
+                    {/* Specialization Section */}
+                    {doctorData.specializations && doctorData.specializations.length > 0 && (
+                        <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                        md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                            <div className="flex gap-5">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        Specialization
+                                    </h3>
+                                    <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                        {doctorData.specializations.map((spec, index) => (
+                                            <li key={index}>{spec}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
+
+                    {/* Experience Details Section */}
+                    {doctorData.experience && doctorData.experience.length > 0 && (
+                        <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                        md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                            <div className="flex gap-5">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        Experience
+                                    </h3>
+                                    <ul className="space-y-2 text-gray-900 list-disc list-inside mt-2 text-sm">
+                                        {doctorData.experience.map((exp, index) => (
+                                            <li key={index}>
+                                                {exp}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    <hr className="hidden relative md:block overflow-hidden md:col-span-3 col-span-5" />
+
+                    {/* About Section (Bio) */}
+                    {doctorData.bio && (
+                        <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                        md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                            <div className="flex gap-5 text-sm">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                        About
+                                    </h3>
+                                    <div
+                                        className="mt-4 my-4 prose prose-sm max-w-none"
+                                        dangerouslySetInnerHTML={{ __html: doctorData.bio }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Reviews section */}
+                    <div className="relative block overflow-hidden rounded-lg md:border-none border border-gray-100 p-4 sm:p-6 lg:p-8 
+                    md:col-span-3 col-span-5 shadow-lg md:shadow-none">
+                        <div className="flex gap-5">
+                            <div className="w-full">
+                                <h3 className="text-lg font-bold text-gray-900 sm:text-xl">
+                                    Reviews
+                                </h3>
+                                <p className="mt-4 text-gray-500 text-sm">No reviews available yet.</p>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -516,7 +499,7 @@ const DoctorDetail = () => {
 
                             <div className="flex justify-between">
                                 <p className="text-sm">Address:</p>
-                                <p className="text-sm font-semibold">{address + " , "}{city}</p>
+                                <p className="text-sm font-semibold">{doctorData.clinic_address}</p>
                             </div>
                             <hr className="-mt-6" />
 
@@ -535,7 +518,7 @@ const DoctorDetail = () => {
                                     <DialogHeader>
                                         <DialogTitle>Book Appointment</DialogTitle>
                                         <DialogDescription>
-                                            with {name}
+                                            with {doctorData.name}
                                         </DialogDescription>
                                     </DialogHeader>
 
@@ -594,13 +577,15 @@ const DoctorDetail = () => {
                         </div>
                     </div>
 
+                    {/* Secondary clinic location */}
+
                     <div className="hidden md:block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 shadow-lg">
                         <div className="flex flex-col gap-y-8">
                             <div className="flex w-full items-center justify-between">
                                 <div className="w-[60%] flex items-center gap-x-4">
                                     <FaHospitalAlt className="text-[#ff9e15] w-6 h-6" />
                                     <h3 className="text-lg font-bold text-gray-900 sm:text-xl w-full">
-                                        Genral Hospital Lahore
+                                        {doctorData.clinic_name}
                                     </h3>
                                 </div>
                                 <span className="box w-[30%] p-2 text-[10px] font-semibold text-[#232426] text-center rounded bg-[#000066]/10">
@@ -617,11 +602,7 @@ const DoctorDetail = () => {
                                 <p className="text-sm">Address:</p>
                                 <p className="text-sm font-semibold flex gap-x-2 items-center">
                                     <MdOutlineLocationOn className="w-5 h-5" />
-                                    <Link href="https://maps.google.com/maps?travelmode=driving&daddr=31.53566936,74.32814379"
-                                        className="truncate underline underline-offset-1"
-                                    >
-                                        General Hospital, Lahore
-                                    </Link>
+                                    <span>{doctorData.clinic_address}</span>
                                 </p>
                             </div>
                             <hr className="-mt-6" />
@@ -636,6 +617,7 @@ const DoctorDetail = () => {
                             </button>
                         </div>
                     </div>
+
 
                 </div>
             </div>

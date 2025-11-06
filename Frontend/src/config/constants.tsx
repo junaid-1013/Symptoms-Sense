@@ -1,5 +1,4 @@
-import { Bot, Stethoscope, Workflow, Building, BarChartIcon, UserCircle, HelpCircleIcon } from "lucide-react";
-import { FaUserDoctor } from "react-icons/fa6";
+import { Award, BarChartIcon, Bot, Building, Clock, HelpCircleIcon, Shield, Star, Stethoscope, UserCircle, Workflow } from "lucide-react";
 
 export const MEDICINE_TYPES = [
     "tablet",
@@ -156,4 +155,10 @@ export const DOCTOR_SPECIALIZATIONS = [
     "Gastroenterologist",
     "Physiotherapist",
     "Anesthesiologist",
+];
+export const DOCTOR_CAROUSEL_STATS = [
+    { icon: Star, label: "4.9 Average Rating", value: "4.9/5" },
+    { icon: Shield, label: "All Verified", value: "100%" },
+    { icon: Clock, label: "Avg Response Time", value: "< 2hrs" },
+    { icon: Award, label: "Board Certified", value: "98%" }
 ];

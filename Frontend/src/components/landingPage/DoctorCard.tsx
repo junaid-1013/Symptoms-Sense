@@ -1,12 +1,10 @@
 "use client"
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { DocSchema } from "@/types";
-import { GraduationCap, MapPin, UserCheck } from "lucide-react";
-import Link from "next/link";
 import { DoctorBasicInfo } from "@/types/doctors";
+import { GraduationCap, MapPin, UserCheck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
   return (
     <Card className="group hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-card border-border overflow-hidden">
@@ -59,12 +57,12 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
             </div>
           </div>
 
-          {doctor.bio && (
+          {/* {doctor.bio && (
             <div className="space-y-2">
               <p className="text-sm font-medium">About</p>
               <p className="text-xs text-muted-foreground line-clamp-3">{doctor.bio}</p>
             </div>
-          )}
+          )} */}
 
           <Link href={`/doctorDetail?id=${doctor.id}`} className="block">
             <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg transition-all duration-300 py-2 px-4 rounded-md">

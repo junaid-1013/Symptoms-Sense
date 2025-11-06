@@ -43,7 +43,10 @@ export interface DoctorRegistrationFormValues {
     streetAddress: string;
 }
 export interface RegisterDoctorApiProps {
-    specialization: string;
+    specializations: string[];
+    services: string[];
+    education: string[];
+    experience: string[];
     license_no: string;
     experience_years: number;
     bio?: string;

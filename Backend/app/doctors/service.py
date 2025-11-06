@@ -106,7 +106,10 @@ class DoctorsService:
         doctor = Doctor(
             user_id=user_id,
             clinic_id=clinic_id,
-            specialization=data.specialization,
+            specializations=data.specializations if data.specializations else [],
+            services=data.services if data.services else [],
+            education=data.education if data.education else [],
+            experience=data.experience if data.experience else [],
             license_no=data.license_no,
             experience_years=data.experience_years,
             bio=data.bio,
@@ -179,8 +182,18 @@ class DoctorsService:
 
         # ========== Update Doctor Fields ==========
         
-        if data.specialization:
-            doctor.specialization = data.specialization
+        
+        if data.specializations is not None:
+            doctor.specializations = data.specializations
+        
+        if data.services is not None:
+            doctor.services = data.services
+        
+        if data.education is not None:
+            doctor.education = data.education
+        
+        if data.experience is not None:
+            doctor.experience = data.experience
         
         if data.license_no and data.license_no != doctor.license_no:
             # Check if license number already exists
@@ -248,8 +261,17 @@ class DoctorsService:
         # ========== Update Doctor Fields ==========
         
         # Update specialization if provided
-        if data.specialization:
-            doctor.specialization = data.specialization
+        if data.specializations is not None:
+            doctor.specializations = data.specializations
+        
+        if data.services is not None:
+            doctor.services = data.services
+        
+        if data.education is not None:
+            doctor.education = data.education
+        
+        if data.experience is not None:
+            doctor.experience = data.experience
         
         # Update license number if provided
         if data.license_no and data.license_no != doctor.license_no:
@@ -472,7 +494,10 @@ class DoctorsService:
             user_id=doctor.user_id,
             name=doctor.user.name if doctor.user else None,
             email=doctor.user.email if doctor.user else None,
-            specialization=doctor.specialization,
+            specializations=doctor.specializations,
+            services=doctor.services,
+            education=doctor.education,
+            experience=doctor.experience,
             experience_years=doctor.experience_years,
             bio=doctor.bio,
             clinic_name=doctor.clinic.user.name if doctor.clinic and doctor.clinic.user else None,
@@ -488,7 +513,10 @@ class DoctorsService:
             name=doctor.user.name if doctor.user else None,
             email=doctor.user.email if doctor.user else None,
             phone=doctor.user.phone if doctor.user else None,
-            specialization=doctor.specialization,
+            specializations=doctor.specializations,
+            services=doctor.services,
+            education=doctor.education,
+            experience=doctor.experience,
             license_no=doctor.license_no,
             experience_years=doctor.experience_years,
             bio=doctor.bio,
