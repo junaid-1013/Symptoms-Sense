@@ -176,15 +176,16 @@ class WeeklyDaySchedule(BaseModel):
         if v.lower() not in valid_days:
             raise ValueError(f'day must be one of: {", ".join(valid_days)}')
         return v.lower()
-
+        
     @validator('startHour', 'endHour')
     def validate_time_format(cls, v):
+     
         """Validate 12-hour time format."""
         if v is None:
             return v
         try:
             # Try to parse as 12-hour format
-            from datetime import datetime
+          
             datetime.strptime(v, '%I:%M %p')
             return v
         except ValueError:

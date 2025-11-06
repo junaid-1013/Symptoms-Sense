@@ -56,11 +56,17 @@ export interface DoctorAppointmentCardProps {
     item: DoctorAppointmentItem;
     className?: string;
 }
-export interface ScheduleCardProps {
-    selectedDate: Date | undefined;
-    onSelect: (date: Date | undefined) => void;
-    fromDate?: Date;
-    onConfirm: () => void;
-    title?: string;
-    description?: string;
+export interface DoctorScheduleDialogProps {
+  open: boolean;
+  onClose: () => void;
+  day: string;
+  slotDuration: string; 
+  onSave: (data: any) => void;
+  existingData: any | null;
+}
+
+export interface BulkUpdateDoctorScheduleApiProps {
+    slotDuration: number;
+    schedules: any[];
+    token: string;
 }

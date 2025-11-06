@@ -162,3 +162,4 @@ export const DOCTOR_CAROUSEL_STATS = [
     { icon: Clock, label: "Avg Response Time", value: "< 2hrs" },
     { icon: Award, label: "Board Certified", value: "98%" }
 ];
+export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
