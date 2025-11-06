@@ -589,10 +589,14 @@ class DoctorScheduleService:
         # Get updated weekly schedule
         updated_weekly = self.get_doctor_weekly_schedule(doctor_id)
 
-        # Build message with appointment info if applicable
-        message = "Weekly schedule updated successfully"
-        if upcoming_appointments_count > 0:
-            message += f". Note: {upcoming_appointments_count} upcoming appointment(s) remain linked to the previous schedule configuration."
+        # Build message - different for first-time creation vs update
+        is_first_time = len(existing_schedules) == 0
+        if is_first_time:
+            message = "Weekly schedule created successfully"
+        else:
+            message = "Weekly schedule updated successfully"
+            if upcoming_appointments_count > 0:
+                message += f". Note: {upcoming_appointments_count} upcoming appointment(s) remain linked to the previous schedule configuration."
 
         return BulkWeeklyScheduleUpdateResponse(
             message=message,
