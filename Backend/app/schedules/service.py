@@ -312,6 +312,15 @@ class DoctorScheduleService:
         # Get weekly schedule with recurring blocked slots
         weekly_schedule = self.get_doctor_weekly_schedule(doctor_id, include_blocked_slots=True)
         
+        # Get slot duration from any schedule (all schedules have the same slot_duration from bulk update)
+        slot_duration = None
+        schedules = self.db.query(DoctorSchedule).filter(
+            DoctorSchedule.doctor_id == doctor_id,
+            DoctorSchedule.deleted_at.is_(None)
+        ).first()
+        if schedules:
+            slot_duration = schedules.slot_duration
+        
         # Get one-time blocked slots (future dates only)
         today = datetime.utcnow().date()
         one_time_blocks = self.db.query(BlockedSlot).filter(
@@ -331,10 +340,16 @@ class DoctorScheduleService:
                 "reason": block.reason
             })
         
-        return {
+        response = {
             "schedules": weekly_schedule,
             "oneTimeBlockedSlots": one_time_blocked_slots
         }
+        
+        # Add slot duration if available
+        if slot_duration is not None:
+            response["slotDuration"] = slot_duration
+        
+        return response
 
     def get_all_doctors_weekly_schedules(self) -> AllDoctorsSchedulesResponse:
         """Get weekly schedules for all doctors."""
