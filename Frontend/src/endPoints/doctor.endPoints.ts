@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { BulkUpdateDoctorScheduleApiProps, RegisterDoctorApiProps } from "@/types";
-import { BulkUpdateDoctorScheduleUrl, GetDoctorDetailUrl, RegisterDoctorUrl } from "./URLs";
+import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
   specializations,
@@ -37,6 +37,17 @@ export const GetDoctorDetailApi = async ({ doctor_id }: { doctor_id: string }) =
   const response = await axiosInstance.get(`${GetDoctorDetailUrl}/${doctor_id}`);
   return response;
 };
+export const GetDoctorWeeklyScheduleApi = async ({ token }: { token: string }) => {
+  const response = await axiosInstance.get(
+    `${GetDoctorWeeklyScheduleUrl}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response;
+};
 export const BulkUpdateDoctorScheduleApi = async ({
   slotDuration, schedules, token
 }: BulkUpdateDoctorScheduleApiProps) => {
@@ -52,5 +63,46 @@ export const BulkUpdateDoctorScheduleApi = async ({
     }
   );
 
+  return response;
+};
+
+export const BlockDoctorSlotApi = async (payload: {
+  start_time: string;
+  end_time: string;
+  is_recurring: boolean;
+  day_of_week: string;
+  date?: string;
+  reason?: string;
+  token: string;
+}) => {
+  const { token, ...requestBody } = payload;
+  
+  const response = await axiosInstance.post(
+    `${BlockDoctorSlotUrl}`,
+    requestBody,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return response;
+};
+
+export const UnblockDoctorSlotApi = async ({
+  blocked_slot_id,
+  token
+}: {
+  blocked_slot_id: string;
+  token: string;
+}) => {
+  const response = await axiosInstance.delete(
+    `/schedules/blocked-slots/${blocked_slot_id}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response;
 };

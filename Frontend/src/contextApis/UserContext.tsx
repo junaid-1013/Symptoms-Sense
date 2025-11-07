@@ -151,9 +151,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const storedTokensRaw = readStorage(STORAGE_KEYS.tokens);
     const storedTokens = normalizeTokens(storedTokensRaw);
     const storedUser = readStorage<User>(STORAGE_KEYS.user);
+    const storedDoctorSchedule = readStorage<any[]>(STORAGE_KEYS.doctorSchedule);
+    const storedClinicDoctors = readStorage<any[]>(STORAGE_KEYS.clinicDoctors);
 
     if (storedTokens || storedUser) {
       setAuthData({ user: storedUser ?? null, tokens: storedTokens ?? null });
+    }
+    
+    if (storedDoctorSchedule) {
+      setDoctorScheduleState(storedDoctorSchedule);
+    }
+    
+    if (storedClinicDoctors) {
+      setClinicDoctorsState(storedClinicDoctors);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
