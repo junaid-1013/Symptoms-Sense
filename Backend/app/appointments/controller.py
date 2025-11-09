@@ -317,7 +317,11 @@ async def approve_appointment(
 
     try:
         # Approve appointment
-        appointment_service.approve_appointment(appointment_id)
+        appointment_service.approve_appointment(
+            appointment_id=appointment_id,
+            approver_type=approver_type,
+            approver_entity_id=approver_id
+        )
 
         # Get all appointments based on who scheduled it
         if approver_type == "doctor":
