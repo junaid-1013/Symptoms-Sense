@@ -26,6 +26,13 @@ from app.core.exceptions import (
 class AppointmentService:
     """Appointment service class."""
 
+    class AppointmentStatus:
+        PENDING = "pending"
+        SCHEDULED = "scheduled"
+        CANCELLED = "cancelled"
+
+        LOCKING_STATUSES = {PENDING, SCHEDULED}
+
     def __init__(self, db: Session):
         self.db = db
 
@@ -35,6 +42,9 @@ class AppointmentService:
         created_by: str = "patient"  # "patient" or "clinic"
     ) -> Appointment:
         """Create a new appointment."""
+        if created_by not in {"patient", "clinic"}:
+            raise ValidationException("Only patients or clinics can create appointments")
+
         # Verify patient exists
         patient = self.db.query(Patient).filter(
             Patient.id == data.patient_id,
@@ -82,7 +92,7 @@ class AppointmentService:
             # Check if timeslot already has an appointment (race condition check)
             existing_appointment = self.db.query(Appointment).filter(
                 Appointment.timeslot_id == data.timeslot_id,
-                Appointment.status.in_(['pending', 'scheduled']),
+                Appointment.status.in_(self.AppointmentStatus.LOCKING_STATUSES),
                 Appointment.deleted_at.is_(None)
             ).first()
 
@@ -116,7 +126,7 @@ class AppointmentService:
                 # Final check for existing appointment
                 existing_appointment = self.db.query(Appointment).filter(
                     Appointment.timeslot_id == timeslot.id,
-                    Appointment.status.in_(['pending', 'scheduled']),
+                    Appointment.status.in_(self.AppointmentStatus.LOCKING_STATUSES),
                     Appointment.deleted_at.is_(None)
                 ).first()
 
@@ -146,7 +156,7 @@ class AppointmentService:
             doctor_id=data.doctor_id,
             clinic_id=data.clinic_id,
             timeslot_id=timeslot.id,  # Use the timeslot ID (either existing or newly created)
-            status='pending',  # Default status
+            status=self.AppointmentStatus.PENDING,
             appointment_type=data.appointment_type,
             chief_complaint=data.chief_complaint
         )
@@ -264,7 +274,7 @@ class AppointmentService:
             existing_appointment = self.db.query(Appointment).filter(
                 Appointment.timeslot_id == data.timeslot_id,
                 Appointment.id != appointment_id,
-                Appointment.status.in_(['pending', 'scheduled']),
+                Appointment.status.in_(self.AppointmentStatus.LOCKING_STATUSES),
                 Appointment.deleted_at.is_(None)
             ).first()
             
@@ -325,18 +335,34 @@ class AppointmentService:
     
     def approve_appointment(
         self,
-        appointment_id: str
+        appointment_id: str,
+        approver_type: str,
+        approver_entity_id: str
     ) -> Appointment:
-        """Approve an appointment (change status from pending to scheduled)."""
+        """
+        Approve an appointment (change status from pending to scheduled).
+        Only the assigned doctor or the owning clinic can approve.
+        """
         appointment = self.get_appointment_model_by_id(appointment_id)
         
         if not appointment:
             raise UserNotFoundException("Appointment not found")
         
-        if appointment.status != 'pending':
+        if appointment.status != self.AppointmentStatus.PENDING:
             raise ValidationException(f"Cannot approve appointment with status: {appointment.status}")
+
+        approver_type = approver_type.lower()
+        if approver_type not in {"doctor", "clinic"}:
+            raise ValidationException("Only doctors or clinics can approve appointments")
+
+        if approver_type == "doctor":
+            if appointment.doctor_id != approver_entity_id:
+                raise ValidationException("Doctor does not have permission to approve this appointment")
+        else:
+            if appointment.clinic_id != approver_entity_id:
+                raise ValidationException("Clinic does not have permission to approve this appointment")
         
-        appointment.status = 'scheduled'
+        appointment.status = self.AppointmentStatus.SCHEDULED
         
         self.db.commit()
         self.db.refresh(appointment)
@@ -354,7 +380,7 @@ class AppointmentService:
             raise UserNotFoundException("Appointment not found")
         
         # Check 24-hour rule if appointment has a timeslot
-        if appointment.timeslot_id and appointment.status in ['pending', 'scheduled']:
+        if appointment.timeslot_id and appointment.status in self.AppointmentStatus.LOCKING_STATUSES:
             timeslot = self.db.query(Timeslot).filter(
                 Timeslot.id == appointment.timeslot_id
             ).first()
@@ -379,10 +405,10 @@ class AppointmentService:
         
         # Store original status before changing it
         original_status = appointment.status
-        appointment.status = 'cancelled'
+        appointment.status = self.AppointmentStatus.CANCELLED
         
         # Make timeslot available if appointment was pending or scheduled
-        if appointment.timeslot_id and original_status in ['pending', 'scheduled']:
+        if appointment.timeslot_id and original_status in self.AppointmentStatus.LOCKING_STATUSES:
             timeslot = self.db.query(Timeslot).filter(
                 Timeslot.id == appointment.timeslot_id
             ).first()
