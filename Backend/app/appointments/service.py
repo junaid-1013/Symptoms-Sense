@@ -39,7 +39,7 @@ class AppointmentService:
     def create_appointment(
         self,
         data: AppointmentCreateRequest,
-        created_by: str = "patient"  # "patient" or "clinic"
+        created_by: str = "patient"
     ) -> Appointment:
         """Create a new appointment."""
         if created_by not in {"patient", "clinic"}:
@@ -63,14 +63,17 @@ class AppointmentService:
         if not doctor:
             raise UserNotFoundException("Doctor not found")
 
-        # Verify clinic exists
+        # Determine clinic
+        clinic_id = data.clinic_id or doctor.clinic_id
         clinic = self.db.query(Clinic).filter(
-            Clinic.id == data.clinic_id,
+            Clinic.id == clinic_id,
             Clinic.deleted_at.is_(None)
         ).first()
 
         if not clinic:
             raise UserNotFoundException("Clinic not found")
+
+        data.clinic_id = clinic.id
 
         # Handle timeslot - either use existing or create from virtual slot
         timeslot = None

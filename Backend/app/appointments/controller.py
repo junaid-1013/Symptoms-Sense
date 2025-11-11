@@ -52,6 +52,17 @@ async def create_appointment(
             )
         
         appointment_data.patient_id = patient.id
+        doctor = db.query(Doctor).filter(
+            Doctor.id == appointment_data.doctor_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
+        if not doctor:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Doctor not found"
+            )
+        appointment_data.clinic_id = doctor.clinic_id
+
         created_by = "patient"
     
     # Handle clinic appointment creation
