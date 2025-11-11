@@ -16,7 +16,7 @@ class Appointment(Base, SoftDeletableMixin):
     clinic_id = Column(String, ForeignKey("clinic.id", ondelete="CASCADE"), nullable=False)
     timeslot_id = Column(String, ForeignKey("timeslot.id", ondelete="SET NULL"), nullable=True)
     status = Column(String, default="pending", nullable=False)
-    appointment_type = Column(String, nullable=True)
+    appointment_type = Column(String, nullable=False)
     chief_complaint = Column(String, nullable=True)
     
     # Relationships
