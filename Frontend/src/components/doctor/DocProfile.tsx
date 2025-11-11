@@ -63,7 +63,7 @@ const DoctorProfile = () => {
             </div>
             <div className="flex flex-col items-center bg-indigo-50/60 rounded-xl p-3 hover:bg-indigo-100 transition-colors">
               <span className="text-indigo-600 font-semibold">🩺</span>
-              <span className="text-gray-700">{user?.specializations![0] || "N/A"}</span>
+              <span className="text-gray-700">{user?.specializations?.[0] ?? "N/A"}</span>
             </div>
           </div>
 

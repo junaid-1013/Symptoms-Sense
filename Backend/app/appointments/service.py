@@ -106,9 +106,15 @@ class AppointmentService:
             if not data.start_time or not data.end_time:
                 raise ValidationException("Either timeslot_id or both start_time and end_time must be provided")
             
+            normalized_start = self._normalize_datetime(data.start_time)
+            normalized_end = self._normalize_datetime(data.end_time)
+
             # Validate slot is in the future
-            if data.start_time <= datetime.utcnow():
+            if normalized_start <= datetime.utcnow():
                 raise ValidationException("Cannot book appointments in the past")
+            
+            if normalized_end <= normalized_start:
+                raise ValidationException("End time must be after start time")
             
             # Use schedule service to create timeslot from virtual slot
             schedule_service = DoctorScheduleService(self.db)
@@ -116,8 +122,8 @@ class AppointmentService:
                 timeslot = schedule_service.create_timeslot_from_virtual(
                     doctor_id=data.doctor_id,
                     data=CreateTimeslotFromVirtualRequest(
-                        start_time=data.start_time,
-                        end_time=data.end_time,
+                        start_time=normalized_start,
+                        end_time=normalized_end,
                         generated_from_schedule=data.generated_from_schedule
                     )
                 )
@@ -167,7 +173,6 @@ class AppointmentService:
         self.db.add(appointment)
         self.db.commit()
         self.db.refresh(appointment)
-
         return appointment
     
     def get_patient_appointments(
@@ -221,13 +226,7 @@ class AppointmentService:
             if timeslot:
                 # Check if appointment is more than 24 hours away
                 now = datetime.utcnow()
-                appointment_time = timeslot.start_time
-                
-                # Handle timezone-aware datetime
-                if hasattr(appointment_time, 'tzinfo') and appointment_time.tzinfo is not None:
-                    # Convert to naive datetime for comparison
-                    appointment_time = appointment_time.replace(tzinfo=None)
-                    now = datetime.utcnow()
+                appointment_time = self._normalize_datetime(timeslot.start_time)
                 
                 time_difference = appointment_time - now
                 
@@ -391,13 +390,7 @@ class AppointmentService:
             if timeslot:
                 # Check if appointment is more than 24 hours away
                 now = datetime.utcnow()
-                appointment_time = timeslot.start_time
-                
-                # Handle timezone-aware datetime
-                if hasattr(appointment_time, 'tzinfo') and appointment_time.tzinfo is not None:
-                    # Convert to naive datetime for comparison
-                    appointment_time = appointment_time.replace(tzinfo=None)
-                    now = datetime.utcnow()
+                appointment_time = self._normalize_datetime(timeslot.start_time)
                 
                 time_difference = appointment_time - now
                 
@@ -434,6 +427,14 @@ class AppointmentService:
         ).order_by(Appointment.created_at.desc()).all()
 
         return [self._build_appointment_response(appt) for appt in appointments]
+
+    @staticmethod
+    def _normalize_datetime(value: Optional[datetime]) -> Optional[datetime]:
+        if value is None:
+            return None
+        if hasattr(value, "tzinfo") and value.tzinfo is not None:
+            return value.astimezone(timezone.utc).replace(tzinfo=None)
+        return value
 
     def _build_appointment_response(self, appointment: Appointment) -> AppointmentResponse:
         """Build AppointmentResponse from appointment model."""
