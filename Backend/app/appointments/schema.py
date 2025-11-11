@@ -12,7 +12,7 @@ class AppointmentCreateRequest(BaseModel):
     """Create appointment request."""
     patient_id: str = Field(..., description="Patient ID")
     doctor_id: str = Field(..., description="Doctor ID")
-    clinic_id: str = Field(..., description="Clinic ID")
+    clinic_id: Optional[str] = Field(..., description="Clinic ID")
     timeslot_id: Optional[str] = Field(None, description="Timeslot ID (optional if start_time/end_time provided)")
     start_time: Optional[datetime] = Field(None, description="Start time for virtual slot booking (required if timeslot_id is None)")
     end_time: Optional[datetime] = Field(None, description="End time for virtual slot booking (required if timeslot_id is None)")
