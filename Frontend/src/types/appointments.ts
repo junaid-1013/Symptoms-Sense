@@ -1,3 +1,5 @@
+import { APPOINTMENT_TYPES } from "@/config/constants";
+
 export interface DoctorAppointmentItem {
     patientName: string;
     gender: string;
@@ -11,4 +13,20 @@ export interface AppointmentSectionProps {
     data: DoctorAppointmentItem[];
     cardClassName: string;
     sectionClassName?: string;
+}
+export interface CreateAppointmentApiProps {
+    patientId: string;
+    doctorId: string;
+    clinicId?: string;
+    startTime: string;
+    endTime: string;
+    generatedFromSchedule: string;
+    appointmentType: (typeof APPOINTMENT_TYPES)[number];
+    chiefComplaint?: string;
+    token: string;
+}
+export interface GetAvailableSlotsApiProps {
+    doctorId: string;
+    date: string;
+    token: string;
 }

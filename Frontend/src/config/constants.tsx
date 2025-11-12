@@ -163,3 +163,14 @@ export const DOCTOR_CAROUSEL_STATS = [
     { icon: Award, label: "Board Certified", value: "98%" }
 ];
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+export const APPOINTMENT_TYPES = [
+    "Routine / Preventive",
+    "Follow-up",
+    "Diagnostic",
+    "Urgent Care",
+    "Emergency",
+    "Specialist",
+    "Telemedicine / Virtual",
+    "Prenatal / Postnatal",
+    "Medication Review"
+];
