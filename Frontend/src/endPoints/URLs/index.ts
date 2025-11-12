@@ -1,3 +1,4 @@
+export * from "./appointment.urls";
 export * from "./auth.urls";
 export * from "./clinic.urls";
 export * from "./doctor.urls";
