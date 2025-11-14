@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { CreateAppointmentApiProps, GetAvailableSlotsApiProps } from "@/types";
-import { CreateAppointmentApiUrl, GetAvailableSlotsApiUrl } from "./URLs";
+import { ApproveAppointmentApiProps, CancelAppointmentApiProps, CreateAppointmentApiProps, GetAvailableSlotsApiProps, GetMyAppointmentsApiProps } from "@/types";
+import { ApproveAppointmentApiUrl, CancelAppointmentApiUrl, CreateAppointmentApiUrl, GetAvailableSlotsApiUrl, GetMyAppointmentsApiUrl } from "./URLs";
 
 export const GetAvailableSlotsApi = async ({
     doctorId,
@@ -17,7 +17,6 @@ export const GetAvailableSlotsApi = async ({
     )
     return response;
 }
-
 export const CreateAppointmentApi = async ({
     patientId,
     doctorId,
@@ -41,6 +40,49 @@ export const CreateAppointmentApi = async ({
             appointment_type: appointmentType,
             chief_complaint: chiefComplaint
         },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+    return response;
+}
+export const GetMyAppointmentsApi = async ({
+    token
+}: GetMyAppointmentsApiProps) => {
+    const response = await axiosInstance.get(
+        `${GetMyAppointmentsApiUrl}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+    return response;
+}
+export const CancelAppointmentApi = async ({
+    appointmentId,
+    token
+}: CancelAppointmentApiProps) => {
+    const response = await axiosInstance.post(
+        `${CancelAppointmentApiUrl.replace("{appointmentId}", appointmentId)}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+    return response;
+}
+export const ApproveAppointmentApi = async ({
+    appointmentId,
+    token
+}: ApproveAppointmentApiProps) => {
+    const response = await axiosInstance.post(
+        `${ApproveAppointmentApiUrl.replace("{appointmentId}", appointmentId)}`,
+        {},
         {
             headers: {
                 Authorization: `Bearer ${token}`
