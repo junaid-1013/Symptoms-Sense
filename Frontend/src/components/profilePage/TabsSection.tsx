@@ -13,7 +13,6 @@ export const TabsSection = ({
   appointments,
   reminders,
   completedAppointments,
-  onCancelAppointment,
   onCancelReminder
 }: TabsSectionProps) => {
   const [activeTab, setActiveTab] = useState("appointments")
@@ -64,7 +63,6 @@ export const TabsSection = ({
                     key={index}
                     data={data}
                     type="upcoming"
-                    onCancel={() => onCancelAppointment(data)}
                   />
                 ))}
               </div>

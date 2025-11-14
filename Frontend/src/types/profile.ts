@@ -1,24 +1,34 @@
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  phone?: string | null;
-  user_type?: string | null;
-  is_active: boolean;
-  is_email_verified: boolean;
-  avatar_url?: string | null;
-  last_login?: string | Date | null;
-}
 export interface Appointment {
-  time: string
-  doctor: string
-  doctor_id: string
-  image: string
-}
-export interface CompletedAppointment {
-  time: string
-  doctor: string
-  image: string
+  id: string;
+  patient: {
+    id: string;
+    name: string;
+    email: string;
+    age?: number | null;
+    gender?: string | null;
+  };
+  doctor: {
+    id: string;
+    name: string;
+    specializations: string[];
+    profile_image?: string | null;
+  };
+  clinic: {
+    id: string;
+    name: string;
+    address: string;
+  };
+  timeslot: {
+    id: string;
+    date: string;
+    start_time: string;
+    end_time: string;
+  };
+  status: string;
+  appointment_type: string;
+  chief_complaint: string | null;
+  created_at: string;
+  updated_at: string;
 }
 export interface Reminder {
   medicineName: string
@@ -41,9 +51,8 @@ export interface EmptyStateProps {
   actionHref?: string
 }
 export interface AppointmentCardProps {
-  data: Appointment | CompletedAppointment
-  type: "upcoming" | "completed"
-  onCancel?: () => void
+  data: Appointment;
+  type: "upcoming" | "completed";
 }
 export interface ReminderCardProps {
   data: Reminder
@@ -58,8 +67,7 @@ export interface StatsGridProps {
 export interface TabsSectionProps {
   appointments: Appointment[]
   reminders: Reminder[]
-  completedAppointments: CompletedAppointment[]
-  onCancelAppointment: (data: Appointment) => void
+  completedAppointments: Appointment[]
   onCancelReminder: (data: Reminder) => void
 }
 export interface UserProfileFormData {

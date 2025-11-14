@@ -1,7 +1,7 @@
 """
 Appointment service with business logic.
 """
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime, timedelta, timezone
 
@@ -10,12 +10,17 @@ from app.models.patient import Patient
 from app.models.doctor import Doctor
 from app.models.clinic import Clinic
 from app.models.doctor import Timeslot
+from app.models.user import User
 from app.schedules.service import DoctorScheduleService
 from app.schedules.schema import CreateTimeslotFromVirtualRequest
 from app.appointments.schema import (
     AppointmentCreateRequest,
     AppointmentUpdateRequest,
-    AppointmentResponse
+    AppointmentResponse,
+    PatientNestedResponse,
+    DoctorNestedResponse,
+    ClinicNestedResponse,
+    TimeslotNestedResponse
 )
 from app.core.exceptions import (
     UserNotFoundException,
@@ -172,7 +177,14 @@ class AppointmentService:
 
         self.db.add(appointment)
         self.db.commit()
-        self.db.refresh(appointment)
+        
+        appointment = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(Appointment.id == appointment.id).first()
+        
         return appointment
     
     def get_patient_appointments(
@@ -180,7 +192,12 @@ class AppointmentService:
         patient_id: str
     ) -> List[AppointmentResponse]:
         """Get all appointments for a patient."""
-        appointments = self.db.query(Appointment).filter(
+        appointments = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(
             Appointment.patient_id == patient_id,
             Appointment.deleted_at.is_(None)
         ).order_by(Appointment.created_at.desc()).all()
@@ -192,7 +209,12 @@ class AppointmentService:
         clinic_id: str
     ) -> List[AppointmentResponse]:
         """Get all appointments for a clinic."""
-        appointments = self.db.query(Appointment).filter(
+        appointments = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(
             Appointment.clinic_id == clinic_id,
             Appointment.deleted_at.is_(None)
         ).order_by(Appointment.created_at.desc()).all()
@@ -304,7 +326,13 @@ class AppointmentService:
             appointment.chief_complaint = data.chief_complaint
         
         self.db.commit()
-        self.db.refresh(appointment)
+        
+        appointment = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(Appointment.id == appointment.id).first()
         
         return appointment
     
@@ -313,7 +341,12 @@ class AppointmentService:
         appointment_id: str
     ) -> Optional[AppointmentResponse]:
         """Get a specific appointment by ID."""
-        appointment = self.db.query(Appointment).filter(
+        appointment = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(
             Appointment.id == appointment_id,
             Appointment.deleted_at.is_(None)
         ).first()
@@ -367,7 +400,13 @@ class AppointmentService:
         appointment.status = self.AppointmentStatus.SCHEDULED
         
         self.db.commit()
-        self.db.refresh(appointment)
+        
+        appointment = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(Appointment.id == appointment.id).first()
         
         return appointment
     
@@ -412,7 +451,13 @@ class AppointmentService:
                 timeslot.is_available = True
         
         self.db.commit()
-        self.db.refresh(appointment)
+        
+        appointment = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(Appointment.id == appointment.id).first()
         
         return appointment
     
@@ -421,7 +466,12 @@ class AppointmentService:
         doctor_id: str
     ) -> List[AppointmentResponse]:
         """Get all appointments for a doctor."""
-        appointments = self.db.query(Appointment).filter(
+        appointments = self.db.query(Appointment).options(
+            joinedload(Appointment.patient).joinedload(Patient.user),
+            joinedload(Appointment.doctor).joinedload(Doctor.user),
+            joinedload(Appointment.clinic).joinedload(Clinic.user),
+            joinedload(Appointment.timeslot)
+        ).filter(
             Appointment.doctor_id == doctor_id,
             Appointment.deleted_at.is_(None)
         ).order_by(Appointment.created_at.desc()).all()
@@ -437,17 +487,53 @@ class AppointmentService:
         return value
 
     def _build_appointment_response(self, appointment: Appointment) -> AppointmentResponse:
-        """Build AppointmentResponse from appointment model."""
+        """Build AppointmentResponse from appointment model with nested objects."""
+        # Build patient nested response
+        patient_data = PatientNestedResponse(
+            id=appointment.patient.id,
+            name=appointment.patient.user.name,
+            email=appointment.patient.user.email,
+            age=appointment.patient.age,
+            gender=appointment.patient.gender
+        )
+        
+        # Build doctor nested response
+        doctor_data = DoctorNestedResponse(
+            id=appointment.doctor.id,
+            name=appointment.doctor.user.name,
+            specializations=appointment.doctor.specializations
+        )
+        
+        # Build clinic nested response
+        clinic_data = ClinicNestedResponse(
+            id=appointment.clinic.id,
+            name=appointment.clinic.user.name,
+            address=appointment.clinic.address
+        )
+        
+        # Build timeslot nested response
+        timeslot_data = None
+        if appointment.timeslot:
+            # Extract date and time from datetime
+            start_datetime = appointment.timeslot.start_time
+            end_datetime = appointment.timeslot.end_time
+            
+            timeslot_data = TimeslotNestedResponse(
+                id=appointment.timeslot.id,
+                date=start_datetime.strftime("%Y-%m-%d"),
+                start_time=start_datetime.strftime("%H:%M:%S"),
+                end_time=end_datetime.strftime("%H:%M:%S")
+            )
+        
         return AppointmentResponse(
             id=appointment.id,
-            patient_id=appointment.patient_id,
-            doctor_id=appointment.doctor_id,
-            clinic_id=appointment.clinic_id,
-            timeslot_id=appointment.timeslot_id,
+            patient=patient_data,
+            doctor=doctor_data,
+            clinic=clinic_data,
+            timeslot=timeslot_data,
             status=appointment.status,
             appointment_type=appointment.appointment_type,
             chief_complaint=appointment.chief_complaint,
             created_at=appointment.created_at,
             updated_at=appointment.updated_at
         )
-

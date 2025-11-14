@@ -1,10 +1,12 @@
 "use client"
 import { ProfileSkeleton } from "@/components/skeletons"
 import { useToast } from "@/components/ui/use-toast"
-import { Appointment, CompletedAppointment, ProfileStats, Reminder } from "@/types/profile"
+import { useUser } from "@/contextApis/UserContext"
+import { GetMyAppointmentsApi } from "@/endPoints/appointments.endPoints"
+import { Appointment, ProfileStats, Reminder } from "@/types/profile"
 import axios from "axios"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { StatsGrid } from "./StatsGrid"
 import { TabsSection } from "./TabsSection"
@@ -14,26 +16,9 @@ const Profile = () => {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [completedAppointments, setCompletedAppointments] = useState<CompletedAppointment[]>([])
+  const [completedAppointments, setCompletedAppointments] = useState<Appointment[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
-
-  const cancelAppointment = async (data: Appointment) => {
-    try {
-      const response = await axios.post("/api/cancelAppointment", data)
-      router.push("/profile")
-      toast({
-        title: "Appointment Cancelled",
-        description: "Your appointment has been cancelled successfully",
-      })
-      window.location.reload()
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to cancel appointment. Please try again.",
-        variant: "destructive",
-      })
-    }
-  }
+  const { tokens } = useUser()
 
   const cancelReminder = async (data: Reminder) => {
     try {
@@ -53,43 +38,42 @@ const Profile = () => {
     }
   }
 
-  const completeAppointment = useCallback(async (data: Appointment) => {
-    try {
-      const response = await axios.post("/api/completedAppointment", data)
-      window.location.reload()
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.response?.data?.error || "An error occurred",
-        variant: "destructive",
-      })
-    }
-  }, [toast])
-
-  const checkAppointments = useCallback(() => {
-    const currentTime = new Date()
-    appointments.forEach((app) => {
-      const appointmentTime = new Date(app.time)
-      if (appointmentTime < currentTime) {
-        completeAppointment(app)
-      }
-    })
-  }, [appointments, completeAppointment])
 
   useEffect(() => {
-    checkAppointments()
-  }, [checkAppointments])
+    if (tokens?.accessToken) {
+      GetMyAppointmentsApi({ token: tokens?.accessToken || "" })
+        .then((response) => {
+          if (response.data.status === "success") {
+            setAppointments(response.data.data.appointments)
+          } else {
+            toast({
+              title: "Error",
+              description: response.data.message || "Failed to get appointments",
+              variant: "destructive",
+            })
+          }
+        })
+        .catch((err) => {
+          toast({
+            title: "Error",
+            description: err.response?.data?.error || "Failed to get appointments",
+            variant: "destructive",
+          })
+        })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tokens])
 
   // Calculate stats
-  const totalAppointments = appointments.length + completedAppointments.length
+  const totalAppointments = appointments.length + 0
   const completionRate = totalAppointments > 0
-    ? Math.round((completedAppointments.length / totalAppointments) * 100)
+    ? Math.round((0 / totalAppointments) * 100)
     : 0
 
   const stats: ProfileStats = {
     upcomingAppointments: appointments.length,
     activeReminders: reminders.length,
-    completedAppointments: completedAppointments.length,
+    completedAppointments: 0,
     completionRate
   }
 
@@ -105,7 +89,6 @@ const Profile = () => {
             appointments={appointments}
             reminders={reminders}
             completedAppointments={completedAppointments}
-            onCancelAppointment={cancelAppointment}
             onCancelReminder={cancelReminder}
           />
         </div>

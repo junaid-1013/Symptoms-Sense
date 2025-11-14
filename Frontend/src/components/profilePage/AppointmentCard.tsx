@@ -1,15 +1,17 @@
+"use client"
 import RatingForm from "@/components/landingPage/RatingForm"
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { AppointmentCardProps } from "@/types"
-import { CheckCircle, Clock, X } from "lucide-react"
+import { CheckCircle, Clock, MapPin, User } from "lucide-react"
+import { useState } from "react"
+import Image from "next/image"
 
 export const AppointmentCard = ({
   data,
-  type,
-  onCancel
+  type
 }: AppointmentCardProps) => {
-  const appointmentDate = new Date(data.time)
+  const [imageError, setImageError] = useState(false)
+  const appointmentDateTime = new Date(`${data.timeslot.date}T${data.timeslot.start_time}`)
 
   return (
     <Card className="border-0 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group">
@@ -17,12 +19,20 @@ export const AppointmentCard = ({
       <CardHeader className="pb-3">
         <div className="flex items-start gap-4">
           <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              alt="Doctor"
-              src={data.image || "/placeholder.svg"}
-              className="w-14 h-14 rounded-xl object-cover border-2 border-muted"
-            />
+            {!imageError && data.doctor.profile_image ? (
+              <Image
+                alt={data.doctor.name}
+                src={data.doctor.profile_image}
+                fill
+                className="rounded-xl object-cover border-2 border-muted"
+                onError={() => setImageError(true)}
+                sizes="56px"
+              />
+            ) : (
+              <div className="w-full h-full rounded-xl bg-muted border-2 border-muted flex items-center justify-center">
+                <User className="w-6 h-6 text-muted-foreground" />
+              </div>
+            )}
             {type === "completed" && (
               <div className="absolute -bottom-1 -right-1 p-1 bg-green-500 rounded-full">
                 <CheckCircle className="w-3 h-3 text-white" />
@@ -30,32 +40,45 @@ export const AppointmentCard = ({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-foreground truncate">{data.doctor}</h4>
+            <h4 className="font-semibold text-foreground truncate">{data.doctor.name}</h4>
+            <p className="text-xs text-muted-foreground truncate">
+              {data.doctor.specializations.join(", ")}
+            </p>
             <div className="flex items-center gap-1.5 mt-1 text-sm text-muted-foreground">
               <Clock className="w-3.5 h-3.5" />
               <span className="truncate">
-                {appointmentDate.toLocaleString("en-US", {
+                {appointmentDateTime.toLocaleString("en-US", {
                   timeZone: "Asia/Karachi",
                   dateStyle: "medium",
                   timeStyle: "short",
                 })}
               </span>
             </div>
+            <div className="flex items-center gap-1.5 mt-1 text-xs text-muted-foreground">
+              <MapPin className="w-3.5 h-3.5" />
+              <span className="truncate">{data.clinic.name}</span>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        {type === "upcoming" ? (
-          <Button
-            onClick={onCancel}
-            variant="ghost"
-            size="sm"
-            className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
-          >
-            <X className="w-4 h-4 mr-2" />
-            Cancel Appointment
-          </Button>
-        ) : (
+      <CardContent className="pt-0 space-y-2">
+        <div className="text-xs space-y-1">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Type:</span>
+            <span className="font-medium">{data.appointment_type}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Status:</span>
+            <span className={`font-medium capitalize ${data.status === "pending" ? "text-yellow-600" :
+                data.status === "confirmed" ? "text-blue-600" :
+                  "text-green-600"
+              }`}>
+              {data.status}
+            </span>
+          </div>
+        </div>
+
+        {type === "completed" && (
           <RatingForm doctorData={data} />
         )}
       </CardContent>

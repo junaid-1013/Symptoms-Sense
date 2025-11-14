@@ -69,8 +69,68 @@ class AppointmentUpdateRequest(BaseModel):
 
 # ========== Response Schemas ==========
 
+class PatientNestedResponse(BaseModel):
+    """Nested patient response."""
+    id: str
+    name: str
+    email: str
+    age: Optional[int] = None
+    gender: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class DoctorNestedResponse(BaseModel):
+    """Nested doctor response."""
+    id: str
+    name: str
+    specializations: Optional[List[str]] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ClinicNestedResponse(BaseModel):
+    """Nested clinic response."""
+    id: str
+    name: str
+    address: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TimeslotNestedResponse(BaseModel):
+    """Nested timeslot response."""
+    id: str
+    date: str
+    start_time: str
+    end_time: str
+
+    class Config:
+        from_attributes = True
+
+
 class AppointmentResponse(BaseModel):
-    """Appointment response."""
+    """Appointment response with nested objects."""
+    id: str
+    patient: PatientNestedResponse
+    doctor: DoctorNestedResponse
+    clinic: ClinicNestedResponse
+    timeslot: Optional[TimeslotNestedResponse] = None
+    status: str
+    appointment_type: Optional[str] = None
+    chief_complaint: Optional[str] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class AppointmentResponseLegacy(BaseModel):
+    """Legacy appointment response with IDs only (for backward compatibility)."""
     id: str
     patient_id: str
     doctor_id: str

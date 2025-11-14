@@ -1,20 +1,5 @@
 import { APPOINTMENT_TYPES } from "@/config/constants";
 import { DoctorAppointmentItem } from "./appointments";
-export interface DocSchema {
-    id: string,
-    name: string,
-    img: string,
-    specialization: string[],
-    education: string[],
-    experience: (string | number)[],
-    services: string[]
-    about: string
-    experienceYears: number,
-    city: string,
-    streetAddress: string
-    reservations: (string | any)[]
-    feedbacks: (string | any)[]
-}
 export interface DoctorBasicInfo {
     id: string;
     user_id: string;
@@ -28,21 +13,6 @@ export interface DoctorBasicInfo {
     status: string;
     img?: string;
 }
-export interface DoctorRegistrationFormValues {
-    img: any;
-    name: string;
-    email: string;
-    phone: string;
-    image: FileList;
-    services: string[];
-    education: string[];
-    specialization: string[];
-    experienceYears: number;
-    experienceDetails: string[];
-    about: string;
-    city: string;
-    streetAddress: string;
-}
 export interface RegisterDoctorApiProps {
     specializations: string[];
     services: string[];
@@ -55,7 +25,11 @@ export interface RegisterDoctorApiProps {
 }
 export interface DoctorAppointmentCardProps {
     item: DoctorAppointmentItem;
+    appointmentId: string;
+    status: string;
     className?: string;
+    onApprove?: (appointmentId: string) => void;
+    onCancel?: (appointmentId: string) => void;
 }
 export interface DoctorScheduleDialogProps {
     open: boolean;

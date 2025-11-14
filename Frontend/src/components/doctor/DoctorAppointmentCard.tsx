@@ -10,13 +10,65 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { DoctorAppointmentCardProps } from "@/types";
-import { CalendarCheck, Clock4 } from "lucide-react";
+import { CalendarCheck, Clock4, MoreVertical, CheckCircle, XCircle } from "lucide-react";
 import React from "react";
 
-const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({ item, className }) => {
+const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({ 
+    item, 
+    appointmentId,
+    status,
+    className,
+    onApprove,
+    onCancel
+}) => {
+    const showActions = status === "pending";
+
     return (
-        <Card className={className}>
+        <Card className={`${className} relative`}>
+            {showActions && (onApprove || onCancel) && (
+                <div className="absolute top-3 right-3 z-10">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button 
+                                variant="ghost" 
+                                size="icon"
+                                className="h-8 w-8 rounded-full hover:bg-indigo-100"
+                            >
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                            {onApprove && (
+                                <DropdownMenuItem 
+                                    onClick={() => onApprove(appointmentId)}
+                                    className="cursor-pointer text-green-600 focus:text-green-600 focus:bg-green-50"
+                                >
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Approve
+                                </DropdownMenuItem>
+                            )}
+                            {onCancel && (
+                                <DropdownMenuItem 
+                                    onClick={() => onCancel(appointmentId)}
+                                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                                >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Cancel
+                                </DropdownMenuItem>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            )}
+
             <CardHeader className="flex flex-col items-center space-y-3 text-center p-5">
                 <div className="relative flex justify-center">
                     <div className="absolute inset-0 flex items-center justify-center">

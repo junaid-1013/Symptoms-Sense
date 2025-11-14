@@ -16,6 +16,8 @@ const AppointmentSection: React.FC<AppointmentSectionProps> = ({
     data,
     cardClassName,
     sectionClassName,
+    onApprove,
+    onCancel,
 }) => {
     return (
         <section className={`text-center space-y-6 ${sectionClassName ?? ""}`}>
@@ -26,7 +28,14 @@ const AppointmentSection: React.FC<AppointmentSectionProps> = ({
                 <CarouselContent>
                     {data.map((a, i) => (
                         <CarouselItem key={i} className="md:basis-1/2 lg:basis-1/3">
-                            <DoctorAppointmentCard item={a} className={cardClassName} />
+                            <DoctorAppointmentCard 
+                                item={a} 
+                                appointmentId={a.appointmentId}
+                                status={a.status}
+                                className={cardClassName}
+                                onApprove={onApprove}
+                                onCancel={onCancel}
+                            />
                         </CarouselItem>
                     ))}
                 </CarouselContent>

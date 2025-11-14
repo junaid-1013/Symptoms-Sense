@@ -152,7 +152,7 @@ async def update_appointment(
     user_type = current_user.user_type
 
     # Get existing appointment to verify ownership
-    existing_appointment = appointment_service.get_appointment_by_id(appointment_id)
+    existing_appointment = appointment_service.get_appointment_model_by_id(appointment_id)
     
     if not existing_appointment:
         raise HTTPException(
@@ -265,7 +265,7 @@ async def approve_appointment(
     user_type = current_user.user_type
 
     # Get existing appointment to verify access
-    existing_appointment = appointment_service.get_appointment_by_id(appointment_id)
+    existing_appointment = appointment_service.get_appointment_model_by_id(appointment_id)
     
     if not existing_appointment:
         raise HTTPException(
@@ -376,7 +376,7 @@ async def cancel_appointment(
     user_type = current_user.user_type
 
     # Get existing appointment to verify access
-    existing_appointment = appointment_service.get_appointment_by_id(appointment_id)
+    existing_appointment = appointment_service.get_appointment_model_by_id(appointment_id)
     
     if not existing_appointment:
         raise HTTPException(
