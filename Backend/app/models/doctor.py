@@ -61,8 +61,8 @@ class Timeslot(Base, SoftDeletableMixin):
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     doctor_id = Column(String, ForeignKey("doctor.id", ondelete="CASCADE"), nullable=False)
-    start_time = Column(DateTime, nullable=False)
-    end_time = Column(DateTime, nullable=False)
+    start_time = Column(DateTime(timezone=True), nullable=False)
+    end_time = Column(DateTime(timezone=True), nullable=False)
     is_available = Column(Boolean, default=True, nullable=False)
     generated_from_schedule = Column(String, ForeignKey("doctor_schedule.id", ondelete="SET NULL"), nullable=True)
     slot_type = Column(String, default="generated", nullable=False)  # "generated", "manual", "blocked"
