@@ -34,6 +34,7 @@ class AppointmentService:
     class AppointmentStatus:
         PENDING = "pending"
         SCHEDULED = "scheduled"
+        COMPLETED = "completed"
         CANCELLED = "cancelled"
 
         LOCKING_STATUSES = {PENDING, SCHEDULED}
