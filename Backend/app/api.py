@@ -11,6 +11,7 @@ from app.clinics.controller import router as clinics_router
 from app.prescriptions.controller import router as prescriptions_router
 from app.schedules.controller import router as schedules_router
 from app.appointments.controller import router as appointments_router
+from app.patients.controller import router as patient_router
 
 # Create main API router
 api_router = APIRouter(prefix="/api")
@@ -23,3 +24,6 @@ api_router.include_router(clinics_router)
 api_router.include_router(prescriptions_router)
 api_router.include_router(schedules_router)
 api_router.include_router(appointments_router)
+api_router.include_router(patient_router)
+
+
