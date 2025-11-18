@@ -1,28 +1,21 @@
 "use client";
+import UserMenu from "@/components/common/UserMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import AppDropdown from "@/components/uiUtils/AppDropdown";
 import { NAV_LINKS } from "@/config/constants";
 import { useUser } from "@/contextApis/UserContext";
-import { useLogout } from "@/hooks/useLogout";
 import { getUserInitials } from "@/utils/user";
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const Navbar = () => {
-  const { toast } = useToast()
-  const [open, setOpen] = useState(false)
-  const { isAuthenticated, user } = useUser()
-  const router = useRouter();
-  const { onLogout } = useLogout()
-
-  const profilePath = user?.user_type === "doctor" ? "/doctorProfile" : user?.user_type === "admin" ? "/adminDashboard" : "/profile"
-
-
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const { isAuthenticated, user } = useUser();
 
   return (
     <header className="flex items-center w-full bg-[#192a56] md:px-16 px-4 shadow-md">
@@ -38,7 +31,11 @@ const Navbar = () => {
             <nav className="hidden lg:flex lg:items-center lg:flex-1 lg:justify-center">
               <ul className="flex items-center gap-8">
                 {NAV_LINKS.map(({ label, href }) => (
-                  <ListItem key={label} NavLink={href} navItemStyles="text-white hover:text-gray-300 transition-colors">
+                  <ListItem
+                    key={label}
+                    NavLink={href}
+                    navItemStyles="text-white hover:text-gray-300 transition-colors"
+                  >
                     {label}
                   </ListItem>
                 ))}
@@ -70,7 +67,7 @@ const Navbar = () => {
             />
 
             {/* Profile Dropdown */}
-            <AppDropdown
+            <UserMenu
               trigger={
                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-white rounded-full p-1">
                   <Avatar className="h-9 w-9">
@@ -83,35 +80,24 @@ const Navbar = () => {
                     </AvatarFallback>
                   </Avatar>
                   {isAuthenticated && (
-                    <span className="text-white text-sm font-medium hidden sm:inline">{user?.name}</span>
+                    <span className="text-white text-sm font-medium hidden sm:inline">
+                      {user?.name}
+                    </span>
                   )}
                 </button>
               }
-              items={
-                isAuthenticated
-                  ? [
-                    { type: "label", key: "name", children: user?.name || "" },
-                    { type: "label", key: "email", children: <span className="text-xs text-muted-foreground">{user?.email}</span> },
-                    { type: "separator", key: "sep-1" },
-                    { type: "item", key: "profile", children: user?.user_type === "doctor" ? "Doctor Profile" : user?.user_type === "admin" ? "Admin Dashboard" : "My Profile", href: profilePath },
-                    { type: "separator", key: "sep-2" },
-                    { type: "item", key: "logout", children: <span className="text-red-600">Logout</span>, onClick: onLogout },
-                  ]
-                  : [
-                    { type: "item", key: "login", children: "Sign In", href: "/login" },
-                    { type: "separator", key: "sep" },
-                    { type: "item", key: "register", children: "Sign Up", href: "/register" },
-                  ]
-              }
+              align="end"
+              side="bottom"
+              sideOffset={8}
             />
           </div>
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
 
 const ListItem = ({ children, navItemStyles, NavLink }: any) => {
   return (
@@ -120,5 +106,5 @@ const ListItem = ({ children, navItemStyles, NavLink }: any) => {
         {children}
       </Link>
     </li>
-  )
-}
+  );
+};
