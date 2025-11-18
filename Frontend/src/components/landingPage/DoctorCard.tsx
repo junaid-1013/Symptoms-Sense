@@ -6,6 +6,10 @@ import { GraduationCap, MapPin, UserCheck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
+  const specialization =
+    Array.isArray(doctor.specializations) && doctor.specializations.length > 0
+      ? doctor.specializations.join(", ")
+      : "General Physician";
   return (
     <Card className="group hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-card border-border overflow-hidden">
       <CardContent className="p-0">
@@ -20,7 +24,7 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
           <div className="absolute bottom-4 left-4 right-4">
             <h3 className="text-xl font-bold text-white text-balance mb-1">{doctor.name}</h3>
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-              {doctor.specialization || "General Physician"}
+              {specialization || "General Physician"}
             </Badge>
           </div>
         </div>
@@ -30,7 +34,7 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
             <div className="flex items-start gap-3">
               <GraduationCap className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-foreground">{doctor.specialization || "Specialization not specified"}</p>
+                <p className="text-sm font-medium text-foreground">{specialization || "Specialization not specified"}</p>
                 <p className="text-xs text-muted-foreground">Specialization</p>
               </div>
             </div>

@@ -6,6 +6,7 @@ import { SectionCards } from "@/components/dashComps/section-cards";
 import AddDoctorHome from "@/components/doctor/AddDoctorHome";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import ClinicAppointmentSection from "@/components/dashComps/ClinicAppointementSection";
 import { useState } from "react";
 
 export default function Page() {
@@ -27,7 +28,7 @@ export default function Page() {
                 {selectedSection === "Doctors" ?
                   <AddDoctorHome />
                   : selectedSection === "Appointments" ?
-                    <div className="p-4">Appointments Section</div>
+                    <ClinicAppointmentSection />
                     :
                     <>
                       <SectionCards />

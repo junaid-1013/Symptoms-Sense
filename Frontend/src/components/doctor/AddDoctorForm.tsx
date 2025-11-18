@@ -50,8 +50,8 @@ const AddDoctorForm = () => {
                 if (response) {
                     reset();
                     setIsAdding(false);
-                    if (response.data?.clinic_doctors?.doctors?.length) {
-                        setClinicDoctors(response.data.clinic_doctors.doctors)
+                    if (response.data?.data?.doctors?.length) {
+                        setClinicDoctors(response.data.data.doctors)
                     }
                     toast({
                         title: "Success",

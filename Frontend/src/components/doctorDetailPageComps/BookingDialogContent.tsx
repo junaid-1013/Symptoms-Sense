@@ -15,6 +15,8 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import GetPatientDropdown from "@/components/doctorDetailPageComps/GetPatientDropdown";
+import { useUser } from "@/contextApis/UserContext"
 import { APPOINTMENT_TYPES } from "@/config/constants";
 import { cn } from '@/lib/utils';
 import { AppointmentType, BookingDialogContentProps } from '@/types';
@@ -34,9 +36,13 @@ const BookingDialogContent = memo(({
     reason,
     setReason,
     onSubmit,
-    onClose
+    onClose,
+    selectedPatientId,
+    setSelectedPatientId
 }: BookingDialogContentProps) => {
     const minSelectableDate = addDays(new Date(), 0);
+
+    const { user } = useUser();
 
     return (
         <DialogContent
@@ -126,6 +132,15 @@ const BookingDialogContent = memo(({
                             </SelectContent>
                         </Select>
                     </div>
+                    {user?.user_type === "clinic" && (
+                        <div className="space-y-2">
+                            <Label htmlFor="patient">Select Patient *</Label>
+                            <GetPatientDropdown
+                                value={selectedPatientId}
+                                onChange={(id) => setSelectedPatientId(id)}
+                            />
+                        </div>
+                    )}
                     <div className="space-y-2">
                         <Label htmlFor="reason">Chief Complaint (optional)</Label>
                         <Input
