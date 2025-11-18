@@ -36,6 +36,8 @@ const DoctorDetailHome = () => {
         setIsDialogOpen,
         handleTimeClick,
         handleSubmit,
+        selectedPatientId,
+        setSelectedPatientId
     } = DoctorAppointmentHandler(doctorData, router, toast);
 
     // Fetch doctor details
@@ -126,6 +128,8 @@ const DoctorDetailHome = () => {
                             setIsDialogOpen={setIsDialogOpen}
                             onSubmit={handleSubmit}
                             isMobile={true}
+                            selectedPatientId={selectedPatientId}
+                            setSelectedPatientId={setSelectedPatientId}
                         />
                     </div>
                     <DoctorSections doctor={doctorData} />
@@ -149,6 +153,8 @@ const DoctorDetailHome = () => {
                         setIsDialogOpen={setIsDialogOpen}
                         onSubmit={handleSubmit}
                         isMobile={false}
+                        selectedPatientId={selectedPatientId}
+                        setSelectedPatientId={setSelectedPatientId}
                     />
                 </div>
             </div>

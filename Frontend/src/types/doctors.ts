@@ -5,7 +5,7 @@ export interface DoctorBasicInfo {
     user_id: string;
     name?: string;
     email?: string;
-    specialization?: string;
+    specializations?: string;
     experience_years?: number;
     bio?: string;
     clinic_name?: string;
@@ -88,6 +88,8 @@ export interface AppointmentBookingCardProps {
     setIsDialogOpen: (open: boolean) => void;
     onSubmit: () => void;
     isMobile: boolean;
+    selectedPatientId: string | null;
+    setSelectedPatientId: (id: string) => void;
 };
 export interface BookingDialogContentProps {
     doctorName: string;
@@ -103,4 +105,7 @@ export interface BookingDialogContentProps {
     setReason: (val: string) => void;
     onSubmit: () => void;
     onClose: () => void;
+    selectedPatientId: string | null;
+    setSelectedPatientId: (id: string) => void;
+
 };

@@ -7,14 +7,16 @@ import { useState } from 'react';
 const DoctorAppointmentHandler = (
     doctorData: DoctorData | null,
     router: any,
-    toast: any
+    toast: any,
+    user?: any
 ) => {
-    const { tokens, user } = useUser();
+    const { tokens } = useUser();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
     const [appointmentType, setAppointmentType] = useState<AppointmentType | undefined>(undefined);
     const [reason, setReason] = useState<string>("");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
     const [selectedSlot, setSelectedSlot] = useState<{
         startTime: string;
         endTime: string;
@@ -68,7 +70,7 @@ const DoctorAppointmentHandler = (
         }
 
         CreateAppointmentApi({
-            patientId: user.id,
+            patientId: selectedPatientId ?? user.id,
             doctorId: doctorData.id,
             clinicId: doctorData.clinic_id,
             startTime: selectedSlot.startTime,
@@ -124,6 +126,9 @@ const DoctorAppointmentHandler = (
         setIsDialogOpen,
         handleTimeClick,
         handleSubmit,
+        selectedPatientId,
+        setSelectedPatientId,
+        user
     };
 };
 

@@ -19,7 +19,9 @@ const AppointmentBookingCard = ({
     isDialogOpen,
     setIsDialogOpen,
     onSubmit,
-    isMobile
+    isMobile,
+    selectedPatientId,     
+    setSelectedPatientId 
 }: AppointmentBookingCardProps) => {
     return (
         <>
@@ -78,6 +80,8 @@ const AppointmentBookingCard = ({
                             setReason={setReason}
                             onSubmit={onSubmit}
                             onClose={() => setIsDialogOpen(false)}
+                            selectedPatientId={selectedPatientId}
+                            setSelectedPatientId={setSelectedPatientId}
                         />
                     </Dialog>
                 </div>
