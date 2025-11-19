@@ -7,13 +7,15 @@ import { Message } from "./chat";
 import ChatBottombar from "./chat-bottombar";
 import LoadingDots from "./LoadingDots";
 
-export function ChatList({
-  messages,
-  sendMessage,
-  setMessage,
-  message,
-  loading
-}: any) {
+interface ChatListProps {
+  messages: Message[];
+  sendMessage: () => void;
+  setMessage: React.Dispatch<React.SetStateAction<string>>;
+  message: string;
+  loading: boolean;
+}
+
+export function ChatList({ messages, sendMessage, setMessage, message, loading }: ChatListProps) {
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {

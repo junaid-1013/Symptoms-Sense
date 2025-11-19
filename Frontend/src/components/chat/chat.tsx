@@ -4,6 +4,13 @@ import { MessageCircle } from "lucide-react";
 import { useState } from "react";
 import { ChatList } from "./chat-list";
 import ChatTopbar from "./chat-topbar";
+import { MedicalInsightsPanel } from "./medical-insights-panel";
+import {
+  DiseaseReasoningPayload,
+  MedicalChatApiResponse,
+  SymptomExtractionPayload,
+  DoctorSuggestionResult,
+} from "@/types/medicalChat";
 
 export interface Message {
   role: "user" | "assistant";
@@ -21,22 +28,33 @@ export function Chat() {
     },
   ]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [insights, setInsights] = useState<{
+    extractedSymptoms: SymptomExtractionPayload | null;
+    diseaseReasoning: DiseaseReasoningPayload | null;
+    doctorSuggestions: DoctorSuggestionResult | null;
+    isMedicalQuery: boolean;
+  }>({
+    extractedSymptoms: null,
+    diseaseReasoning: null,
+    doctorSuggestions: null,
+    isMedicalQuery: true,
+  });
   const handleClick = async () => {
     if (message === "") return;
 
-    setHistory((oldHistory) => [
-      ...oldHistory,
-      { role: "user", content: message },
-    ]);
+    const userMessage = { role: "user" as const, content: message };
+    const updatedHistory = [...history, userMessage];
+
+    setHistory(updatedHistory);
 
     setMessage("");
     setLoading(true);
 
     try {
-      const response = await fetch("/chatapi", {
+      const response = await fetch("http://127.0.0.1:8000/api/medical-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: message, history: history }),
+        body: JSON.stringify({ query: message, history: updatedHistory }),
       });
 
       if (!response.ok) {
@@ -44,19 +62,25 @@ export function Chat() {
       }
 
       const result = await response.json();
-      console.log("result", result.data);
+      const payload: MedicalChatApiResponse = result.data;
 
-      setHistory((oldHistory: any) => [
+      setHistory((oldHistory) => [
         ...oldHistory,
-        { role: "assistant", content: result.data },
+        { role: "assistant", content: payload.reply },
       ]);
-      setLoading(false);
+      setInsights({
+        extractedSymptoms: payload.extracted_symptoms ?? null,
+        diseaseReasoning: payload.disease_reasoning ?? null,
+        doctorSuggestions: payload.doctor_suggestions ?? null,
+        isMedicalQuery: payload.is_medical_query,
+      });
     } catch (error) {
       console.error(error);
       alert("An error occurred while processing the request");
+    } finally {
+      setLoading(false);
     }
   };
-  console.log("this is the history", history);
 
   return (
     <section id="chat" className="py-20 bg-background">
@@ -75,14 +99,23 @@ export function Chat() {
             health questions.
           </p>
         </div>
-        <div className="z-10 border rounded-lg max-w-5xl w-full h-full text-sm lg:flex mx-auto">
-          <div className="flex flex-col justify-between w-full h-full">
-            <ChatTopbar />
-            <ChatList
-              messages={history}
-              sendMessage={handleClick}
-              setMessage={setMessage}
-              message={message}
+        <div className="z-10 border rounded-lg max-w-5xl w-full h-full text-sm mx-auto p-4 lg:p-6 bg-card/40 backdrop-blur">
+          <div className="flex flex-col gap-6 lg:flex-row">
+            <div className="flex flex-col justify-between w-full h-full lg:flex-[2]">
+              <ChatTopbar />
+              <ChatList
+                messages={history}
+                sendMessage={handleClick}
+                setMessage={setMessage}
+                message={message}
+                loading={loading}
+              />
+            </div>
+            <MedicalInsightsPanel
+              extractedSymptoms={insights.extractedSymptoms}
+              diseaseReasoning={insights.diseaseReasoning}
+              doctorSuggestions={insights.doctorSuggestions}
+              isMedicalQuery={insights.isMedicalQuery}
               loading={loading}
             />
           </div>
