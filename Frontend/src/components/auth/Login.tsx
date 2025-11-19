@@ -35,7 +35,7 @@ const Login = () => {
                     setClinicDoctors(response.data.data.user.clinic_doctors.doctors)
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
-                    if(user?.specializations?.length === 0){
+                    if(!user?.specializations || user.specializations.length === 0){
                         router.push("/doctorRegistration");
                     }
                     else{

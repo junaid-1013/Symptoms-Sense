@@ -1,6 +1,7 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { GetAllDoctorsApiProps } from "@/types";
 import { GetAllDoctorsUrl } from "./URLs";
+import { GetAllPatientsUrl } from "./URLs/patient.urls";
 
 export const GetAllDoctorsApi = async ({
     search,
@@ -21,5 +22,10 @@ export const GetAllDoctorsApi = async ({
             }
         }
     )
+    return response;
+}
+
+export const GetAllPatientsApi = async () => {
+    const response = await axiosInstance.get(`${GetAllPatientsUrl}`);
     return response;
 }
