@@ -36,11 +36,37 @@ export interface DoctorSuggestionResult {
   reasoning: string;
 }
 
+export interface ConversationState {
+  intent?: string | null;
+  booking_stage?: string | null;
+  selected_doctor_id?: string | null;
+  selected_timeslot_id?: string | null;
+  extracted_date?: string | null;
+  extracted_time?: string | null;
+  chief_complaint?: string | null;
+  context_data?: Record<string, any>;
+}
+
 export interface MedicalChatApiResponse {
   reply: string;
   extracted_symptoms: SymptomExtractionPayload;
   disease_reasoning: DiseaseReasoningPayload | null;
   doctor_suggestions: DoctorSuggestionResult | null;
   is_medical_query: boolean;
+  conversation_state?: ConversationState | null;
+  appointment_created?: Record<string, any> | null;
+  interactive_options?: Array<{
+    label: string;
+    value: string;
+    type: string;
+  }> | null;
+  doctors_list?: Array<{
+    id: string;
+    name: string;
+    specializations: string[];
+    clinic_name: string;
+    experience_years?: number | null;
+    bio?: string | null;
+  }> | null;
 }
 

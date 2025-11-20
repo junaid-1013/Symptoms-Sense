@@ -2,7 +2,7 @@
 Doctor service with business logic and soft-delete filtering.
 """
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import or_
+from sqlalchemy import or_, func, String, text, cast
 from typing import List, Optional, Tuple
 from datetime import datetime, timezone
 
@@ -403,17 +403,29 @@ class DoctorsService:
         )
 
         if specialization:
-            query = query.filter(Doctor.specialization.ilike(f"%{specialization}%"))
+            # Case-insensitive search for specialization in the JSON array
+            search_term = specialization.lower()
+            # For PostgreSQL JSON columns, we need to cast to text
+            # Use SQLAlchemy's cast function with String type (maps to TEXT in PostgreSQL)
+            query = query.filter(
+                func.lower(
+                    cast(Doctor.specializations, String)
+                ).ilike(f'%{search_term}%')
+            )
 
         if clinic_id:
             query = query.filter(Doctor.clinic_id == clinic_id)
 
         if search:
-            search_term = f"%{search}%"
+            search_term = f"%{search.lower()}%"
+            # For JSON columns, cast to text for searching in PostgreSQL
             query = query.filter(
                 or_(
                     User.name.ilike(search_term),
-                    Doctor.specialization.ilike(search_term)
+                    # Cast JSON to text using SQLAlchemy's cast (maps to PostgreSQL TEXT)
+                    func.lower(
+                        cast(Doctor.specializations, String)
+                    ).ilike(search_term)
                 )
             )
 
