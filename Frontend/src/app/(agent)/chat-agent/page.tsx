@@ -5,7 +5,9 @@ import ChatMessage from "@/components/agentComps/ChatMessage";
 import ChatTopBar from "@/components/agentComps/ChatTopBar";
 import ChatWelcome from "@/components/agentComps/ChatWelcome";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useUser } from "@/contextApis/UserContext";
+import { MedicalChatApiResponse, ConversationState } from "@/types/medicalChat";
 
 interface Message {
   id: string;
@@ -15,11 +17,26 @@ interface Message {
 }
 
 export default function ChatAgentPage() {
+  const { tokens } = useUser();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [conversationState, setConversationState] = useState<ConversationState | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const handleSendMessage = (content: string) => {
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isLoading]);
+
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim()) return;
+
     // Add user message
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -34,20 +51,85 @@ export default function ChatAgentPage() {
     setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      // Prepare headers with authentication
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      // Add Authorization header if token is available
+      if (tokens?.accessToken) {
+        headers["Authorization"] = `Bearer ${tokens.accessToken}`;
+      }
+
+      // Convert messages to history format (exclude id and timestamp)
+      const history = messages.map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+
+      // Add current user message to history
+      history.push({
+        role: "user",
+        content: content
+      });
+
+      // Prepare request body with conversation state
+      const requestBody: any = {
+        query: content,
+        history: history,
+      };
+      
+      // Include conversation state if available
+      if (conversationState) {
+        requestBody.conversation_state = conversationState;
+      }
+
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      const response = await fetch(`${backendUrl}medical-chat`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(requestBody),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch response from server");
+      }
+
+      const result = await response.json();
+      const payload: MedicalChatApiResponse = result.data;
+
+      // Add assistant response to messages
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Thank you for your question. I'm here to help you with your health concerns. However, please note that I'm a demonstration UI and not connected to a real AI yet. This is where the AI response would appear.",
+        content: payload.reply,
         timestamp: new Date().toLocaleTimeString([], {
           hour: '2-digit',
           minute: '2-digit'
         }),
       };
       setMessages((prev) => [...prev, aiMessage]);
+      
+      // Update conversation state if provided
+      if (payload.conversation_state) {
+        setConversationState(payload.conversation_state);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I apologize, but I'm experiencing technical difficulties. Please try again later.",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit'
+        }),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleSuggestionClick = (message: string) => {
@@ -55,7 +137,7 @@ export default function ChatAgentPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Sidebar */}
       <AgentSidebar
         isOpen={sidebarOpen}
@@ -72,34 +154,36 @@ export default function ChatAgentPage() {
 
         {/* Chat Content */}
         {messages.length === 0 ? (
-          <ChatWelcome onSuggestionClick={handleSuggestionClick} />
+          <div className="flex-1 overflow-hidden">
+            <ChatWelcome onSuggestionClick={handleSuggestionClick} />
+          </div>
         ) : (
-          <ScrollArea className="flex-1">
-            <div className="pb-32">
-              {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  role={message.role}
-                  content={message.content}
-                  timestamp={message.timestamp}
-                />
-              ))}
-              {isLoading && (
-                <ChatMessage
-                  role="assistant"
-                  content="Thinking..."
-                  timestamp={new Date().toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}
-                />
-              )}
+          <ScrollArea ref={scrollAreaRef} className="flex-1">
+            <div className="min-h-full pb-4">
+              <div className="max-w-4xl mx-auto space-y-1">
+                {messages.map((message, index) => (
+                  <ChatMessage
+                    key={message.id}
+                    role={message.role}
+                    content={message.content}
+                    timestamp={message.timestamp}
+                  />
+                ))}
+                {isLoading && (
+                  <ChatMessage
+                    role="assistant"
+                    content=""
+                    isTyping={true}
+                  />
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
           </ScrollArea>
         )}
 
         {/* Input Area */}
-        <div className="sticky bottom-0">
+        <div className="sticky bottom-0 z-10">
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={false}

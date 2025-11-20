@@ -493,32 +493,134 @@ class DoctorScheduleService:
         Get available timeslots for a specific date.
         Generates slots on-demand from schedules, excludes blocked slots and booked appointments.
         """
-        # Get day of week for target date
+        # Get day of week for target date (ensure lowercase for matching)
         day_of_week = calendar.day_name[target_date.weekday()].lower()
 
-        # Get active schedules for this day
+        # Get active schedules for this day (case-insensitive matching to handle any case variations)
         schedules = self.db.query(DoctorSchedule).filter(
             DoctorSchedule.doctor_id == doctor_id,
-            DoctorSchedule.day_of_week == day_of_week,
+            func.lower(DoctorSchedule.day_of_week) == day_of_week,
             DoctorSchedule.is_active == True,
             DoctorSchedule.deleted_at.is_(None)
         ).all()
 
         if not schedules:
+            # Log for debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(
+                f"No schedules found for doctor {doctor_id} on {day_of_week} "
+                f"(date: {target_date})"
+            )
             return []
 
         # Get existing booked/blocked timeslots for this date
         start_of_day = datetime.combine(target_date, time.min)
         end_of_day = datetime.combine(target_date, time.max)
 
-        existing_timeslots = self.db.query(Timeslot).filter(
+        existing_timeslots = self.db.query(Timeslot).options(
+            joinedload(Timeslot.appointments)
+        ).filter(
             Timeslot.doctor_id == doctor_id,
             Timeslot.start_time >= start_of_day,
             Timeslot.start_time <= end_of_day,
             Timeslot.deleted_at.is_(None)
         ).all()
         
-        booked_timeslots = {slot.start_time: slot for slot in existing_timeslots if not slot.is_available}
+        # Get all appointments for this doctor and date to check if slots are booked
+        # We need to check both:
+        # 1. Appointments linked to existing timeslots
+        # 2. Appointments that might be linked to virtual slots (by checking timeslot start_time)
+        timeslot_ids = [slot.id for slot in existing_timeslots]
+        booked_appointments = {}
+        booked_timeslot_times = set()
+        
+        # Check appointments linked to existing timeslots
+        if timeslot_ids:
+            appointments = self.db.query(Appointment).join(
+                Timeslot, Appointment.timeslot_id == Timeslot.id
+            ).filter(
+                Appointment.doctor_id == doctor_id,
+                Appointment.timeslot_id.in_(timeslot_ids),
+                Appointment.status.in_(['pending', 'scheduled']),  # Only count active appointments
+                Appointment.deleted_at.is_(None),
+                Timeslot.deleted_at.is_(None)
+            ).all()
+            for apt in appointments:
+                booked_appointments[apt.timeslot_id] = apt
+        
+        # Also check appointments by timeslot start_time directly
+        # This catches appointments for virtual slots that were created when booked
+        # Query all appointments for this doctor on this date, regardless of timeslot existence
+        appointments_by_time = self.db.query(Appointment).join(
+            Timeslot, Appointment.timeslot_id == Timeslot.id
+        ).filter(
+            Appointment.doctor_id == doctor_id,
+            Timeslot.start_time >= start_of_day,
+            Timeslot.start_time < end_of_day + timedelta(days=1),  # Include entire day
+            Appointment.status.in_(['pending', 'scheduled']),
+            Appointment.deleted_at.is_(None),
+            Timeslot.deleted_at.is_(None)
+        ).all()
+        
+        # Also query appointments that might not have timeslots yet (shouldn't happen, but safety check)
+        # And check for any appointments with matching timeslot times
+        all_appointments = self.db.query(Appointment).join(
+            Timeslot, Appointment.timeslot_id == Timeslot.id
+        ).filter(
+            Appointment.doctor_id == doctor_id,
+            Timeslot.doctor_id == doctor_id,
+            Timeslot.start_time >= start_of_day,
+            Timeslot.start_time < end_of_day + timedelta(days=1),
+            Appointment.status.in_(['pending', 'scheduled', 'confirmed']),  # Include confirmed too
+            Appointment.deleted_at.is_(None),
+            Timeslot.deleted_at.is_(None)
+        ).all()
+        
+        # Add all booked times to the set
+        # Normalize times to naive datetime at minute precision for comparison
+        for apt in all_appointments:
+            if apt.timeslot and apt.timeslot.start_time:
+                slot_time = apt.timeslot.start_time
+                # Convert to naive datetime if timezone-aware
+                if slot_time.tzinfo is not None:
+                    slot_time = slot_time.replace(tzinfo=None)
+                # Normalize to minute precision (remove seconds and microseconds)
+                slot_time_normalized = slot_time.replace(second=0, microsecond=0)
+                booked_timeslot_times.add(slot_time_normalized)
+        
+        # Create set of booked timeslot start times from existing timeslots
+        # A timeslot is booked if:
+        # 1. It has an active (non-cancelled) appointment, OR
+        # 2. is_available = False AND it has an active appointment (double-check)
+        # Note: If a timeslot has is_available = False but only cancelled appointments, it should be available
+        for slot in existing_timeslots:
+            # Check if this timeslot has any active (non-cancelled) appointments
+            has_active_appointment = slot.id in booked_appointments
+            
+            # Only mark as booked if it has an active appointment
+            # Don't rely solely on is_available flag, as it might be stale after cancellation
+            is_booked = has_active_appointment
+            
+            # Also check if there are any active appointments for this timeslot that we might have missed
+            if not has_active_appointment and not slot.is_available:
+                # Double-check: query for any active appointments for this timeslot
+                active_apts = self.db.query(Appointment).filter(
+                    Appointment.timeslot_id == slot.id,
+                    Appointment.status.in_(['pending', 'scheduled', 'confirmed']),
+                    Appointment.deleted_at.is_(None)
+                ).count()
+                if active_apts > 0:
+                    is_booked = True
+            
+            if is_booked:
+                slot_time = slot.start_time
+                # Convert to naive datetime if timezone-aware
+                if slot_time.tzinfo is not None:
+                    slot_time = slot_time.replace(tzinfo=None)
+                # Normalize to minute precision
+                slot_time_normalized = slot_time.replace(second=0, microsecond=0)
+                booked_timeslot_times.add(slot_time_normalized)
 
         # Get blocked slots for this date
         blocked_periods = self._get_blocked_periods_for_date(doctor_id, target_date)
@@ -539,21 +641,44 @@ class DoctorScheduleService:
                     current_time = slot_end
                     continue
                 
-                # Check if already booked
-                if current_time in booked_timeslots:
+                # Normalize current_time for comparison (ensure it's naive and at minute precision)
+                # All times in booked_timeslot_times are already normalized
+                current_time_naive = current_time
+                if current_time.tzinfo is not None:
+                    current_time_naive = current_time.replace(tzinfo=None)
+                current_time_normalized = current_time_naive.replace(second=0, microsecond=0)
+                
+                # Check if already booked (either marked unavailable or has appointment)
+                # All times in booked_timeslot_times are already normalized to minute precision
+                if current_time_normalized in booked_timeslot_times:
                     current_time = slot_end
                     continue
                 
-                # Check if timeslot exists in DB (for booked appointments)
-                existing_slot = next(
-                    (slot for slot in existing_timeslots if slot.start_time == current_time),
-                    None
-                )
+                # Check if timeslot exists in DB
+                # Normalize timeslot start_time for comparison
+                existing_slot = None
+                for slot in existing_timeslots:
+                    slot_time = slot.start_time
+                    if slot_time.tzinfo is not None:
+                        slot_time = slot_time.replace(tzinfo=None)
+                    if slot_time.replace(second=0, microsecond=0) == current_time_normalized:
+                        existing_slot = slot
+                        break
                 
                 if existing_slot:
-                    # Use existing slot if available
-                    if existing_slot.is_available:
-                        available_slots.append(self._build_timeslot_response(existing_slot))
+                    # Only include if it has no active (non-cancelled) appointments
+                    # Check both the flag and the appointments list
+                    has_active_apt = existing_slot.id in booked_appointments
+                    if not has_active_apt:
+                        # Double-check for any active appointments
+                        active_apts_count = self.db.query(Appointment).filter(
+                            Appointment.timeslot_id == existing_slot.id,
+                            Appointment.status.in_(['pending', 'scheduled', 'confirmed']),
+                            Appointment.deleted_at.is_(None)
+                        ).count()
+                        if active_apts_count == 0:
+                            # No active appointments, slot is available (even if is_available flag is False due to cancelled appointment)
+                            available_slots.append(self._build_timeslot_response(existing_slot))
                 else:
                     # Create virtual timeslot response (not stored in DB until booked)
                     # This is a virtual slot generated on-demand
@@ -569,8 +694,18 @@ class DoctorScheduleService:
 
                 current_time = slot_end
 
-        # Sort by start time
-        available_slots.sort(key=lambda x: x.start_time)
+        # Sort by start time (normalize all times to naive for comparison)
+        def normalize_for_sort(dt):
+            """Normalize datetime for sorting - convert to naive if timezone-aware."""
+            if dt is None:
+                return datetime.min
+            if isinstance(dt, datetime):
+                if dt.tzinfo is not None:
+                    return dt.replace(tzinfo=None)
+                return dt
+            return dt
+        
+        available_slots.sort(key=lambda x: normalize_for_sort(x.start_time))
 
         return available_slots
 
@@ -884,8 +1019,15 @@ class DoctorScheduleService:
         ).first()
 
         if existing_slot:
-            # Return existing slot if available
-            if not existing_slot.is_available:
+            # Check if this timeslot has any active (non-cancelled) appointments
+            active_appointments = self.db.query(Appointment).filter(
+                Appointment.timeslot_id == existing_slot.id,
+                Appointment.status.in_(['pending', 'scheduled', 'confirmed']),
+                Appointment.deleted_at.is_(None)
+            ).count()
+            
+            # Return existing slot only if it's available AND has no active appointments
+            if not existing_slot.is_available or active_appointments > 0:
                 raise ValidationException("This timeslot is already booked")
             return existing_slot
 

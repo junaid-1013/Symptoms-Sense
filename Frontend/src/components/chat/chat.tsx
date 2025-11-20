@@ -11,6 +11,7 @@ import {
   SymptomExtractionPayload,
   DoctorSuggestionResult,
 } from "@/types/medicalChat";
+import { useUser } from "@/contextApis/UserContext";
 
 export interface Message {
   role: "user" | "assistant";
@@ -19,6 +20,7 @@ export interface Message {
 };
 
 export function Chat() {
+  const { tokens } = useUser();
   const [message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<Message[]>([
     {
@@ -28,6 +30,7 @@ export function Chat() {
     },
   ]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [conversationState, setConversationState] = useState<any>(null);
   const [insights, setInsights] = useState<{
     extractedSymptoms: SymptomExtractionPayload | null;
     diseaseReasoning: DiseaseReasoningPayload | null;
@@ -51,10 +54,31 @@ export function Chat() {
     setLoading(true);
 
     try {
+      // Prepare headers with authentication
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+      
+      // Add Authorization header if token is available
+      if (tokens?.accessToken) {
+        headers["Authorization"] = `Bearer ${tokens.accessToken}`;
+      }
+
+      // Prepare request body with conversation state
+      const requestBody: any = {
+        query: message,
+        history: updatedHistory,
+      };
+      
+      // Include conversation state if available
+      if (conversationState) {
+        requestBody.conversation_state = conversationState;
+      }
+
       const response = await fetch("http://127.0.0.1:8000/api/medical-chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: message, history: updatedHistory }),
+        headers,
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -68,6 +92,12 @@ export function Chat() {
         ...oldHistory,
         { role: "assistant", content: payload.reply },
       ]);
+      
+      // Update conversation state if provided
+      if (payload.conversation_state) {
+        setConversationState(payload.conversation_state);
+      }
+      
       setInsights({
         extractedSymptoms: payload.extracted_symptoms ?? null,
         diseaseReasoning: payload.disease_reasoning ?? null,
