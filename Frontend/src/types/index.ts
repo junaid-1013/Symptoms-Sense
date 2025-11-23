@@ -6,3 +6,4 @@ export * from './landingPageTypes';
 export * from './patients';
 export * from './profile';
 export * from './public.endPoints.types';
+export * from './medicalChat';
