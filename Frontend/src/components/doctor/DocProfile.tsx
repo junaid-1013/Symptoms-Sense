@@ -14,11 +14,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUser } from "@/contextApis/UserContext";
 import { ApproveAppointmentApi, CancelAppointmentApi, GetMyAppointmentsApi } from "@/endPoints/appointments.endPoints";
 import { Appointment, DoctorAppointmentItem } from "@/types";
-import { CheckCircle2, Clock, History, Stethoscope, XCircle } from "lucide-react";
+import { CheckCircle2, Clock, History, Pill, Stethoscope, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useToast } from "../ui/use-toast";
 import AppointmentSection from "./AppointmentSection";
 import WeeklyScheduleTable from "./WeeklyScheduleTable";
+import AddMedicineHome from "@/components/medicines/AddMedicineHome";
 
 const DoctorProfile = () => {
   const { user, tokens } = useUser();
@@ -217,7 +218,7 @@ const DoctorProfile = () => {
       <Card className="border-0 shadow-xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="border-b px-6 pt-6">
-            <TabsList className="grid w-full max-w-4xl grid-cols-5 gap-x-2 bg-muted/50 h-12">
+            <TabsList className="grid w-full max-w-4xl grid-cols-6 gap-x-2 bg-muted/50 h-12">
               <TabsTrigger
                 value="schedule"
                 className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap text-xs sm:text-sm"
@@ -258,6 +259,15 @@ const DoctorProfile = () => {
                 <History className="w-4 h-4" />
                 Completed
               </TabsTrigger>
+
+              <TabsTrigger
+                value="medicines"
+                className="gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm whitespace-nowrap text-xs sm:text-sm"
+              >
+                <Pill className="w-4 h-4" />
+                Medicine
+              </TabsTrigger>
+              
             </TabsList>
 
           </div>
@@ -340,6 +350,9 @@ const DoctorProfile = () => {
                   <p className="text-gray-500">No completed appointments</p>
                 </div>
               )}
+            </TabsContent>
+            <TabsContent value="medicines" className="mt-0">
+              <AddMedicineHome />
             </TabsContent>
           </div>
         </Tabs>
