@@ -70,3 +70,17 @@ export interface MedicalChatApiResponse {
   }> | null;
 }
 
+export interface InteractiveOption {
+  label: string;
+  value: string;
+  type: string;
+}
+
+export interface DoctorInfo {
+  id: string;
+  name: string;
+  specializations: string[];
+  clinic_name?: string;
+  experience_years?: number | null;
+  bio?: string | null;
+}

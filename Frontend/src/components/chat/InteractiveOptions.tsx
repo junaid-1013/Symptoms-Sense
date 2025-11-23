@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { InteractiveOption, DoctorInfo } from "@/types/medicalChat";
+import { InteractiveOption, DoctorInfo } from "@/types";
 
 interface InteractiveOptionsProps {
   options?: InteractiveOption[];
@@ -53,7 +53,7 @@ export function InteractiveOptions({
                       <h5 className="font-medium text-sm">{doctor.name}</h5>
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="secondary" className="text-xs">
-                          {doctor.specialization}
+                          {doctor.specializations}
                         </Badge>
                         {doctor.experience_years && (
                           <span className="text-xs text-muted-foreground">
