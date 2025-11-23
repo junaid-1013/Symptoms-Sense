@@ -7,10 +7,9 @@ import { useState } from 'react';
 const DoctorAppointmentHandler = (
     doctorData: DoctorData | null,
     router: any,
-    toast: any,
-    user?: any
+    toast: any
 ) => {
-    const { tokens } = useUser();
+    const { tokens, user} = useUser();
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [selectedTime, setSelectedTime] = useState<Date | null>(null);
     const [appointmentType, setAppointmentType] = useState<AppointmentType | undefined>(undefined);
@@ -112,6 +111,8 @@ const DoctorAppointmentHandler = (
                 }
             });
     };
+
+
 
     return {
         selectedDate,

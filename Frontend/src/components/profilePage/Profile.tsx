@@ -19,7 +19,7 @@ const Profile = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [completedAppointments, setCompletedAppointments] = useState<Appointment[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
-  const { tokens , setMyAppointments} = useUser()
+  const { tokens } = useUser()
 
   const cancelReminder = async (data: Reminder) => {
     try {
@@ -46,7 +46,6 @@ const Profile = () => {
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments)
-            setMyAppointments?.(response.data.data.appointments);
           } else {
             toast({
               title: "Error",
