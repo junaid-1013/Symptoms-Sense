@@ -1,13 +1,13 @@
-import { Award, BarChartIcon, Bot, Building, Clock, HelpCircleIcon, Shield, Star, Stethoscope, UserCircle, Workflow } from "lucide-react";
+import { Award, BarChartIcon, Bot, Building, Clock, HelpCircleIcon, Shield, Star, Stethoscope, UserCircle, Workflow, Pill} from "lucide-react";
 
 export const MEDICINE_TYPES = [
-    "tablet",
-    "capsule",
-    "liquid",
-    "drops",
-    "inhaler",
-    "injection",
-    "emulsion",
+    "Tablet",
+    "Capsule",
+    "Liquid",
+    "Drops",
+    "Inhaler",
+    "Injection",
+    "Emulsion",
 ]
 export const SERVICES = [
     {
@@ -120,6 +120,10 @@ export const CLIINIC_SIDE_PANEL_ITEMS = {
             title: "Appointments",
             icon: BarChartIcon,
         },
+        {
+            title: "Medicines",
+            icon: Pill,
+        }
     ],
     navSecondary: [
         {

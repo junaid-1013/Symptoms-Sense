@@ -55,6 +55,8 @@ interface UserContextType {
   updateUserDetails: (updates: Partial<User>) => void;
   doctorSchedule: any[] | null;
   setDoctorSchedule: (schedule: any[] | null) => void;
+  clinicMedicines?: any[] | null;
+  setClinicMedicines?: (medicines: any[] | null) => void;
 }
 
 // DEFAULT STATE
@@ -85,7 +87,9 @@ const UserContext = createContext<UserContextType>({
   setClinicDoctors: () => { },
   updateUserDetails: () => { },
   doctorSchedule: null,
-  setDoctorSchedule: () => { }
+  setDoctorSchedule: () => { },
+  clinicMedicines: null,
+  setClinicMedicines: () => { },
 });
 
 
@@ -97,6 +101,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(defaultState);
   const [clinicDoctors, setClinicDoctorsState] = useState<any[] | null>(null);
   const [doctorSchedule, setDoctorScheduleState] = useState<any[] | null>(null);
+  const [clinicMedicines, setClinicMedicinesState] = useState<any[] | null>(null);
+
 
   const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
     setState((prev) => {
@@ -120,6 +126,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const setDoctorSchedule = useCallback((data: any[] | null) => {
     setDoctorScheduleState(data);
     writeStorage(STORAGE_KEYS.doctorSchedule, data);
+  }, []);
+
+  const setClinicMedicines = useCallback((data: any[] | null) => {
+    setClinicMedicinesState(data);
+    writeStorage(STORAGE_KEYS.clinicMedicines, data);
   }, []);
 
   const clearAuthData = useCallback(() => {
@@ -153,6 +164,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     const storedUser = readStorage<User>(STORAGE_KEYS.user);
     const storedDoctorSchedule = readStorage<any[]>(STORAGE_KEYS.doctorSchedule);
     const storedClinicDoctors = readStorage<any[]>(STORAGE_KEYS.clinicDoctors);
+    const storedClinicMedicines = readStorage<any[]>(STORAGE_KEYS.clinicMedicines);
 
     if (storedTokens || storedUser) {
       setAuthData({ user: storedUser ?? null, tokens: storedTokens ?? null });
@@ -164,6 +176,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     
     if (storedClinicDoctors) {
       setClinicDoctorsState(storedClinicDoctors);
+    }
+
+    if (storedClinicMedicines) {
+      setClinicMedicinesState(storedClinicMedicines);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -179,8 +195,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     setClinicDoctors,
     updateUserDetails,
     doctorSchedule,
-    setDoctorSchedule
-  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, updateUserType, clinicDoctors, setClinicDoctors, updateUserDetails, doctorSchedule, setDoctorSchedule]);
+    setDoctorSchedule,
+    clinicMedicines,
+    setClinicMedicines
+  }), [state.user, state.tokens, state.isAuthenticated, setAuthData, clearAuthData, updateUserType, clinicDoctors, setClinicDoctors, updateUserDetails, doctorSchedule, setDoctorSchedule, clinicMedicines, setClinicMedicines]);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }

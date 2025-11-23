@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { ClinicDoctorDeleteApiProps, ClinicDoctorRegisterApiProps, RegisterClinicApiProps } from "@/types";
-import { ClinicDoctorDeleteApiUrl, ClinicDoctorRegisterApiUrl, RegisterClinicUrl } from "./URLs";
+import { ClinicDoctorDeleteApiProps, ClinicDoctorRegisterApiProps, RegisterClinicApiProps, AddMedicineApiProps, DeleteMedicineApiProps ,UpdateMedicineApiProps} from "@/types";
+import { ClinicDoctorDeleteApiUrl, ClinicDoctorRegisterApiUrl, RegisterClinicUrl, AddMedicineApiUrl, DeleteMedicineApiUrl, UpdateMedicineApiUrl } from "./URLs";
 
 export const RegisterClinicApi = async ({
     address,
@@ -58,5 +58,71 @@ export const clinicDoctorDeleteApi = async ({
             },
         }
     )
+    return response;
+}
+
+export const AddMedicineApi = async ({
+    name,
+    description,
+    manufacturer,
+    category,
+    token
+}: AddMedicineApiProps) => {
+    const response = await axiosInstance.post(
+        `${AddMedicineApiUrl}`,
+        {
+            name,
+            description,
+            manufacturer,
+            category
+        },
+        {
+         headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+
+    return response;
+}
+
+export const DeleteMedicineApi = async ({
+    medicineId,
+    token
+}: DeleteMedicineApiProps) => {
+    const response = await axiosInstance.delete(
+        `${DeleteMedicineApiUrl}/${medicineId}`,
+        {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+    return response;
+}
+
+export const UpdateMedicineApi = async ({
+    medicineId,
+    name,
+    description,
+    manufacturer,
+    category,
+    token
+}: UpdateMedicineApiProps) => {
+    const response = await axiosInstance.put(
+        `${UpdateMedicineApiUrl}/${medicineId}`,
+        {
+            name,
+            description,
+            manufacturer,
+            category
+        },
+        {
+         headers: {
+                Authorization: `Bearer ${token}`
+            },
+        }
+    )
+
     return response;
 }

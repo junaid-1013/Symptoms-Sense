@@ -3,5 +3,6 @@ export const STORAGE_KEYS = {
     user: 'auth.user',
     clinicId: 'clinicId',
     clinicDoctors: 'clinicDoctors',
-    doctorSchedule: 'doctorSchedule'
+    doctorSchedule: 'doctorSchedule',
+    clinicMedicines: 'clinicMedicines',
 };

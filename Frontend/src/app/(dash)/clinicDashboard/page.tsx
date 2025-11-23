@@ -7,6 +7,7 @@ import AddDoctorHome from "@/components/doctor/AddDoctorHome";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import ClinicAppointmentSection from "@/components/dashComps/ClinicAppointementSection";
+import AddMedicineHome from "@/components/medicines/AddMedicineHome";
 import { useState } from "react";
 
 export default function Page() {
@@ -29,7 +30,9 @@ export default function Page() {
                   <AddDoctorHome />
                   : selectedSection === "Appointments" ?
                     <ClinicAppointmentSection />
-                    :
+                    : selectedSection === "Medicines" ?  
+                    <AddMedicineHome />
+                    : 
                     <>
                       <SectionCards />
                       <div className="px-4 lg:px-6"><ChartAreaInteractive /></div>
