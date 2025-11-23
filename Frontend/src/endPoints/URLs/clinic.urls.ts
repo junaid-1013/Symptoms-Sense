@@ -1,3 +1,6 @@
 export const RegisterClinicUrl = "onboarding/clinic"
 export const ClinicDoctorRegisterApiUrl = "clinics/register-doctor"
 export const ClinicDoctorDeleteApiUrl = "doctors"
+export const AddMedicineApiUrl = "prescriptions/medicines"
+export const DeleteMedicineApiUrl = "prescriptions/medicines"
+export const UpdateMedicineApiUrl = "prescriptions/medicines"
