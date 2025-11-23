@@ -9,7 +9,7 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
   const specialization =
     Array.isArray(doctor.specializations) && doctor.specializations.length > 0
       ? doctor.specializations.join(", ")
-      : "General Physician";
+      : "Not specified";
   return (
     <Card className="group hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-card border-border overflow-hidden">
       <CardContent className="p-0">
