@@ -22,7 +22,7 @@ import WeeklyScheduleTable from "./WeeklyScheduleTable";
 import AddMedicineHome from "@/components/medicines/AddMedicineHome";
 
 const DoctorProfile = () => {
-  const { user, tokens, setMyAppointments} = useUser();
+  const { user, tokens} = useUser();
   const [activeTab, setActiveTab] = useState("schedule");
   const { toast } = useToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -78,7 +78,6 @@ const DoctorProfile = () => {
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments);
-            setMyAppointments?.(response.data.data.appointments);
           } else {
             toast({
               title: "Error",
@@ -99,9 +98,6 @@ const DoctorProfile = () => {
         });
     }
   };
-
-  useEffect(() => {
-}, [appointments]);
 
   // Handle approve appointment
   const handleApprove = (appointmentId: string) => {

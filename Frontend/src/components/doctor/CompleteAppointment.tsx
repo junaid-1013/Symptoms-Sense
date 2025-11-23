@@ -23,7 +23,7 @@ import { X } from "lucide-react";
 
 const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId}) => {
   const { toast } = useToast();
-  const { clinicMedicines, tokens , setMyAppointments, myAppointments} = useUser();
+  const { clinicMedicines, tokens} = useUser();
   const [isOpen, setIsOpen] = useState(false);
 
   console.log("Clinic Medicines:", clinicMedicines);
@@ -70,15 +70,6 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
           title: "Success",
           description: "Appointment completed successfully",
         });
-        const updatedAppointments = myAppointments?.map((appt) =>
-            appt.id === appointmentId
-                ? { ...appt, status: response.data.data.appointment_status }
-                : appt
-            ) || [];
-
-            setMyAppointments?.(updatedAppointments);
-
-
         reset();
         setIsOpen(false);
       } else {
