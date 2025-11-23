@@ -19,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { DoctorAppointmentCardProps } from "@/types";
 import { CalendarCheck, Clock4, MoreVertical, CheckCircle, XCircle } from "lucide-react";
+import CompleteAppointment from "@/components/doctor/CompleteAppointment";
 import React from "react";
 
 const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({ 
@@ -116,6 +117,13 @@ const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({
                         </span>
                     </div>
                 </div>
+                {status === "scheduled" &&  (
+                    <div className="mt-4">
+                        <CompleteAppointment 
+                            appointmentId={appointmentId}
+                        />
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
