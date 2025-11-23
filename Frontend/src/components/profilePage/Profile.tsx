@@ -10,6 +10,7 @@ import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { StatsGrid } from "./StatsGrid"
 import { TabsSection } from "./TabsSection"
+import { set } from "mongoose"
 
 const Profile = () => {
   const router = useRouter()
@@ -18,7 +19,7 @@ const Profile = () => {
   const [appointments, setAppointments] = useState<Appointment[]>([])
   const [completedAppointments, setCompletedAppointments] = useState<Appointment[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
-  const { tokens } = useUser()
+  const { tokens , setMyAppointments} = useUser()
 
   const cancelReminder = async (data: Reminder) => {
     try {
@@ -45,6 +46,7 @@ const Profile = () => {
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments)
+            setMyAppointments?.(response.data.data.appointments);
           } else {
             toast({
               title: "Error",

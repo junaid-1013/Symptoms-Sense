@@ -5,4 +5,5 @@ export const STORAGE_KEYS = {
     clinicDoctors: 'clinicDoctors',
     doctorSchedule: 'doctorSchedule',
     clinicMedicines: 'clinicMedicines',
+    myAppointments: 'appointments',
 };

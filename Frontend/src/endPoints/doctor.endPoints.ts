@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { BulkUpdateDoctorScheduleApiProps, RegisterDoctorApiProps } from "@/types";
-import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
+import { BulkUpdateDoctorScheduleApiProps, CompleteAppointmentApiProps, RegisterDoctorApiProps } from "@/types";
+import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, CompleteAppointmentUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
   specializations,
@@ -104,5 +104,36 @@ export const UnblockDoctorSlotApi = async ({
       },
     }
   );
+  return response;
+};
+
+export const CompleteAppointmentApi = async ({
+  appointment_id,
+  symptoms,
+  diagnosis,
+  diagnosis_details,
+  prescription_notes,
+  prescription_instructions,
+  medicines,
+  token,
+}: CompleteAppointmentApiProps) => {
+  const response = await axiosInstance.post(
+    `${CompleteAppointmentUrl}`, 
+    {
+      appointment_id,
+      symptoms,
+      diagnosis,
+      diagnosis_details,
+      prescription_notes,
+      prescription_instructions,
+      medicines,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
   return response;
 };

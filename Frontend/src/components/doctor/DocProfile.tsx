@@ -22,11 +22,12 @@ import WeeklyScheduleTable from "./WeeklyScheduleTable";
 import AddMedicineHome from "@/components/medicines/AddMedicineHome";
 
 const DoctorProfile = () => {
-  const { user, tokens } = useUser();
+  const { user, tokens, setMyAppointments} = useUser();
   const [activeTab, setActiveTab] = useState("schedule");
   const { toast } = useToast();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   // Transform API appointment data to DoctorAppointmentItem format
   const transformAppointment = (appointment: Appointment): DoctorAppointmentItem => {
@@ -77,6 +78,7 @@ const DoctorProfile = () => {
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments);
+            setMyAppointments?.(response.data.data.appointments);
           } else {
             toast({
               title: "Error",
@@ -98,6 +100,9 @@ const DoctorProfile = () => {
     }
   };
 
+  useEffect(() => {
+}, [appointments]);
+
   // Handle approve appointment
   const handleApprove = (appointmentId: string) => {
     if (!tokens?.accessToken) return;
@@ -109,6 +114,7 @@ const DoctorProfile = () => {
             title: "Success",
             description: "Appointment approved successfully",
           });
+          console.log("Approved Appointment Response:", response.data);
           setAppointments(response.data.data.appointments);
         } else {
           toast({
@@ -155,6 +161,7 @@ const DoctorProfile = () => {
         });
       });
   };
+
 
   useEffect(() => {
     fetchAppointments();

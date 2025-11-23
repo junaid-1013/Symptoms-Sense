@@ -109,3 +109,46 @@ export interface BookingDialogContentProps {
     setSelectedPatientId: (id: string) => void;
 
 };
+
+export interface Medicine {
+  name: string;
+  description: string;
+  manufacturer: string;
+  category: string;
+  dosage: string;
+  frequency: string;
+  duration_days: number;
+}
+
+export interface CompleteAppointmentApiProps {
+  appointment_id: string;
+  symptoms: string;
+  diagnosis: string;
+  diagnosis_details: string;
+  prescription_notes: string;
+  prescription_instructions: string;
+  medicines: Medicine[];
+  token: string;
+}
+
+export interface CompleteAppointmentProps {
+  appointmentId: string;
+  onComplete?: (updatedAppointment: { id: string; status: string }) => void;
+}
+
+export interface FormValues {
+  symptoms: string;
+  diagnosis: string;
+  diagnosis_details: string;
+  prescription_notes: string;
+  prescription_instructions: string;
+  medicines: {
+    name: string;
+    description: string;
+    manufacturer: string;
+    category: string;
+    dosage: string;
+    frequency: string;
+    duration_days: number;
+  }[];
+}
