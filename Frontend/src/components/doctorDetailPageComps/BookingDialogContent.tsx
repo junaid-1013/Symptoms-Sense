@@ -55,17 +55,19 @@ const BookingDialogContent = memo(({
             </DialogHeader>
 
             <div className="flex-1 overflow-y-auto px-1">
-                <div className="w-full mb-4">
+
+                <div className="w-full overflow-x-auto flex justify-center">
                     <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={(date) => date && onSelectDate(date)}
                         disabled={(date) => date < minSelectableDate}
-                        className="rounded-md border w-full"
+                        className="rounded-md border max-w-full"
                     />
-                </div>
+                    </div>
 
-                <div className="mb-4">
+
+                <div className="mb-4 mt-4">
                     <Label className="text-sm font-medium mb-2 block">Available Time Slots</Label>
                     {availableSlots.filter(s => s.is_available).length === 0 ? (
                         <p className="text-gray-500 text-sm py-8 text-center bg-gray-50 rounded-lg">
