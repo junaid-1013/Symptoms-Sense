@@ -17,7 +17,7 @@ const AppointmentSection: React.FC<AppointmentSectionProps> = ({
     cardClassName,
     sectionClassName,
     onApprove,
-    onCancel,
+    onCancel
 }) => {
     return (
         <section className={`text-center space-y-6 ${sectionClassName ?? ""}`}>
