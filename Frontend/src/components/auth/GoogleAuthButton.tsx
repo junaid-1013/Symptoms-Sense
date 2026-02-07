@@ -15,7 +15,7 @@ const GoogleAuthButton = ({ label = "Continue with Google", className = "" }: Go
     const handleGoogleLogin = async () => {
         try {
             const response = await GetGoogleAuthUrlApi();
-            const authUrl: string = response.data?.auth_url;
+            const authUrl: string = response.data?.data?.auth_url;
             if (authUrl) {
                 window.location.href = authUrl;
             } else {
