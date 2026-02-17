@@ -78,7 +78,7 @@ export const CONTACT_INFO = {
 export const NAV_LINKS = [
     { label: "Home", href: "/" },
     { label: "Doctors", href: "/doctors" },
-    { label: "Chat", href: "/#chat" },
+    { label: "Chat", href: "/chat-agent" },
     { label: "Services", href: "/#services" },
     { label: "Testimonials", href: "/#feedback" },
     { label: "Contact Us", href: "/#contact-us" },
