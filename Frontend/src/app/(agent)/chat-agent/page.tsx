@@ -7,7 +7,18 @@ import ChatWelcome from "@/components/agentComps/ChatWelcome";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect, useRef } from "react";
 import { useUser } from "@/contextApis/UserContext";
-import { MedicalChatApiResponse, ConversationState } from "@/types/medicalChat";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+import { MedicalInsightsPanel } from "@/components/chat/medical-insights-panel";
+import {
+  MedicalChatApiResponse,
+  ConversationState,
+  SymptomExtractionPayload,
+  DiseaseReasoningPayload,
+  DoctorSuggestionResult,
+} from "@/types/medicalChat";
+
+
 
 interface Message {
   id: string;
@@ -24,7 +35,20 @@ export default function ChatAgentPage() {
   const [conversationState, setConversationState] = useState<ConversationState | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [insights, setInsights] = useState<{
+  extractedSymptoms: SymptomExtractionPayload | null;
+  diseaseReasoning: DiseaseReasoningPayload | null;
+  doctorSuggestions: DoctorSuggestionResult | null;
+  isMedicalQuery: boolean;
+}>({
+  extractedSymptoms: null,
+  diseaseReasoning: null,
+  doctorSuggestions: null,
+  isMedicalQuery: true,
+});
 
+
+  const router = useRouter();
   // Auto-scroll to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -115,6 +139,13 @@ export default function ChatAgentPage() {
       if (payload.conversation_state) {
         setConversationState(payload.conversation_state);
       }
+      setInsights({
+      extractedSymptoms: payload.extracted_symptoms ?? null,
+      diseaseReasoning: payload.disease_reasoning ?? null,
+      doctorSuggestions: payload.doctor_suggestions ?? null,
+      isMedicalQuery: payload.is_medical_query,
+    });
+
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage: Message = {
@@ -139,13 +170,23 @@ export default function ChatAgentPage() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
       {/* Sidebar */}
-      <AgentSidebar
+      {/* <AgentSidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
-      />
+      /> */}
 
       {/* Main Chat Area */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+     <main className="flex flex-1 overflow-hidden relative">
+        <div className="flex flex-col flex-[2] overflow-hidden border-r bg-background">
+        <div className="flex items-center gap-3 px-4 py-3 border-b bg-background/80 backdrop-blur-sm">
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
+        </div>
         {/* Top Bar */}
         <ChatTopBar
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
@@ -188,6 +229,16 @@ export default function ChatAgentPage() {
             onSendMessage={handleSendMessage}
             disabled={false}
             isLoading={isLoading}
+          />
+        </div>
+        </div>
+        <div className="flex-[1] border-l bg-card/40 backdrop-blur overflow-y-auto">
+          <MedicalInsightsPanel
+            extractedSymptoms={insights.extractedSymptoms}
+            diseaseReasoning={insights.diseaseReasoning}
+            doctorSuggestions={insights.doctorSuggestions}
+            isMedicalQuery={insights.isMedicalQuery}
+            loading={isLoading}
           />
         </div>
       </main>

@@ -50,7 +50,7 @@ export function MedicalInsightsPanel({
 
   if (!isMedicalQuery) {
     return (
-      <aside className="flex-1 space-y-4 min-w-[280px]">
+      <aside className="flex-1 space-y-4 min-w-[280px] mt-1">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -67,7 +67,7 @@ export function MedicalInsightsPanel({
   }
 
   return (
-    <aside className="flex-1 space-y-4 min-w-[280px]">
+    <aside className="flex-1 space-y-4 min-w-[280px] mt-1">
       <Card>
         <CardHeader className="flex flex-col space-y-2 pb-3">
           <div className="flex flex-row items-center justify-between space-y-0">
