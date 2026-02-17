@@ -17,7 +17,7 @@ export default function Home() {
       <Doctors />
       <Testimonials />
       <RatingForm />
-      <OurTeam />
+      {/* <OurTeam /> */}
       <ContactUs />
     </>
   )
