@@ -23,7 +23,6 @@ const Login = () => {
     const onLogin = async (data: FormData) => {
         LoginApi({ email: data.email, password: data.password })
             .then((response) => {
-                console.log("Login Success", response.data);
                 const user = response.data?.data.user;
                 const tokens = response.data?.data.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
@@ -48,10 +47,12 @@ const Login = () => {
                 })
             })
             .catch((error) => {
-                console.log("Login Failed", error);
+                const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message;
                 toast({
                     title: "Failed!",
-                    description: "Login Failed",
+                    description: message,
                     variant: "destructive",
                 })
             })
