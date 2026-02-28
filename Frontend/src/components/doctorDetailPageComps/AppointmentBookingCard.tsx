@@ -87,7 +87,7 @@ const AppointmentBookingCard = ({
                 </div>
             </div>
 
-            {!isMobile && <ClinicBookingCard doctor={doctor} />}
+            {/* {!isMobile && <ClinicBookingCard doctor={doctor} />} */}
         </>
     );
 };
