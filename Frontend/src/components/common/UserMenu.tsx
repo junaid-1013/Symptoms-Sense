@@ -34,7 +34,7 @@ const UserMenu = ({
     const { onLogout } = useLogout();
     const router = useRouter();
 
-    const profilePath = user?.user_type === "doctor" ? "/doctorProfile" : user?.user_type === "admin" ? "/adminDashboard" : "/profile";
+    const profilePath = user?.user_type === "doctor" ? "/doctorProfile" : user?.user_type === "clinic" ? "/clinicDashboard" : "/profile";
 
     const handleNavigate = (path: string) => {
         router.push(path);

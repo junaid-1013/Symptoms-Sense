@@ -86,7 +86,9 @@ const DoctorAppointmentHandler = (
                         description: "Appointment booked successfully!",
                     });
                     setIsDialogOpen(false);
-                    router.push('/profile');
+                    if(user?.user_type === "patient"){
+                        router.push("/profile");
+                    }
                 }else {
                     toast({
                         title: "Failed!",
@@ -96,19 +98,15 @@ const DoctorAppointmentHandler = (
                 }
             })
             .catch((error) => {
-                if (error.response?.data?.error) {
+                console.error("Error booking appointment:", error);
+                const message =
+                    error?.response?.data?.detail || 
+                    error?.response?.data?.message;
                     toast({
                         title: "Failed!",
-                        description: error.response.data.error,
+                        description: message,
                         variant: "destructive",
                     });
-                } else {
-                    toast({
-                        title: "Error",
-                        description: error?.message || "Please select time for the appointment",
-                        variant: "destructive",
-                    });
-                }
             });
     };
 

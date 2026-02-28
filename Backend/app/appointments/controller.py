@@ -237,11 +237,17 @@ async def update_appointment(
                 "appointments": all_appointments,
             }
         ).dict()
-    except (UserNotFoundException, ValidationException) as e:
+    except UserNotFoundException as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+    )
+
+    except ValidationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e)
+    )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
