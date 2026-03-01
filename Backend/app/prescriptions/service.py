@@ -140,6 +140,9 @@ class PrescriptionService:
 
             # Load prescription with medicines for response
             prescription = self._get_prescription_with_medicines(prescription.id)
+            from app.appointments.service import AppointmentService
+            appt_service = AppointmentService(self.db)
+            doctor_appointments = appt_service.get_doctor_appointments(doctor_id)
 
             # Build response
             return CompleteAppointmentResponse(
@@ -154,7 +157,8 @@ class PrescriptionService:
                     created_at=diagnosis.created_at
                 ),
                 prescription=self._build_prescription_response(prescription),
-                appointment_status=appointment.status
+                appointment_status=appointment.status,
+                appointments=doctor_appointments 
             )
 
         except Exception as e:
