@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
+from app.core.constants import UserType
 from app.core.security import SecurityUtils
 from app.core.exceptions import (
     InvalidCredentialsException, UserNotFoundException, UserInactiveException,
@@ -102,7 +103,7 @@ class AuthService:
 
     def get_login_response_data(self, user: User):
         """Get login response data based on user type."""
-        if user.user_type == "patient":
+        if user.user_type == UserType.PATIENT:
             # Get patient data
             patient = self.db.query(Patient).filter(Patient.user_id == user.id).first()
             if patient:
@@ -137,7 +138,7 @@ class AuthService:
                     last_login=user.last_login
                 )
 
-        elif user.user_type == "doctor":
+        elif user.user_type == UserType.DOCTOR:
             # Get doctor data with clinic info
             doctor = self.db.query(Doctor).options(
                 joinedload(Doctor.clinic).joinedload(Clinic.user)
@@ -346,7 +347,7 @@ class AuthService:
                     google_id=google_id,
                     avatar_url=avatar_url,
                     is_email_verified=True,
-                    user_type="patient"  # Default user type for OAuth users
+                    user_type=UserType.PATIENT  # Default user type for OAuth users
                 )
                 self.db.add(user)
         else:

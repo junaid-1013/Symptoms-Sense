@@ -21,4 +21,4 @@ def get_all_patients(db: Session = Depends(get_db)):
             patients=patients,
             total=len(patients)
         )
-    ).dict()
+    ).model_dump()

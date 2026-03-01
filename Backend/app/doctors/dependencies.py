@@ -1,6 +1,7 @@
 """
 Doctor dependencies for role-based access control.
 """
+from typing import Optional
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
@@ -9,7 +10,17 @@ from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.models.doctor import Doctor
 from app.models.clinic import Clinic
+from app.core.constants import UserType
 from app.core.exceptions import InsufficientPermissionsException, UserNotFoundException
+
+
+def get_doctor_owned_by_clinic(doctor_id: str, clinic_id: str, db: Session) -> Optional[Doctor]:
+
+    return db.query(Doctor).filter(
+        Doctor.id == doctor_id,
+        Doctor.clinic_id == clinic_id,
+        Doctor.deleted_at.is_(None)
+    ).first()
 
 
 def get_current_clinic(
@@ -23,7 +34,7 @@ def get_current_clinic(
         InsufficientPermissionsException: If user is not a clinic
         UserNotFoundException: If clinic profile not found
     """
-    if current_user.user_type != "clinic":
+    if current_user.user_type != UserType.CLINIC:
         raise InsufficientPermissionsException("Only clinics can access this endpoint")
     
     clinic = db.query(Clinic).filter(
@@ -48,7 +59,7 @@ def get_current_doctor(
         InsufficientPermissionsException: If user is not a doctor
         UserNotFoundException: If doctor profile not found
     """
-    if current_user.user_type != "doctor":
+    if current_user.user_type != UserType.DOCTOR:
         raise InsufficientPermissionsException("Only doctors can access this endpoint")
     
     doctor = db.query(Doctor).filter(
@@ -82,17 +93,7 @@ def verify_clinic_owns_doctor(
         UserNotFoundException: If doctor not found
         InsufficientPermissionsException: If doctor doesn't belong to clinic
     """
-    doctor = db.query(Doctor).filter(
-        Doctor.id == doctor_id,
-        Doctor.deleted_at.is_(None)
-    ).first()
-    
+    doctor = get_doctor_owned_by_clinic(doctor_id, clinic.id, db)
     if not doctor:
-        raise UserNotFoundException("Doctor not found")
-    
-    if doctor.clinic_id != clinic.id:
-        raise InsufficientPermissionsException(
-            "You can only manage doctors in your clinic"
-        )
-    
+        raise UserNotFoundException("Doctor not found or does not belong to your clinic")
     return doctor

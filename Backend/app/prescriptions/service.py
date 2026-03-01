@@ -23,6 +23,7 @@ from app.prescriptions.schema import (
     MedicineCreateRequest,
     MedicineUpdateRequest
 )
+from app.core.constants import UserType
 from app.core.exceptions import ValidationException
 
 
@@ -200,7 +201,7 @@ class PrescriptionService:
                     return dt.replace(tzinfo=appt_tz).astimezone(timezone.utc)
                 from app.core.config import config
                 from zoneinfo import ZoneInfo
-                local_tz = ZoneInfo(getattr(config, "DEFAULT_TIMEZONE", "UTC"))
+                local_tz = ZoneInfo(config.DEFAULT_TIMEZONE)
                 return dt.replace(tzinfo=local_tz).astimezone(timezone.utc)
             return dt.astimezone(timezone.utc)
 
@@ -415,7 +416,7 @@ class PrescriptionService:
             joinedload(Prescription.prescription_medicines).joinedload(PrescriptionMedicine.medicine)
         ).filter(Prescription.deleted_at.is_(None))
 
-        if user_type == "patient":
+        if user_type == UserType.PATIENT:
             # Map user -> patient.id
             me = self.db.query(Patient).filter(
                 Patient.user_id == current_user_id,
@@ -475,7 +476,7 @@ class PrescriptionService:
 
     # ========= Medicine management (doctor/clinic) =========
     def create_medicine(self, user_type: str, data: MedicineCreateRequest) -> Medicine:
-        if user_type not in ("doctor", "clinic"):
+        if user_type not in (UserType.DOCTOR, UserType.CLINIC):
             raise ValidationException("Only doctors or clinics can create medicines")
         existing = self.db.query(Medicine).filter(
             Medicine.name.ilike(data.name.strip()),
@@ -516,7 +517,7 @@ class PrescriptionService:
         return med
 
     def delete_medicine(self, user_type: str, medicine_id: str) -> bool:
-        if user_type not in ("doctor", "clinic"):
+        if user_type not in (UserType.DOCTOR, UserType.CLINIC):
             raise ValidationException("Only doctors or clinics can delete medicines")
         med = self.db.query(Medicine).filter(
             Medicine.id == medicine_id,

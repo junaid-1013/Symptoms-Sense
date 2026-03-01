@@ -6,6 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.core.config import config
+from app.core.constants import ResponseStatus
 from app.core.exception_handlers import exception_handlers
 from app.core.response import APIResponse
 
@@ -31,8 +32,8 @@ async def wrap_success_responses(request: Request, call_next):
         try:
             # JSONResponse.body is bytes; decode before parsing
             data = json.loads(response.body.decode())
-            if not ("status" in data and data["status"] == "success"):
-                wrapped = APIResponse(message="Request successful", data=data).dict()
+            if not ("status" in data and data["status"] == ResponseStatus.SUCCESS):
+                wrapped = APIResponse(message="Request successful", data=data).model_dump()
                 response = JSONResponse(
                     status_code=response.status_code,
                     content=wrapped,
@@ -53,12 +54,12 @@ app.include_router(api_router)
 
 @app.get("/")
 def root():
-    return APIResponse(message="Symptoms Sense API", data={"status": "running"}).dict()
+    return APIResponse(message="Symptoms Sense API", data={"status": "running"}).model_dump()
 
 
 @app.get("/health")
 def health():
-    return APIResponse(message="OK", data={"status": "healthy"}).dict()
+    return APIResponse(message="OK", data={"status": "healthy"}).model_dump()
 
 
 if __name__ == "__main__":

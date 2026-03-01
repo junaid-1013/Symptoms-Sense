@@ -16,6 +16,7 @@ from app.prescriptions.schema import (
 from app.prescriptions.service import PrescriptionService
 from app.models.doctor import Doctor
 from app.models.user import User
+from app.core.constants import UserType
 from app.core.exceptions import ValidationException
 from app.core.response import APIResponse, APIResponseGeneric
 
@@ -43,7 +44,7 @@ async def complete_appointment(
         return APIResponse(
             message="Appointment completed successfully",
             data=result
-        ).dict()
+        ).model_dump()
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -74,7 +75,7 @@ async def update_appointment_records(
         return APIResponse(
             message="Appointment records updated successfully",
             data=result
-        ).dict()
+        ).model_dump()
     except ValidationException as e:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -100,7 +101,7 @@ async def get_prescriptions(
     db: Session = Depends(get_db)
 ):
 
-    if not patient_id and not doctor_id and current_user.user_type not in ("patient", "doctor"):
+    if not patient_id and not doctor_id and current_user.user_type not in (UserType.PATIENT, UserType.DOCTOR):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="patient_id or doctor_id is required for this user type"
@@ -124,7 +125,7 @@ async def get_prescriptions(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get(
@@ -142,13 +143,13 @@ async def get_prescriptions_by_appointment(
     return APIResponse(
         message="Appointment prescriptions retrieved successfully",
         data=data
-    ).dict()
+    ).model_dump()
 
 
 # ========== Medicine management (doctor/clinic) ==========
 
 def _require_doctor_or_clinic(user: User):
-    if user.user_type not in ("doctor", "clinic"):
+    if user.user_type not in (UserType.DOCTOR, UserType.CLINIC):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only doctors or clinics can manage medicines")
 
 
@@ -165,7 +166,7 @@ async def create_medicine(
     return APIResponse(
         message="Medicine created successfully",
         data=[MedicineResponse.model_validate(m) for m in meds]
-    ).dict()
+    ).model_dump()
 
 
 @router.put("/medicines/{medicine_id}", response_model=APIResponseGeneric[list[MedicineResponse]])
@@ -182,7 +183,7 @@ async def update_medicine(
     return APIResponse(
         message="Medicine updated successfully",
         data=[MedicineResponse.model_validate(m) for m in meds]
-    ).dict()
+    ).model_dump()
 
 
 @router.delete("/medicines/{medicine_id}", response_model=APIResponseGeneric[list[MedicineResponse]])
@@ -200,7 +201,7 @@ async def delete_medicine(
     return APIResponse(
         message="Medicine deleted successfully",
         data=[MedicineResponse.model_validate(m) for m in meds]
-    ).dict()
+    ).model_dump()
 
 
 @router.get(
@@ -233,7 +234,7 @@ async def get_diagnoses_by_appointment(
     return APIResponse(
         message="Appointment diagnoses retrieved successfully",
         data=data
-    ).dict()
+    ).model_dump()
 
 
 @router.get(
@@ -271,4 +272,4 @@ async def get_prescription_medicines_by_appointment(
     return APIResponse(
         message="Appointment prescription medicines retrieved successfully",
         data=data
-    ).dict()
+    ).model_dump()
