@@ -26,8 +26,6 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
   const { clinicMedicines, tokens} = useUser();
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log("Clinic Medicines:", clinicMedicines);
-
   const {
     register,
     control,
@@ -80,10 +78,13 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
         });
       }
     })
-    .catch((err) => {
+    .catch((error) => {
+      const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
       toast({
         title: "Error",
-        description: err.response?.data?.detail || "Failed to complete appointment",
+        description: message,
         variant: "destructive",
       });
     });

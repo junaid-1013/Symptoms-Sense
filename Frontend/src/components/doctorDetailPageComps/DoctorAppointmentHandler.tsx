@@ -101,7 +101,7 @@ const DoctorAppointmentHandler = (
                 console.error("Error booking appointment:", error);
                 const message =
                     error?.response?.data?.detail || 
-                    error?.response?.data?.message;
+                    error?.response?.data?.message || "Something went wrong";
                     toast({
                         title: "Failed!",
                         description: message,
