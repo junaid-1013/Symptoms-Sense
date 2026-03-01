@@ -28,7 +28,8 @@ const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({
     status,
     className,
     onApprove,
-    onCancel
+    onCancel,
+    setAppointments
 }) => {
     const showActions = status === "pending";
 
@@ -121,6 +122,7 @@ const DoctorAppointmentCard: React.FC<DoctorAppointmentCardProps> = ({
                     <div className="mt-4">
                         <CompleteAppointment 
                             appointmentId={appointmentId}
+                            setAppointments={setAppointments}
                         />
                     </div>
                 )}

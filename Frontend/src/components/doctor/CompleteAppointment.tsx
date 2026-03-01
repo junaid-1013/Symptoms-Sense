@@ -21,8 +21,9 @@ import { CompleteAppointmentApi } from "@/endPoints/doctor.endPoints";
 import { CompleteAppointmentProps , FormValues } from "@/types";
 import { X } from "lucide-react";
 import { SpinnerButton } from "../uiUtils/SpinnerButton";
+import { set } from "mongoose";
 
-const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId}) => {
+const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId, setAppointments }) => {
   const { toast } = useToast();
   const { clinicMedicines, tokens} = useUser();
   const [isOpen, setIsOpen] = useState(false);
@@ -72,6 +73,7 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
           title: "Success",
           description: "Appointment completed successfully",
         });
+        setAppointments?.(response.data.data.appointments);
         reset();
         setIsSubmitting(false);
         setIsOpen(false);
