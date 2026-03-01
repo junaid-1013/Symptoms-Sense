@@ -17,7 +17,7 @@ const Login = () => {
     const { toast } = useToast()
     type FormData = { email: string; password: string };
     const router = useRouter();
-    const { setAuthData, setClinicDoctors} = useUser();
+    const { setAuthData, setClinicDoctors, setClinicMedicines} = useUser();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
     const onLogin = async (data: FormData) => {
@@ -32,8 +32,10 @@ const Login = () => {
                     router.push("/profile");
                 } else if (user?.user_type === "clinic") {
                     setClinicDoctors(response.data.data.user.clinic_doctors.doctors)
+                    setClinicMedicines(response.data.data.user.medicines)
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
+                    setClinicMedicines(response.data.data.user.medicines)
                     if(!user?.specializations || user.specializations.length === 0){
                         router.push("/doctorRegistration");
                     }
