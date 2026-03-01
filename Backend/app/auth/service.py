@@ -6,6 +6,7 @@ from typing import Optional, Tuple
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 
+from app.core.constants import UserType
 from app.core.security import SecurityUtils
 from app.core.exceptions import (
     InvalidCredentialsException, UserNotFoundException, UserInactiveException,
@@ -16,6 +17,8 @@ from app.auth.schema import UserRegister, UserLogin, TokenResponse, PatientLogin
 from app.models.patient import Patient
 from app.models.doctor import Doctor
 from app.models.clinic import Clinic
+from app.prescriptions.service import PrescriptionService
+from app.prescriptions.schema import MedicineResponse
 from sqlalchemy.orm import joinedload
 from app.core.config import config
 from app.clinics.service import ClinicsService
@@ -102,8 +105,7 @@ class AuthService:
 
     def get_login_response_data(self, user: User):
         """Get login response data based on user type."""
-        if user.user_type == "patient":
-            # Get patient data
+        if user.user_type == UserType.PATIENT:
             patient = self.db.query(Patient).filter(Patient.user_id == user.id).first()
             if patient:
                 return PatientLoginResponse(
@@ -124,7 +126,6 @@ class AuthService:
                     address=patient.address
                 )
             else:
-                # Return basic user data if no patient record
                 return PatientLoginResponse(
                     id=user.id,
                     email=user.email,
@@ -137,11 +138,14 @@ class AuthService:
                     last_login=user.last_login
                 )
 
-        elif user.user_type == "doctor":
-            # Get doctor data with clinic info
+        elif user.user_type == UserType.DOCTOR:
+            prescription_svc = PrescriptionService(self.db)
+            medicines = [MedicineResponse.model_validate(m) for m in prescription_svc.list_all_active_medicines()]
+
             doctor = self.db.query(Doctor).options(
                 joinedload(Doctor.clinic).joinedload(Clinic.user)
             ).filter(Doctor.user_id == user.id).first()
+            
             if doctor:
                 clinic_name = doctor.clinic.user.name if doctor.clinic else None
                 clinic_address = doctor.clinic.address if doctor.clinic else None
@@ -166,10 +170,10 @@ class AuthService:
                     clinic_id=doctor.clinic_id,
                     clinic_name=clinic_name,
                     clinic_address=clinic_address,
-                    status=doctor.status
+                    status=doctor.status,
+                    medicines=medicines
                 )
             else:
-                # Return basic user data if no doctor record
                 return DoctorLoginResponse(
                     id=user.id,
                     email=user.email,
@@ -179,22 +183,21 @@ class AuthService:
                     is_active=user.is_active,
                     is_email_verified=user.is_email_verified,
                     avatar_url=user.avatar_url,
-                    last_login=user.last_login
+                    last_login=user.last_login,
+                    medicines=medicines
                 )
 
-        elif user.user_type == "clinic":
-            # Get clinic data
+        elif user.user_type == UserType.CLINIC:
+            prescription_svc = PrescriptionService(self.db)
+            medicines = [MedicineResponse.model_validate(m) for m in prescription_svc.list_all_active_medicines()]
+
             clinic = self.db.query(Clinic).filter(Clinic.user_id == user.id).first()
             if clinic:
-                # Get clinic doctors details using ClinicsService
-                
                 clinics_service = ClinicsService(self.db)
                 clinic_doctors = clinics_service.get_all_clinic_doctors_basic(clinic.id)
-
                 clinic_doctors_data = {
                     "doctors": [doctor.model_dump() for doctor in clinic_doctors],
                 }
-
                 return ClinicLoginResponse(
                     id=user.id,
                     email=user.email,
@@ -211,10 +214,10 @@ class AuthService:
                     established_year=clinic.established_year,
                     total_doctors=clinic.total_doctors,
                     status=clinic.status,
-                    clinic_doctors=clinic_doctors_data
+                    clinic_doctors=clinic_doctors_data,
+                    medicines=medicines
                 )
             else:
-                # Return basic user data if no clinic record
                 return ClinicLoginResponse(
                     id=user.id,
                     email=user.email,
@@ -224,11 +227,11 @@ class AuthService:
                     is_active=user.is_active,
                     is_email_verified=user.is_email_verified,
                     avatar_url=user.avatar_url,
-                    last_login=user.last_login
+                    last_login=user.last_login,
+                    medicines=medicines
                 )
 
         else:
-            # For admin or other user types, return basic user response
             from app.auth.schema import UserResponse
             return UserResponse.model_validate(user)
     
@@ -346,7 +349,7 @@ class AuthService:
                     google_id=google_id,
                     avatar_url=avatar_url,
                     is_email_verified=True,
-                    user_type="patient"  # Default user type for OAuth users
+                    user_type=UserType.PATIENT  # Default user type for OAuth users
                 )
                 self.db.add(user)
         else:

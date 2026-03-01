@@ -14,6 +14,7 @@ from app.onboarding.schema import (
     ClinicOnboardingRequest, ClinicOnboardingResponse
 )
 from app.onboarding.service import OnboardingService
+from app.core.constants import UserType
 from app.core.response import APIResponse, APIResponseGeneric
 from app.models.user import User
 from app.core.exceptions import UserNotFoundException, UserAlreadyExistsException
@@ -59,7 +60,7 @@ async def onboard_patient(
         return APIResponse(
             message="Patient onboarded successfully",
             data=PatientOnboardingResponse.model_validate(response_data)
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise e
     except Exception as e:
@@ -76,26 +77,17 @@ async def get_patient_profile(
 ):
     """Get current patient's onboarding data."""
     service = OnboardingService(db)
-    
-    patient = service.get_patient_by_user_id(current_user.id)
+    patient = service.get_patient_profile_for_display(current_user.id)
     if not patient:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient profile not found"
         )
-    
-    # Load user relationship for complete response
-    from sqlalchemy.orm import joinedload
-    from app.models.patient import Patient
-    patient = db.query(Patient).options(
-        joinedload(Patient.user)
-    ).filter(Patient.id == patient.id).first()
-    
     response_data = service.build_patient_response(patient)
     return APIResponse(
         message="Patient profile retrieved successfully",
         data=PatientOnboardingResponse.model_validate(response_data)
-    ).dict()
+    ).model_dump()
 
 
 # ========== Doctor Onboarding ==========
@@ -108,7 +100,7 @@ async def onboard_doctor(
 ):
     """Onboard a doctor"""
     # Verify user is a doctor
-    if current_user.user_type != "doctor":
+    if current_user.user_type != UserType.DOCTOR:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only doctors can onboard as doctors"
@@ -125,7 +117,7 @@ async def onboard_doctor(
     return APIResponse(
         message="Doctor onboarded successfully",
         data=DoctorOnboardingResponse.model_validate(doc)
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/doctor/get-profile", response_model=APIResponseGeneric[DoctorOnboardingResponse])
@@ -146,7 +138,7 @@ async def get_doctor_profile(
     return APIResponse(
         message="Doctor profile retrieved successfully",
         data=DoctorOnboardingResponse.model_validate(doctor)
-    ).dict()
+    ).model_dump()
 
 # ========== Clinic Onboarding ==========
 
@@ -164,7 +156,7 @@ async def onboard_clinic(
         return APIResponse(
             message="Clinic onboarded successfully",
             data=ClinicOnboardingResponse.model_validate(response_data)
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise e
     except Exception as e:
@@ -180,26 +172,17 @@ async def get_clinic_profile(
 ):
     """Get current clinic's onboarding data."""
     service = OnboardingService(db)
-    
-    clinic = service.get_clinic_by_user_id(current_user.id)
+    clinic = service.get_clinic_profile_for_display(current_user.id)
     if not clinic:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Clinic profile not found"
         )
-    
-    # Load user relationship for complete response
-    from sqlalchemy.orm import joinedload
-    from app.models.clinic import Clinic
-    clinic = db.query(Clinic).options(
-        joinedload(Clinic.user)
-    ).filter(Clinic.id == clinic.id).first()
-    
     response_data = service.build_clinic_response(clinic)
     return APIResponse(
         message="Clinic profile retrieved successfully",
         data=ClinicOnboardingResponse.model_validate(response_data)
-    ).dict()
+    ).model_dump()
 
 # @router.put("/patient/update-profile", response_model=PatientOnboardingResponse)
 # async def update_patient_profile(

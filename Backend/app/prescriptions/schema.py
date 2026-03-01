@@ -2,6 +2,7 @@
 Prescription schemas for request/response validation.
 """
 from pydantic import BaseModel, Field
+from app.appointments.schema import AppointmentResponse
 from typing import Optional, List
 from datetime import datetime
 
@@ -117,6 +118,7 @@ class CompleteAppointmentResponse(BaseModel):
     diagnosis: DiagnosisResponse
     prescription: PrescriptionResponse
     appointment_status: str
+    appointments: List[AppointmentResponse] = Field(default_factory=list)
 
 
 # ========== PATCH Update Schemas ==========

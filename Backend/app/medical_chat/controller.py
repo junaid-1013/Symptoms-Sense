@@ -17,7 +17,6 @@ from app.core.response import APIResponse, APIResponseGeneric
 from app.db.database import get_db
 from app.auth.dependencies import get_current_user
 from app.models.user import User
-from app.models.patient import Patient
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 router = APIRouter(prefix="/medical-chat", tags=["medical_chat"])
@@ -75,26 +74,7 @@ async def chat_with_ai(
     """
     try:
         service = MedicalChatService(db=db)
-
-        # Get patient ID if user is authenticated
-        patient_id = None
-        if current_user:
-            patient = db.query(Patient).filter(
-                Patient.user_id == current_user.id,
-                Patient.deleted_at.is_(None)
-            ).first()
-            if patient:
-                patient_id = patient.id
-            else:
-                # User is authenticated but patient profile doesn't exist
-                # This means they need to complete onboarding
-                import logging
-                logger = logging.getLogger(__name__)
-                logger.info(
-                    f"Authenticated user {current_user.id} ({current_user.email}) "
-                    "does not have a patient profile. They need to complete onboarding."
-                )
-                # Note: patient_id remains None, which will trigger the appropriate message in the service
+        patient_id = service.get_patient_id_for_user(current_user.id) if current_user else None
 
         # Convert conversation state if provided
         conversation_state = None
@@ -135,7 +115,7 @@ async def chat_with_ai(
         return APIResponse(
             message="Chat response generated successfully",
             data=chat_response
-        ).dict()
+        ).model_dump()
 
     except HTTPException:
         raise
