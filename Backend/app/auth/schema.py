@@ -2,6 +2,7 @@
 Authentication schemas for request/response validation.
 """
 from pydantic import BaseModel, EmailStr, Field
+from app.prescriptions.schema import MedicineResponse
 from typing import Optional, List
 from datetime import datetime
 
@@ -84,6 +85,8 @@ class DoctorLoginResponse(BaseModel):
     clinic_address: Optional[str] = None
     status: Optional[str] = None
 
+    medicines: List[MedicineResponse] = Field(default_factory=list)
+
     class Config:
         from_attributes = True
 
@@ -110,6 +113,7 @@ class ClinicLoginResponse(BaseModel):
 
     # Clinic doctors details
     clinic_doctors: Optional[dict] = None  # Will contain doctors list, total, clinic_id, clinic_name
+    medicines: List[MedicineResponse] = Field(default_factory=list)
 
     class Config:
         from_attributes = True
