@@ -1,42 +1,47 @@
 """
 Global exception handlers for FastAPI to return consistent JSON responses.
+All HTTPException subclasses use the same handler; only RequestValidationError needs a separate one.
 """
 
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+
 from app.core.error_response import APIErrorResponse
-from app.core.exceptions import (
-    AuthException,
-    InvalidCredentialsException,
-    TokenExpiredException,
-    InvalidTokenException,
-    UserNotFoundException,
-    UserInactiveException,
-    UserAlreadyExistsException,
-    InsufficientPermissionsException,
-    InvalidPasswordException,
-    PasswordResetTokenExpiredException,
-    GoogleOAuthException,
-    ValidationException,
-)
+
+
+def _detail_to_message(detail) -> str:
+    """Normalize HTTPException detail (str, list, or dict) to a single message string."""
+    if isinstance(detail, str):
+        return detail
+    if isinstance(detail, list) and detail:
+        first = detail[0]
+        if isinstance(first, dict):
+            msg = first.get("msg", "Invalid input")
+            loc = first.get("loc", [])
+            field = loc[-1] if loc else "field"
+            return f"The field '{field}' {str(msg).lower()}"
+        return str(first)
+    if isinstance(detail, dict):
+        return detail.get("message", detail.get("detail", str(detail)))
+    return str(detail) if detail else "An error occurred"
 
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """
-    Global handler for HTTPException and custom exceptions.
-
-    Converts any HTTPException (including custom ones) to the standardized error response format.
+    Global handler for HTTPException and all custom exceptions (they subclass HTTPException).
+    Converts any HTTPException to the standardized error response format.
     """
+    message = _detail_to_message(exc.detail)
     return JSONResponse(
         status_code=exc.status_code,
-        content=APIErrorResponse(message=exc.detail).dict()
+        content=APIErrorResponse(message=message).model_dump()
     )
 
-async def request_validation_exception_handler(request, exc: RequestValidationError):
+
+async def request_validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     """
     Handle Pydantic validation errors in a standardized format.
-    Returns a clean, readable error message.
     """
     errors = exc.errors()
     if errors:
@@ -44,32 +49,18 @@ async def request_validation_exception_handler(request, exc: RequestValidationEr
         loc = first_error.get("loc", [])
         field = loc[-1] if loc else "field"
         msg = first_error.get("msg", "Invalid input")
-        message = f"The field '{field}' {msg.lower()}"
+        message = f"The field '{field}' {str(msg).lower()}"
     else:
         message = "Validation error"
 
     return JSONResponse(
         status_code=422,
-        content=APIErrorResponse(message=message).dict()
+        content=APIErrorResponse(message=message).model_dump()
     )
 
 
-
-# Register all custom exceptions to use the same handler
+# HTTPException covers all custom exceptions (they subclass it); only RequestValidationError is separate
 exception_handlers = {
     HTTPException: http_exception_handler,
-    AuthException: http_exception_handler,
-    InvalidCredentialsException: http_exception_handler,
-    TokenExpiredException: http_exception_handler,
-    InvalidTokenException: http_exception_handler,
-    UserNotFoundException: http_exception_handler,
-    UserInactiveException: http_exception_handler,
-    UserAlreadyExistsException: http_exception_handler,
-    InsufficientPermissionsException: http_exception_handler,
-    InvalidPasswordException: http_exception_handler,
-    PasswordResetTokenExpiredException: http_exception_handler,
-    GoogleOAuthException: http_exception_handler,
-    ValidationException: http_exception_handler,
     RequestValidationError: request_validation_exception_handler,
-
 }

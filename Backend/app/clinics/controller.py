@@ -29,7 +29,7 @@ async def get_all_clinics(
     return APIResponse(
         message="Clinics retrieved successfully",
         data=ClinicListResponse(clinics=clinics, total=len(clinics))
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/search/", response_model=APIResponseGeneric[ClinicListResponse])
@@ -44,7 +44,7 @@ async def search_clinics(
     return APIResponse(
         message="Clinic search results",
         data=ClinicListResponse(clinics=clinics, total=len(clinics))
-    ).dict()
+    ).model_dump()
 
 # ========== Clinic Doctor Registration Endpoints ==========
 
@@ -76,7 +76,7 @@ async def register_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserAlreadyExistsException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -106,7 +106,7 @@ async def get_clinic_doctors(
             clinic_id=current_clinic.id,
             clinic_name=current_clinic.user.name if current_clinic.user else None
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/{clinic_id}", response_model=APIResponseGeneric[ClinicDetailResponse])
@@ -127,4 +127,4 @@ async def get_clinic_detail(
     return APIResponse(
         message="Clinic details retrieved successfully",
         data=clinic
-    ).dict()
+    ).model_dump()
