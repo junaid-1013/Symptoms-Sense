@@ -87,9 +87,12 @@ const DoctorProfile = () => {
           }
         })
         .catch((err) => {
+          const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message || "Something went wrong";
           toast({
             title: "Error",
-            description: err.response?.data?.detail || "Failed to get appointments",
+            description: message,
             variant: "destructive",
           });
         })

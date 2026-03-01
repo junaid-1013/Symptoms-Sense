@@ -20,11 +20,13 @@ import { useUser } from "@/contextApis/UserContext";
 import { CompleteAppointmentApi } from "@/endPoints/doctor.endPoints";
 import { CompleteAppointmentProps , FormValues } from "@/types";
 import { X } from "lucide-react";
+import { SpinnerButton } from "../uiUtils/SpinnerButton";
 
 const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId}) => {
   const { toast } = useToast();
   const { clinicMedicines, tokens} = useUser();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
     register,
@@ -48,8 +50,10 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
     control,
     name: "medicines",
   });
+  
 
   const onSubmit = (data: FormValues) => {
+    setIsSubmitting(true);
   if (!tokens?.accessToken) return;
 
   CompleteAppointmentApi({
@@ -69,8 +73,10 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
           description: "Appointment completed successfully",
         });
         reset();
+        setIsSubmitting(false);
         setIsOpen(false);
       } else {
+        setIsSubmitting(false);
         toast({
           title: "Error",
           description: response.data.message || "Failed to complete appointment",
@@ -79,6 +85,7 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
       }
     })
     .catch((error) => {
+      setIsSubmitting(false);
       const message =
                 error?.response?.data?.detail || 
                 error?.response?.data?.message || "Something went wrong";
@@ -164,35 +171,36 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
                     control={control}
                     render={({ field: selectField }) => (
                     <Select
-                        value={selectField.value}
-                        onValueChange={(val) => {
+                      disabled={!Array.isArray(clinicMedicines) || clinicMedicines.length === 0}
+                      value={selectField.value}
+                      onValueChange={(val) => {
                         selectField.onChange(val);
 
-                        if (clinicMedicines && Array.isArray(clinicMedicines)) {
-                            const selected = clinicMedicines.find((m) => m.name === val);
-                            if (selected) {
-                            setValue(`medicines.${index}.description`, selected.description);
-                            setValue(`medicines.${index}.manufacturer`, selected.manufacturer);
-                            setValue(`medicines.${index}.category`, selected.category);
-                            }
+                        const selected = clinicMedicines?.find((m) => m.name === val);
+                        if (selected) {
+                          setValue(`medicines.${index}.description`, selected.description);
+                          setValue(`medicines.${index}.manufacturer`, selected.manufacturer);
+                          setValue(`medicines.${index}.category`, selected.category);
                         }
-                        }}
+                      }}
                     >
                         <SelectTrigger>
-                        <SelectValue placeholder="Select Medicine" />
+                        <SelectValue
+                          placeholder={
+                            Array.isArray(clinicMedicines) && clinicMedicines.length > 0
+                              ? "Select Medicine"
+                              : "No Medicines Available"
+                          }
+                        />
                         </SelectTrigger>
                         <SelectContent>
-                        {clinicMedicines && Array.isArray(clinicMedicines) ? (
+                        { Array.isArray(clinicMedicines) && clinicMedicines.length > 0 ? (
                             clinicMedicines.map((m) => (
                             <SelectItem key={m.id} value={m.name}>
                                 {m.name}
                             </SelectItem>
                             ))
-                        ) : (
-                            <SelectItem value="" disabled>
-                            No Medicines Available
-                            </SelectItem>
-                        )}
+                        ) : null}
                         </SelectContent>
                     </Select>
                     )}
@@ -277,7 +285,7 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
           </div>
 
           <DialogFooter>
-            <Button type="submit" className="w-full">Submit</Button>
+            <SpinnerButton type="submit"  state={isSubmitting} name="Submit" className="w-full"></SpinnerButton>
           </DialogFooter>
         </form>
       </DialogContent>
