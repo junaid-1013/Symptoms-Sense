@@ -320,9 +320,12 @@ const DoctorScheduleDialog: React.FC<DoctorScheduleDialogProps> = ({
 
       onClose();
     } catch (error: any) {
+      const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
       toast({
         title: "Error",
-        description: error?.response?.data?.detail || "Failed to unblock slot",
+        description: message,
         variant: "destructive",
       });
     }

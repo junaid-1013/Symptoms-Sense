@@ -66,9 +66,12 @@ const EditMedicineForm = ({ medicineData }: any) => {
       })
       .catch(error => {
         setIsUpdating(false)
+        const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
         toast({
           title: "Error",
-          description: error?.response?.data?.detail || "An unknown error occurred.",
+          description: message,
           variant: "destructive"
         })
       })
