@@ -1,19 +1,13 @@
 import axiosInstance from "@/lib/axiosInstance";
-import { ApproveAppointmentApiProps, CancelAppointmentApiProps, CreateAppointmentApiProps, GetAvailableSlotsApiProps, GetMyAppointmentsApiProps } from "@/types";
+import { ApproveAppointmentApiProps, CancelAppointmentApiProps, CreateAppointmentApiProps, GetAvailableSlotsApiProps } from "@/types";
 import { ApproveAppointmentApiUrl, CancelAppointmentApiUrl, CreateAppointmentApiUrl, GetAvailableSlotsApiUrl, GetMyAppointmentsApiUrl } from "./URLs";
 
 export const GetAvailableSlotsApi = async ({
     doctorId,
-    date,
-    token
+    date
 }: GetAvailableSlotsApiProps) => {
     const response = await axiosInstance.get(
-        `${GetAvailableSlotsApiUrl.replace("{doctorId}", doctorId).replace("{date}", date)}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        `${GetAvailableSlotsApiUrl.replace("{doctorId}", doctorId).replace("{date}", date)}`
     )
     return response;
 }
@@ -25,8 +19,7 @@ export const CreateAppointmentApi = async ({
     endTime,
     generatedFromSchedule,
     appointmentType,
-    chiefComplaint,
-    token
+    chiefComplaint
 }: CreateAppointmentApiProps) => {
     const response = await axiosInstance.post(
         `${CreateAppointmentApiUrl}`,
@@ -39,55 +32,31 @@ export const CreateAppointmentApi = async ({
             generated_from_schedule: generatedFromSchedule,
             appointment_type: appointmentType,
             chief_complaint: chiefComplaint
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
     return response;
 }
-export const GetMyAppointmentsApi = async ({
-    token
-}: GetMyAppointmentsApiProps) => {
+export const GetMyAppointmentsApi = async () => {
     const response = await axiosInstance.get(
-        `${GetMyAppointmentsApiUrl}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        `${GetMyAppointmentsApiUrl}`
     )
     return response;
 }
 export const CancelAppointmentApi = async ({
     appointmentId,
-    token
 }: CancelAppointmentApiProps) => {
     const response = await axiosInstance.post(
         `${CancelAppointmentApiUrl.replace("{appointmentId}", appointmentId)}`,
-        {},
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        {}
     )
     return response;
 }
 export const ApproveAppointmentApi = async ({
     appointmentId,
-    token
 }: ApproveAppointmentApiProps) => {
     const response = await axiosInstance.post(
         `${ApproveAppointmentApiUrl.replace("{appointmentId}", appointmentId)}`,
-        {},
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        {}
     )
     return response;
 }

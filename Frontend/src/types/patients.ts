@@ -4,5 +4,4 @@ export interface RegisterPatientApiProps {
     blood_group: string;
     emergency_contact:string;
     address: string;
-    token:string | null;
 }

@@ -74,7 +74,7 @@ const WeeklyScheduleTable = () => {
     console.log(doctorSchedule);
     if (tokens?.accessToken && doctorSchedule === null) {
     setIsLoading(true);
-      GetDoctorWeeklyScheduleApi({ token: tokens?.accessToken || "" as string })
+      GetDoctorWeeklyScheduleApi()
         .then((response) => {
           if (response?.data?.data) {
             // The response contains doctor name as key, so we need to extract the schedule
@@ -162,7 +162,7 @@ const WeeklyScheduleTable = () => {
     
     setIsLoading(true);
     try {
-      const response = await GetDoctorWeeklyScheduleApi({ token: tokens.accessToken });
+      const response = await GetDoctorWeeklyScheduleApi();
       if (response?.data?.data) {
         const scheduleKey = Object.keys(response.data.data).find(key => key !== 'message');
         if (scheduleKey) {
@@ -217,8 +217,7 @@ const WeeklyScheduleTable = () => {
 
     BulkUpdateDoctorScheduleApi({
       slotDuration: payload.slotDuration,
-      schedules: payload.schedules,
-      token: tokens?.accessToken || ""
+      schedules: payload.schedules
     })
       .then(response => {
         if (response.data?.status=="error" || response.data?.error) {

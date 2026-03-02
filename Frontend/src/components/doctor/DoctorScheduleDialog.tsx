@@ -45,8 +45,6 @@ const DoctorScheduleDialog: React.FC<DoctorScheduleDialogProps> = ({
   const [isRecurring, setIsRecurring] = useState(true);
   const [blockDate, setBlockDate] = useState<Date | undefined>(undefined);
   const [isBlocking, setIsBlocking] = useState(false);
-
-  const { tokens, setDoctorSchedule } = useUser();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -257,8 +255,6 @@ const DoctorScheduleDialog: React.FC<DoctorScheduleDialogProps> = ({
       return;
     }
 
-    if (!tokens?.accessToken) return;
-
     setIsBlocking(true);
 
     try {
@@ -266,8 +262,7 @@ const DoctorScheduleDialog: React.FC<DoctorScheduleDialogProps> = ({
         start_time: blockStartTime,
         end_time: blockEndTime,
         is_recurring: isRecurring,
-        day_of_week: day,
-        token: tokens.accessToken,
+        day_of_week: day
       };
 
       if (blockReason) {
@@ -305,12 +300,10 @@ const DoctorScheduleDialog: React.FC<DoctorScheduleDialogProps> = ({
   };
 
   const handleUnblockSlot = async (blockedSlotId: string) => {
-    if (!tokens?.accessToken) return;
 
     try {
       await UnblockDoctorSlotApi({
-        blocked_slot_id: blockedSlotId,
-        token: tokens.accessToken,
+        blocked_slot_id: blockedSlotId
       });
 
       toast({

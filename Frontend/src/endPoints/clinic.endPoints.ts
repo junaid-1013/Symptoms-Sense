@@ -6,7 +6,6 @@ export const RegisterClinicApi = async ({
     address,
     registration_no,
     established_year,
-    token
 }: RegisterClinicApiProps) => {
     const response = await axiosInstance.post(
         `${RegisterClinicUrl}`,
@@ -14,11 +13,6 @@ export const RegisterClinicApi = async ({
             address,
             registration_no,
             established_year
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
     return response;
@@ -27,8 +21,7 @@ export const ClinicDoctorRegisterApi = async ({
     email,
     name,
     phone,
-    password,
-    token
+    password
 }: ClinicDoctorRegisterApiProps) => {
     const response = await axiosInstance.post(
         `${ClinicDoctorRegisterApiUrl}`,
@@ -37,26 +30,15 @@ export const ClinicDoctorRegisterApi = async ({
             name: name,
             phone: phone,
             password: password,
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
     return response;
 }
 export const clinicDoctorDeleteApi = async ({
-    doctorId,
-    token
+    doctorId
 }: ClinicDoctorDeleteApiProps) => {
     const response = await axiosInstance.delete(
-        `${ClinicDoctorDeleteApiUrl}/${doctorId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        `${ClinicDoctorDeleteApiUrl}/${doctorId}`
     )
     return response;
 }
@@ -65,8 +47,7 @@ export const AddMedicineApi = async ({
     name,
     description,
     manufacturer,
-    category,
-    token
+    category
 }: AddMedicineApiProps) => {
     const response = await axiosInstance.post(
         `${AddMedicineApiUrl}`,
@@ -75,11 +56,6 @@ export const AddMedicineApi = async ({
             description,
             manufacturer,
             category
-        },
-        {
-         headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
 
@@ -87,16 +63,10 @@ export const AddMedicineApi = async ({
 }
 
 export const DeleteMedicineApi = async ({
-    medicineId,
-    token
+    medicineId
 }: DeleteMedicineApiProps) => {
     const response = await axiosInstance.delete(
-        `${DeleteMedicineApiUrl}/${medicineId}`,
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
-        }
+        `${DeleteMedicineApiUrl}/${medicineId}`
     )
     return response;
 }
@@ -106,8 +76,7 @@ export const UpdateMedicineApi = async ({
     name,
     description,
     manufacturer,
-    category,
-    token
+    category
 }: UpdateMedicineApiProps) => {
     const response = await axiosInstance.put(
         `${UpdateMedicineApiUrl}/${medicineId}`,
@@ -116,11 +85,6 @@ export const UpdateMedicineApi = async ({
             description,
             manufacturer,
             category
-        },
-        {
-         headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
 
