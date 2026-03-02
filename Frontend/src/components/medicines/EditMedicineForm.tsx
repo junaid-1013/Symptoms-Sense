@@ -26,7 +26,7 @@ import { MEDICINE_TYPES } from "@/config/constants"
 
 const EditMedicineForm = ({ medicineData }: any) => {
   const { toast } = useToast()
-  const { tokens, setClinicMedicines } = useUser()
+  const { setClinicMedicines } = useUser()
   const [isUpdating, setIsUpdating] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -48,8 +48,7 @@ const EditMedicineForm = ({ medicineData }: any) => {
       name: data.name,
       description: data.description,
       manufacturer: data.manufacturer,
-      category: data.category,
-      token: tokens?.accessToken || ""
+      category: data.category
     })
       .then(response => {
         setIsUpdating(false)

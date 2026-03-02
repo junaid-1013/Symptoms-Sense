@@ -17,7 +17,6 @@ const DoctorDetailHome = () => {
     const { toast } = useToast();
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
-    const { tokens } = useUser();
 
     const [doctorData, setDoctorData] = useState<DoctorData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -69,15 +68,14 @@ const DoctorDetailHome = () => {
 
     // Fetch available slots when date changes
     useEffect(() => {
-        if (!id || !tokens?.accessToken) return;
+        if (!id) return;
 
         const fetchSlots = async () => {
             try {
                 const dateStr = format(selectedDate, "yyyy-MM-dd");
                 const res = await GetAvailableSlotsApi({
                     doctorId: id,
-                    date: dateStr,
-                    token: tokens.accessToken || "",
+                    date: dateStr
                 });
                 const timeslots: AvailableSlot[] = res?.data?.data?.timeslots || [];
                 setAvailableSlots(timeslots);
@@ -87,7 +85,7 @@ const DoctorDetailHome = () => {
         };
 
         fetchSlots();
-    }, [id, selectedDate, tokens?.accessToken]);
+    }, [id, selectedDate]);
 
     if (loading) {
         return (

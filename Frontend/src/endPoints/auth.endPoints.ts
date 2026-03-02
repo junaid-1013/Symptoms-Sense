@@ -30,10 +30,8 @@ export const LogoutApi = async (refreshToken: string) => {
     });
     return response;
 };
-export const MeApi = async (accessToken: string) => {
-    const response = await axiosInstance.get(`${MeApiUrl}`, {
-        params: { token: accessToken },
-    });
+export const MeApi = async () => {
+    const response = await axiosInstance.get(`${MeApiUrl}`);
     return response;
 };
 export const RefreshTokenApi = async (refreshToken: string) => {

@@ -50,7 +50,7 @@ const DoctorAppointmentHandler = (
             return;
         }
 
-        if (!tokens?.accessToken || !user?.id) {
+        if (!user?.id) {
             toast({
                 title: "Error",
                 description: "You must be logged in to book an appointment",
@@ -76,8 +76,7 @@ const DoctorAppointmentHandler = (
             endTime: selectedSlot.endTime,
             generatedFromSchedule: selectedSlot.generatedFromSchedule,
             appointmentType,
-            chiefComplaint: reason || undefined,
-            token: tokens.accessToken,
+            chiefComplaint: reason || undefined
         })
             .then((res) => {
                 if (res.data.status === 'success') {
