@@ -98,10 +98,16 @@ const DoctorAppointmentHandler = (
                 }
             })
             .catch((error) => {
-                console.error("Error booking appointment:", error);
-                const message =
-                    error?.response?.data?.detail || 
-                    error?.response?.data?.message || "Something went wrong";
+               let message = error?.response?.data?.detail 
+                  ?? error?.response?.data?.message 
+                  ?? "Something went wrong";
+                    if (typeof message === "object") {
+                        if (Array.isArray(message)) {
+                            message = message.join(", ");
+                        } else {
+                            message = JSON.stringify(message);
+                        }
+                    }
                     toast({
                         title: "Failed!",
                         description: message,
