@@ -32,10 +32,10 @@ const Login = () => {
                     router.push("/profile");
                 } else if (user?.user_type === "clinic") {
                     setClinicDoctors(response.data.data.user.clinic_doctors.doctors)
-                    setClinicMedicines(response.data.data.user.medicines)
+                    setClinicMedicines(response.data.data.user.medicines|| [])
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
-                    setClinicMedicines(response.data.data.user.medicines)
+                    setClinicMedicines(response.data.data.user.medicines|| [])
                     if(!user?.specializations || user.specializations.length === 0){
                         router.push("/doctorRegistration");
                     }

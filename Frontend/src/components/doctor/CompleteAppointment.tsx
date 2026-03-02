@@ -20,8 +20,7 @@ import { useUser } from "@/contextApis/UserContext";
 import { CompleteAppointmentApi } from "@/endPoints/doctor.endPoints";
 import { CompleteAppointmentProps , FormValues } from "@/types";
 import { X } from "lucide-react";
-import { SpinnerButton } from "../uiUtils/SpinnerButton";
-import { set } from "mongoose";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 
 const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId, setAppointments }) => {
   const { toast } = useToast();
@@ -54,8 +53,8 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
   
 
   const onSubmit = (data: FormValues) => {
+    if (!tokens?.accessToken) return;
     setIsSubmitting(true);
-  if (!tokens?.accessToken) return;
 
   CompleteAppointmentApi({
     appointment_id: appointmentId,
