@@ -17,7 +17,6 @@ app = FastAPI(
     version="1.0.0",
     docs_url=None if is_production else "/docs",
     redoc_url=None if is_production else "/redoc",
-    openapi_url=None if is_production else "/openapi.json",
 )
 
 # CORS
