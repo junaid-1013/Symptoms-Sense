@@ -10,9 +10,14 @@ from app.core.constants import ResponseStatus
 from app.core.exception_handlers import exception_handlers
 from app.core.response import APIResponse
 
+is_production = config.ENVIRONMENT.lower() == "production"
+
 app = FastAPI(
     title="Symptoms Sense API",
     version="1.0.0",
+    docs_url=None if is_production else "/docs",
+    redoc_url=None if is_production else "/redoc",
+    openapi_url=None if is_production else "/openapi.json",
 )
 
 # CORS
