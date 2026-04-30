@@ -48,20 +48,6 @@ class MedicalChatService:
 
     def __init__(self, db: Optional[Session] = None):
         self.db = db
-
-    def get_patient_id_for_user(self, user_id: str) -> Optional[str]:
-        """
-        Resolve patient id for an authenticated user. Returns None if user has no patient profile
-        (e.g. not yet onboarded as patient). Used by the chat controller to pass patient_id into chat.
-        """
-        if not self.db:
-            return None
-        patient = self.db.query(Patient).filter(
-            Patient.user_id == user_id,
-            Patient.deleted_at.is_(None)
-        ).first()
-        return patient.id if patient else None
-
         self.client = AsyncOpenAI(api_key=config.OPENAI_API_KEY)
         self.disease_reasoning_service = DiseaseReasoningService(self.client)
         self.doctor_suggestion_service: Optional[DoctorSuggestionService] = (
@@ -70,6 +56,24 @@ class MedicalChatService:
         self.doctors_service = DoctorsService(self.db) if self.db else None
         self.appointment_service = AppointmentService(self.db) if self.db else None
         self.schedule_service = DoctorScheduleService(self.db) if self.db else None
+
+    def get_patient_id_for_user(self, user_id: str) -> Optional[str]:
+        """
+        Resolve patient id for an authenticated user. Returns None if user has no patient profile
+        (e.g. not yet onboarded as patient). Used by the chat controller to pass patient_id into chat.
+        """
+        if not self.db:
+            return None
+        try: 
+            patient = self.db.query(Patient).filter(
+                Patient.user_id == user_id,
+                Patient.deleted_at.is_(None)
+            ).first()
+            return patient.id if patient else None
+        except Exception as e:
+            logger.error(f"Error getting patient id for user {user_id}: {str(e)}", exc_info=True)
+            return None
+
 
     async def chat(self, request: ChatRequest) -> ChatResponse:
         """
