@@ -26,7 +26,7 @@ const AddDoctorForm = () => {
     const [isAdding, setIsAdding] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
     const [authError, setAuthError] = useState("");
-    const { tokens, setClinicDoctors } = useUser();
+    const { setClinicDoctors } = useUser();
 
     const {
         register,
@@ -43,8 +43,7 @@ const AddDoctorForm = () => {
             name: data.name,
             email: data.email,
             password: data.password,
-            phone: data.phone,
-            token: tokens?.accessToken || ""
+            phone: data.phone
         })
             .then(response => {
                 if (response) {

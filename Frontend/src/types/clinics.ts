@@ -1,15 +1,13 @@
 export interface RegisterClinicApiProps {
     address: string,
     registration_no: string,
-    established_year: number,
-    token: string
+    established_year: number
 }
 export interface ClinicDoctorRegisterApiProps {
     email: string;
     name: string;
     phone: string;
     password: string;
-    token: string;
 }
 export interface AddDoctorFormData {
     email: string;
@@ -19,19 +17,16 @@ export interface AddDoctorFormData {
 }
 export interface ClinicDoctorDeleteApiProps {
     doctorId: string;
-    token: string;
 }
 
 export interface AddMedicineApiProps {
     name: string,
     description: string,
     manufacturer: string,
-    category: string,
-    token: string | null
+    category: string
 }
 export interface DeleteMedicineApiProps {
-    medicineId: string,
-    token: string | null
+    medicineId: string
 }
 
 export interface UpdateMedicineApiProps {
@@ -39,8 +34,7 @@ export interface UpdateMedicineApiProps {
     name: string,
     description: string,
     manufacturer: string,
-    category: string,
-    token: string | null
+    category: string
 }
 
 export interface UpdateMedicineFormData {
