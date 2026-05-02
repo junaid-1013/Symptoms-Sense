@@ -39,6 +39,8 @@ class User(Base, SoftDeletableMixin):
     clinic = relationship("Clinic", back_populates="user", uselist=False, cascade="all, delete-orphan")
     doctor = relationship("Doctor", back_populates="user", uselist=False, cascade="all, delete-orphan")
     patient = relationship("Patient", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    site_feedbacks = relationship("SiteFeedback", back_populates="user", cascade="all, delete-orphan")
+    doctor_reviews = relationship("DoctorReview", back_populates="user", cascade="all, delete-orphan")
 
 
 class RefreshToken(Base):

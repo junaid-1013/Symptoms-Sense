@@ -66,6 +66,5 @@ dmypy.json
 *.temp
 
 # Alembic (Backend specific)
-alembic/versions/*_*.py
 alembic/versions/__init__.py
 fastEnv
