@@ -61,10 +61,13 @@ const AddDoctorForm = () => {
                 }
             })
             .catch(error => {
+                const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message;
                 setIsAdding(false);
                 toast({
                     title: "Error",
-                    description: error?.response.data.detail || "An unkown error occurred. Please try again later.",
+                    description: message || "An unknown error occurred. Please try again later.",
                     variant: "destructive"
                 })
             })

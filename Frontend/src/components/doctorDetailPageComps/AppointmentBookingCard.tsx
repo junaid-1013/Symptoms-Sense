@@ -2,7 +2,6 @@ import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AppointmentBookingCardProps } from "@/types";
 import { Clock4 } from "lucide-react";
 import BookingDialogContent from './BookingDialogContent';
-import ClinicBookingCard from './ClinicBookingCard';
 
 const AppointmentBookingCard = ({
     doctor,
@@ -87,7 +86,7 @@ const AppointmentBookingCard = ({
                 </div>
             </div>
 
-            {!isMobile && <ClinicBookingCard doctor={doctor} />}
+            {/* {!isMobile && <ClinicBookingCard doctor={doctor} />} */}
         </>
     );
 };

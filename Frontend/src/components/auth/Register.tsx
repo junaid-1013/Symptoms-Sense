@@ -41,10 +41,12 @@ const Register = () => {
                 })
             })
             .catch((error) => {
-                console.log("Signup Failed", error);
+                const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
                 toast({
                     title: "Failed!",
-                    description: error.message,
+                    description: message,
                     variant: "destructive",
                 })
             })

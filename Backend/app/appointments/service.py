@@ -22,9 +22,11 @@ from app.appointments.schema import (
     ClinicNestedResponse,
     TimeslotNestedResponse
 )
+from app.core.constants import UserType
 from app.core.exceptions import (
     UserNotFoundException,
-    ValidationException
+    ValidationException,
+    InsufficientPermissionsException,
 )
 
 
@@ -45,10 +47,10 @@ class AppointmentService:
     def create_appointment(
         self,
         data: AppointmentCreateRequest,
-        created_by: str = "patient"
+        created_by: str = UserType.PATIENT
     ) -> Appointment:
         """Create a new appointment."""
-        if created_by not in {"patient", "clinic"}:
+        if created_by not in (UserType.PATIENT, UserType.CLINIC):
             raise ValidationException("Only patients or clinics can create appointments")
 
         # Verify patient exists
@@ -368,7 +370,183 @@ class AppointmentService:
         ).first()
         
         return appointment
-    
+
+    def _get_patient_by_user_id(self, user_id: str) -> Patient:
+        """Get patient profile for user; raises UserNotFoundException if not found."""
+        patient = self.db.query(Patient).filter(
+            Patient.user_id == user_id,
+            Patient.deleted_at.is_(None)
+        ).first()
+        if not patient:
+            raise UserNotFoundException("Patient profile not found")
+        return patient
+
+    def _get_doctor_by_user_id(self, user_id: str) -> Doctor:
+        """Get doctor profile for user; raises UserNotFoundException if not found."""
+        doctor = self.db.query(Doctor).filter(
+            Doctor.user_id == user_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
+        if not doctor:
+            raise UserNotFoundException("Doctor profile not found")
+        return doctor
+
+    def _get_clinic_by_user_id(self, user_id: str) -> Clinic:
+        """Get clinic profile for user; raises UserNotFoundException if not found."""
+        clinic = self.db.query(Clinic).filter(
+            Clinic.user_id == user_id,
+            Clinic.deleted_at.is_(None)
+        ).first()
+        if not clinic:
+            raise UserNotFoundException("Clinic profile not found")
+        return clinic
+
+    def _doctor_owned_by_clinic(self, doctor_id: str, clinic_id: str) -> bool:
+        """Return True if the doctor belongs to the clinic."""
+        doctor = self.db.query(Doctor).filter(
+            Doctor.id == doctor_id,
+            Doctor.clinic_id == clinic_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
+        return doctor is not None
+
+    def create_appointment_as_user(
+        self, user_id: str, user_type: str, data: AppointmentCreateRequest
+    ) -> tuple[Appointment, List[AppointmentResponse]]:
+        """
+        Create an appointment on behalf of the current user (patient or clinic).
+        Resolves patient/clinic from user_id and user_type, validates ownership, then creates.
+        Returns (created appointment, list of appointments for response).
+        """
+        if user_type == UserType.PATIENT:
+            patient = self._get_patient_by_user_id(user_id)
+            data.patient_id = patient.id
+            doctor = self.db.query(Doctor).filter(
+                Doctor.id == data.doctor_id,
+                Doctor.deleted_at.is_(None)
+            ).first()
+            if not doctor:
+                raise UserNotFoundException("Doctor not found")
+            data.clinic_id = doctor.clinic_id
+            created_by = UserType.PATIENT
+        elif user_type == UserType.CLINIC:
+            clinic = self._get_clinic_by_user_id(user_id)
+            data.clinic_id = clinic.id
+            if not self._doctor_owned_by_clinic(data.doctor_id, clinic.id):
+                raise ValidationException("Doctor does not belong to your clinic")
+            patient = self.db.query(Patient).filter(
+                Patient.id == data.patient_id,
+                Patient.deleted_at.is_(None)
+            ).first()
+            if not patient:
+                raise UserNotFoundException("Patient not found")
+            created_by = UserType.CLINIC
+        else:
+            raise InsufficientPermissionsException("Only patients or clinics can create appointments")
+
+        appointment = self.create_appointment(data=data, created_by=created_by)
+        if user_type == UserType.PATIENT:
+            appointments = self.get_patient_appointments(patient.id)
+        else:
+            appointments = self.get_clinic_appointments(clinic.id)
+        return appointment, appointments
+
+    def update_appointment_as_user(
+        self, user_id: str, user_type: str, appointment_id: str, data: AppointmentUpdateRequest
+    ) -> List[AppointmentResponse]:
+        """
+        Update an appointment; verifies the user (patient or clinic) owns it.
+        Returns list of appointments for response.
+        """
+        appointment = self.get_appointment_model_by_id(appointment_id)
+        if not appointment:
+            raise UserNotFoundException("Appointment not found")
+        if user_type == UserType.PATIENT:
+            patient = self._get_patient_by_user_id(user_id)
+            if appointment.patient_id != patient.id:
+                raise InsufficientPermissionsException("You don't have permission to update this appointment")
+            self.update_appointment(appointment_id=appointment_id, data=data)
+            return self.get_patient_appointments(patient.id)
+        elif user_type == UserType.CLINIC:
+            clinic = self._get_clinic_by_user_id(user_id)
+            if appointment.clinic_id != clinic.id:
+                raise InsufficientPermissionsException("You don't have permission to update this appointment")
+            self.update_appointment(appointment_id=appointment_id, data=data)
+            return self.get_clinic_appointments(clinic.id)
+        else:
+            raise InsufficientPermissionsException("Only patients or clinics can update appointments")
+
+    def approve_appointment_as_user(
+        self, user_id: str, user_type: str, appointment_id: str
+    ) -> List[AppointmentResponse]:
+        """
+        Approve an appointment (doctor or clinic); verifies ownership.
+        Returns list of appointments for response.
+        """
+        appointment = self.get_appointment_model_by_id(appointment_id)
+        if not appointment:
+            raise UserNotFoundException("Appointment not found")
+        if user_type == UserType.DOCTOR:
+            doctor = self._get_doctor_by_user_id(user_id)
+            if appointment.doctor_id != doctor.id:
+                raise InsufficientPermissionsException("You don't have permission to approve this appointment")
+            self.approve_appointment(appointment_id=appointment_id, approver_type=UserType.DOCTOR, approver_entity_id=doctor.id)
+            return self.get_doctor_appointments(doctor.id)
+        elif user_type == UserType.CLINIC:
+            clinic = self._get_clinic_by_user_id(user_id)
+            if appointment.clinic_id != clinic.id:
+                raise InsufficientPermissionsException("You don't have permission to approve this appointment")
+            self.approve_appointment(appointment_id=appointment_id, approver_type=UserType.CLINIC, approver_entity_id=clinic.id)
+            return self.get_clinic_appointments(clinic.id)
+        else:
+            raise InsufficientPermissionsException("Only doctors or clinics can approve appointments")
+
+    def cancel_appointment_as_user(self, user_id: str, user_type: str, appointment_id: str) -> List[AppointmentResponse]:
+        """
+        Cancel an appointment (patient, doctor, or clinic); verifies ownership.
+        Returns list of appointments for response.
+        """
+        appointment = self.get_appointment_model_by_id(appointment_id)
+        if not appointment:
+            raise UserNotFoundException("Appointment not found")
+        if user_type == UserType.PATIENT:
+            patient = self._get_patient_by_user_id(user_id)
+            if appointment.patient_id != patient.id:
+                raise InsufficientPermissionsException("You don't have permission to cancel this appointment")
+            self.cancel_appointment(appointment_id=appointment_id)
+            return self.get_patient_appointments(patient.id)
+        elif user_type == UserType.DOCTOR:
+            doctor = self._get_doctor_by_user_id(user_id)
+            if appointment.doctor_id != doctor.id:
+                raise InsufficientPermissionsException("You don't have permission to cancel this appointment")
+            self.cancel_appointment(appointment_id=appointment_id)
+            return self.get_doctor_appointments(doctor.id)
+        elif user_type == UserType.CLINIC:
+            clinic = self._get_clinic_by_user_id(user_id)
+            if appointment.clinic_id != clinic.id:
+                raise InsufficientPermissionsException("You don't have permission to cancel this appointment")
+            self.cancel_appointment(appointment_id=appointment_id)
+            return self.get_clinic_appointments(clinic.id)
+        else:
+            raise InsufficientPermissionsException("Only patients, doctors, or clinics can cancel appointments")
+
+    def get_my_appointments(self, user_id: str, user_type: str) -> List[AppointmentResponse]:
+        """
+        Get appointments for the current user (patient, doctor, or clinic).
+        Raises InsufficientPermissionsException if user_type is not allowed.
+        """
+        if user_type == UserType.PATIENT:
+            patient = self._get_patient_by_user_id(user_id)
+            return self.get_patient_appointments(patient.id)
+        elif user_type == UserType.DOCTOR:
+            doctor = self._get_doctor_by_user_id(user_id)
+            return self.get_doctor_appointments(doctor.id)
+        elif user_type == UserType.CLINIC:
+            clinic = self._get_clinic_by_user_id(user_id)
+            return self.get_clinic_appointments(clinic.id)
+        else:
+            raise InsufficientPermissionsException("Invalid user type")
+
     def approve_appointment(
         self,
         appointment_id: str,
@@ -387,11 +565,11 @@ class AppointmentService:
         if appointment.status != self.AppointmentStatus.PENDING:
             raise ValidationException(f"Cannot approve appointment with status: {appointment.status}")
 
-        approver_type = approver_type.lower()
-        if approver_type not in {"doctor", "clinic"}:
+        approver_type = approver_type.lower() if isinstance(approver_type, str) else approver_type
+        if approver_type not in (UserType.DOCTOR, UserType.CLINIC):
             raise ValidationException("Only doctors or clinics can approve appointments")
 
-        if approver_type == "doctor":
+        if approver_type == UserType.DOCTOR:
             if appointment.doctor_id != approver_entity_id:
                 raise ValidationException("Doctor does not have permission to approve this appointment")
         else:

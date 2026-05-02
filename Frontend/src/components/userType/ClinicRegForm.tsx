@@ -44,9 +44,12 @@ export default function ClinicRegForm() {
         router.push("/clinicDashboard");
       })
       .catch((error) => {
+        const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
         toast({
           title: "Failed!",
-          description: error.message || "Something went wrong.",
+          description: message,
           variant: "destructive",
         });
       })

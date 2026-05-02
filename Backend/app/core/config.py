@@ -46,11 +46,14 @@ class Config:
 
     # ========== Scheduling ==========
     TIMESLOT_GENERATION_DAYS_AHEAD: int = int(os.getenv("TIMESLOT_GENERATION_DAYS_AHEAD", "14"))
+    DEFAULT_TIMEZONE: str = os.getenv("DEFAULT_TIMEZONE", "UTC")
 
     # ========== OpenAI Configuration ==========
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     if not OPENAI_API_KEY:
         raise ValueError("OPENAI_API_KEY environment variable is required")
+    
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
 
 
 # Create config instance

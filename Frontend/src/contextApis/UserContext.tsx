@@ -55,8 +55,8 @@ interface UserContextType {
   updateUserDetails: (updates: Partial<User>) => void;
   doctorSchedule: any[] | null;
   setDoctorSchedule: (schedule: any[] | null) => void;
-  clinicMedicines?: any[] | null;
-  setClinicMedicines?: (medicines: any[] | null) => void;
+  clinicMedicines: any[] | null;
+  setClinicMedicines: (medicines: any[] | null) => void;
 }
 
 // DEFAULT STATE
