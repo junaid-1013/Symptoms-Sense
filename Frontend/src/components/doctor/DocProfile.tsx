@@ -72,9 +72,8 @@ const DoctorProfile = () => {
 
   // Function to fetch appointments
   const fetchAppointments = () => {
-    if (tokens?.accessToken) {
       setLoading(true);
-      GetMyAppointmentsApi({ token: tokens?.accessToken || "" })
+      GetMyAppointmentsApi()
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments);
@@ -99,14 +98,13 @@ const DoctorProfile = () => {
         .finally(() => {
           setLoading(false);
         });
-    }
+    
   };
 
   // Handle approve appointment
   const handleApprove = (appointmentId: string) => {
-    if (!tokens?.accessToken) return;
 
-    ApproveAppointmentApi({ appointmentId: appointmentId, token: tokens.accessToken })
+    ApproveAppointmentApi({ appointmentId: appointmentId })
       .then((response) => {
         if (response.data.status === "success") {
           toast({
@@ -137,9 +135,8 @@ const DoctorProfile = () => {
 
   // Handle cancel appointment
   const handleCancel = (appointmentId: string) => {
-    if (!tokens?.accessToken) return;
 
-    CancelAppointmentApi({ appointmentId, token: tokens.accessToken })
+    CancelAppointmentApi({ appointmentId})
       .then((response) => {
         if (response.data.status === "success") {
           toast({

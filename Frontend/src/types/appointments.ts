@@ -29,21 +29,14 @@ export interface CreateAppointmentApiProps {
     generatedFromSchedule: string;
     appointmentType: (typeof APPOINTMENT_TYPES)[number];
     chiefComplaint?: string;
-    token: string;
 }
 export interface GetAvailableSlotsApiProps {
     doctorId: string;
     date: string;
-    token: string;
-}
-export interface GetMyAppointmentsApiProps{
-    token: string;
 }
 export interface CancelAppointmentApiProps{
     appointmentId: string;
-    token: string;
 }
 export interface ApproveAppointmentApiProps{
     appointmentId: string;
-    token: string;
 }

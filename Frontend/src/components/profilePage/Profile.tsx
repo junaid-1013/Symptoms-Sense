@@ -10,7 +10,6 @@ import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { StatsGrid } from "./StatsGrid"
 import { TabsSection } from "./TabsSection"
-import { set } from "mongoose"
 
 const Profile = () => {
   const router = useRouter()
@@ -42,7 +41,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (tokens?.accessToken) {
-      GetMyAppointmentsApi({ token: tokens?.accessToken || "" })
+      GetMyAppointmentsApi()
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments)
@@ -55,9 +54,12 @@ const Profile = () => {
           }
         })
         .catch((err) => {
+           const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message || "Something went wrong";
           toast({
             title: "Error",
-            description: err.response?.data?.error || "Failed to get appointments",
+            description: message,
             variant: "destructive",
           })
         })

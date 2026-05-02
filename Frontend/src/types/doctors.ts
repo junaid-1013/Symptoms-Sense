@@ -22,7 +22,6 @@ export interface RegisterDoctorApiProps {
     license_no: string;
     experience_years: number;
     bio?: string;
-    token: string
 }
 export interface DoctorAppointmentCardProps {
     item: DoctorAppointmentItem;
@@ -44,7 +43,6 @@ export interface DoctorScheduleDialogProps {
 export interface BulkUpdateDoctorScheduleApiProps {
     slotDuration: number;
     schedules: any[];
-    token: string;
 }
 export interface DoctorData {
     id: string;
@@ -130,7 +128,6 @@ export interface CompleteAppointmentApiProps {
   prescription_notes: string;
   prescription_instructions: string;
   medicines: Medicine[];
-  token: string;
 }
 
 export interface CompleteAppointmentProps {
