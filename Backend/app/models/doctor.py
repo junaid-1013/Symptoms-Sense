@@ -33,6 +33,7 @@ class Doctor(Base, SoftDeletableMixin):
     diagnoses = relationship("Diagnosis", back_populates="doctor", cascade="all, delete-orphan")
     prescriptions = relationship("Prescription", back_populates="doctor", cascade="all, delete-orphan")
     tests = relationship("Test", back_populates="doctor", cascade="all, delete-orphan")
+    reviews = relationship("DoctorReview", back_populates="doctor", cascade="all, delete-orphan")
 
 class DoctorSchedule(Base, SoftDeletableMixin):
     """Defines recurring weekly availability of a doctor."""
