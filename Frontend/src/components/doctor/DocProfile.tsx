@@ -87,9 +87,12 @@ const DoctorProfile = () => {
           }
         })
         .catch((err) => {
+          const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message || "Something went wrong";
           toast({
             title: "Error",
-            description: err.response?.data?.detail || "Failed to get appointments",
+            description: message,
             variant: "destructive",
           });
         })
@@ -121,9 +124,12 @@ const DoctorProfile = () => {
         }
       })
       .catch((err) => {
+        const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message;
         toast({
           title: "Error",
-          description: err.response?.data?.detail || "Failed to approve appointment",
+          description: message || "Failed to approve appointment",
           variant: "destructive",
         });
       });
@@ -150,9 +156,12 @@ const DoctorProfile = () => {
         }
       })
       .catch((err) => {
+        const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message;
         toast({
           title: "Error",
-          description: err.response?.data?.detail || "Failed to cancel appointment",
+          description: message || "Failed to cancel appointment",
           variant: "destructive",
         });
       });
@@ -311,6 +320,7 @@ const DoctorProfile = () => {
                   data={approvedAppointments}
                   cardClassName="bg-gradient-to-br from-green-50 via-white to-emerald-50 border border-green-200 rounded-3xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                   onCancel={handleCancel}
+                  setAppointments={setAppointments}
                 />
               ) : (
                 <div className="text-center py-10">
@@ -347,6 +357,7 @@ const DoctorProfile = () => {
                   title="Completed Appointments"
                   data={completedAppointments}
                   cardClassName="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-200 rounded-3xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                  setAppointments={setAppointments}
                 />
               ) : (
                 <div className="text-center py-10">

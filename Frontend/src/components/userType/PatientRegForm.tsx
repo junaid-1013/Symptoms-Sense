@@ -50,10 +50,20 @@ export default function PatientRegForm() {
         router.push("/");
       })
       .catch((error) => {
-        console.error("Registration Failed:", error);
+       let message = error?.response?.data?.detail 
+                  ?? error?.response?.data?.message 
+                  ?? "Something went wrong";
+
+          if (typeof message === "object") {
+              if (Array.isArray(message)) {
+                  message = message.join(", ");
+              } else {
+                  message = JSON.stringify(message);
+              }
+          }
         toast({
           title: "Failed!",
-          description: error.message || "Something went wrong.",
+          description: message,
           variant: "destructive",
         });
       })

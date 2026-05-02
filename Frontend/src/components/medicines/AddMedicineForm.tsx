@@ -74,10 +74,13 @@ const AddMedicineForm = () => {
             setOpen(false);
         })
         .catch(error => {
+            const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message;
             setIsAdding(false);
             toast({
                 title: "Error",
-                description: error?.response?.data?.detail || "An unknown error occurred.",
+                description: message || "An unknown error occurred.",
                 variant: "destructive"
             });
         });

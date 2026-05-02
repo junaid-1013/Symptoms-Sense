@@ -2,8 +2,11 @@
 Standardized success response model for the API.
 """
 from pydantic import BaseModel
-from pydantic.generics import GenericModel
 from typing import Any, Optional, Generic, TypeVar
+
+from app.core.constants import ResponseStatus
+
+T = TypeVar("T")
 
 
 class APIResponse(BaseModel):
@@ -15,16 +18,13 @@ class APIResponse(BaseModel):
         message (str): A descriptive message about the response.
         data (Optional[Any]): The response data payload. Can be any type.
     """
-    status: str = "success"
+    status: str = ResponseStatus.SUCCESS
     message: str
     data: Optional[Any] = None
 
 
-# Generic API response to enable strong typing in OpenAPI
-T = TypeVar("T")
-
-
-class APIResponseGeneric(GenericModel, Generic[T]):
-    status: str = "success"
+class APIResponseGeneric(BaseModel, Generic[T]):
+    """Generic API response for strong typing in OpenAPI."""
+    status: str = ResponseStatus.SUCCESS
     message: str
     data: Optional[T] = None

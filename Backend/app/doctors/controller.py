@@ -54,7 +54,7 @@ async def get_all_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/search", response_model=APIResponseGeneric[DoctorListResponse])
@@ -83,7 +83,7 @@ async def search_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/clinic/{clinic_id}", response_model=APIResponseGeneric[DoctorListResponse])
@@ -108,7 +108,7 @@ async def get_clinic_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/{doctor_id}", response_model=APIResponseGeneric[DoctorDetailResponse])
@@ -128,7 +128,7 @@ async def get_doctor_detail(
     return APIResponse(
         message="Doctor details retrieved successfully",
         data=doctor
-    ).dict()
+    ).model_dump()
 
 
 # ========== Clinic Endpoints ==========
@@ -160,7 +160,7 @@ async def create_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserAlreadyExistsException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -205,7 +205,7 @@ async def update_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, InsufficientPermissionsException, UserAlreadyExistsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -254,7 +254,7 @@ async def delete_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, InsufficientPermissionsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -278,7 +278,7 @@ async def get_own_profile(
     return APIResponse(
         message="Doctor profile retrieved successfully",
         data=doctors_service._build_doctor_detail_response(current_doctor)
-    ).dict()
+    ).model_dump()
 
 
 @router.put("/me/profile", response_model=APIResponseGeneric[DoctorDetailResponse])
@@ -298,7 +298,7 @@ async def update_own_profile(
         return APIResponse(
             message="Doctor profile updated successfully",
             data=doctors_service._build_doctor_detail_response(doctor)
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

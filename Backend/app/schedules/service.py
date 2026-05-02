@@ -43,6 +43,63 @@ class DoctorScheduleService:
     def __init__(self, db: Session):
         self.db = db
 
+    # ========== Shared lookup helpers (keep business logic in service) ==========
+
+    def get_doctor_or_raise(self, doctor_id: str) -> Doctor:
+        """Return doctor by id; raise UserNotFoundException if not found."""
+        doctor = self.db.query(Doctor).filter(
+            Doctor.id == doctor_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
+        if not doctor:
+            raise UserNotFoundException("Doctor not found")
+        return doctor
+
+    def get_doctor_for_clinic_or_raise(self, doctor_id: str, clinic_id: str) -> Doctor:
+        """Return doctor if they belong to the clinic; raise otherwise."""
+        doctor = self.db.query(Doctor).filter(
+            Doctor.id == doctor_id,
+            Doctor.deleted_at.is_(None)
+        ).first()
+        if not doctor:
+            raise UserNotFoundException("Doctor not found")
+        if doctor.clinic_id != clinic_id:
+            raise InsufficientPermissionsException("You can only view schedules for doctors in your clinic")
+        return doctor
+
+    def has_any_schedule(self, doctor_id: str) -> bool:
+        """Return True if the doctor has at least one schedule."""
+        return self.db.query(DoctorSchedule).filter(
+            DoctorSchedule.doctor_id == doctor_id,
+            DoctorSchedule.deleted_at.is_(None)
+        ).first() is not None
+
+    def get_doctor_weekly_schedule_for_clinic(self, clinic_id: str, doctor_id: str) -> Tuple[dict, str]:
+        """
+        Get weekly schedule with blocked slots for a doctor, ensuring clinic owns the doctor.
+        Returns (weekly_data dict, doctor_name str).
+        """
+        doctor = self.get_doctor_for_clinic_or_raise(doctor_id, clinic_id)
+        weekly_data = self.get_doctor_weekly_schedule_with_blocked_slots(doctor_id)
+        doctor_name = f"{doctor.user.name}" if doctor.user else f"Doctor {doctor_id}"
+        return weekly_data, doctor_name
+
+    def get_available_timeslots_public(self, doctor_id: str, date_str: str) -> Tuple[List, str, date]:
+        """
+        Get available timeslots for a doctor and date. Validates doctor exists and date.
+        Returns (timeslots list, doctor_id, target_date).
+        Raises UserNotFoundException, ValidationException.
+        """
+        doctor = self.get_doctor_or_raise(doctor_id)
+        target_date = date.fromisoformat(date_str)
+        if target_date < date.today():
+            raise ValidationException("Cannot view timeslots for past dates")
+        timeslots = self.get_available_timeslots_for_date(
+            doctor_id=doctor_id,
+            target_date=target_date
+        )
+        return timeslots, doctor_id, target_date
+
     # ========== Schedule CRUD Methods ==========
 
     def create_schedule(
