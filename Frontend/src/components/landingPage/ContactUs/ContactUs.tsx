@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { CONTACT_INFO } from "@/config/constants";
+import { ContactUsApi } from "@/endPoints/contact.endPoints";
 import { ContactFormData, SubmitStatus } from "@/types";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import {
   Building2,
   CheckCircle2,
@@ -54,7 +55,7 @@ export default function ContactUs() {
     setSubmitStatus("loading");
 
     try {
-      await axios.post("/api/contactUs", formData);
+      await ContactUsApi(formData);
 
       setSubmitStatus("success");
       toast({
@@ -73,8 +74,8 @@ export default function ContactUs() {
     } catch (error) {
       setSubmitStatus("error");
 
-      const errorMessage = error instanceof AxiosError && error.response?.data?.error
-        ? error.response.data.error
+      const errorMessage = error instanceof AxiosError && (error.response?.data?.message || error.response?.data?.error)
+        ? (error.response?.data?.message || error.response?.data?.error)
         : "Failed to send message. Please try again later.";
 
       toast({
