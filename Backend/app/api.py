@@ -13,6 +13,7 @@ from app.schedules.controller import router as schedules_router
 from app.appointments.controller import router as appointments_router
 from app.patients.controller import router as patient_router
 from app.medical_chat.controller import router as medical_chat_router
+from app.contact.controller import router as contact_router
 
 # Create main API router
 api_router = APIRouter(prefix="/api")
@@ -29,3 +30,4 @@ api_router.include_router(patient_router)
 
 
 api_router.include_router(medical_chat_router)
+api_router.include_router(contact_router)

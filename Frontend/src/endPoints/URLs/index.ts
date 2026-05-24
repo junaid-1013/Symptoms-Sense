@@ -1,6 +1,7 @@
 export * from "./appointment.urls";
 export * from "./auth.urls";
 export * from "./clinic.urls";
+export * from "./contact.urls";
 export * from "./doctor.urls";
 export * from "./patient.urls";
 export * from "./public.urls";
