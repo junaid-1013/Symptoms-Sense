@@ -3,7 +3,7 @@ import { TestimonialSkeleton } from "@/components/skeletons"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
-import axios from "axios"
+import { GetFeedbackApi } from "@/endPoints/feedback.endPoints"
 import { Quote, Star } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -11,6 +11,7 @@ interface Testimonial {
     name: string
     message: string
     image?: string
+    rating?: number
 }
 
 export default function Testimonials() {
@@ -21,8 +22,8 @@ export default function Testimonials() {
     useEffect(() => {
         const fetchTestimonials = async () => {
             try {
-                const response = await axios.get("/api/users/feedback")
-                setTestimonials(response.data.slice(-6))
+                const response = await GetFeedbackApi(6)
+                setTestimonials(response.data.data.feedbacks ?? [])
             } catch (error) {
                 console.error("Failed to fetch testimonials:", error)
                 toast({
@@ -30,7 +31,6 @@ export default function Testimonials() {
                     description: "Failed to fetch testimonials",
                     variant: "destructive",
                 })
-
             } finally {
                 setTimeout(() => setLoading(false), 1000)
             }
@@ -70,7 +70,7 @@ export default function Testimonials() {
 
                                         {/* Rating */}
                                         <div className="flex gap-1">
-                                            {Array.from({ length: 5 }).map((_, i) => (
+                                            {Array.from({ length: testimonial.rating ?? 5 }).map((_, i) => (
                                                 <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                                             ))}
                                         </div>

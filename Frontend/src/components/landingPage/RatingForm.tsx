@@ -1,12 +1,13 @@
 "use client"
 import { useToast } from "@/components/ui/use-toast";
-import axios from "axios";
+import { PostFeedbackApi } from "@/endPoints/feedback.endPoints";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 interface ChildProps {
     doctorData?: any;
 }
+
 const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
     const router = useRouter();
     const { toast } = useToast()
@@ -15,41 +16,44 @@ const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
     const modal = useRef<HTMLDivElement | null>(null);
     const [rating, setRating] = useState(1);
     const [message, setMessage] = useState('');
+
     const handleStarClick = (newRating: number) => {
         setRating(newRating);
     };
+
     const onSubmit = async () => {
         try {
-            const fed = {
-                rat: rating,
-                mess: message,
-                doctor: doctorData ? doctorData.doctor : undefined,
-            };
+            if (doctorData) {
+                // Doctor review — still handled by the legacy route until Module 5.
+                const axios = (await import("axios")).default;
+                await axios.post("/api/doctorReview", {
+                    rat: rating,
+                    mess: message,
+                    doctor: doctorData.doctor,
+                });
+                router.push("/profile");
+            } else {
+                // Site-wide testimonial — now served by FastAPI.
+                await PostFeedbackApi({ rating, message });
+                router.push("/");
+            }
 
-            const response = await axios.post(doctorData ? "/api/doctorReview" : "/api/users/feedback", fed);
-
-            router.push(doctorData ? "/profile" : "/");
-            window.location.reload()
+            window.location.reload();
             toast({
                 title: "Success!",
                 description: "Thank you for sharing your feedback",
-            })
+            });
             setMessage('');
-
         } catch (error: any) {
-            if (error.response && error.response.data && error.response.data.error) {
-                toast({
-                    title: "Failed!",
-                    description: error.response.data.error,
-                    variant: "destructive",
-                })
-            } else {
-                toast({
-                    title: "Failed!",
-                    description: "An error occurred during feedback",
-                    variant: "destructive",
-                })
-            }
+            const detail =
+                error?.response?.data?.message ||
+                error?.response?.data?.error ||
+                "An error occurred during feedback";
+            toast({
+                title: "Failed!",
+                description: detail,
+                variant: "destructive",
+            });
         }
     };
 
@@ -98,7 +102,6 @@ const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
                     <div
                         ref={modal}
                         onFocus={() => setModalOpen(true)}
-                        //onBlur={() => setModalOpen(false)}
                         className="w-full max-w-[570px] rounded-[20px] bg-white px-8 py-12 text-center md:px-[70px] md:py-[60px]">
                         <h3 className="pb-[18px] text-xl font-semibold text-black  sm:text-2xl">Rate your experience</h3>
                         <span className={`mx-auto mb-4 inline-block h-1 w-[90px] rounded bg-[#192a56]`}></span>
