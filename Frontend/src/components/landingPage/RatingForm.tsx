@@ -1,5 +1,6 @@
 "use client"
 import { useToast } from "@/components/ui/use-toast";
+import { PostDoctorReviewApi } from "@/endPoints/doctor.endPoints";
 import { PostFeedbackApi } from "@/endPoints/feedback.endPoints";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -24,12 +25,10 @@ const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
     const onSubmit = async () => {
         try {
             if (doctorData) {
-                // Doctor review — still handled by the legacy route until Module 5.
-                const axios = (await import("axios")).default;
-                await axios.post("/api/doctorReview", {
-                    rat: rating,
-                    mess: message,
-                    doctor: doctorData.doctor,
+                await PostDoctorReviewApi({
+                    doctor_id: doctorData.doctor.id,
+                    rating,
+                    review: message,
                 });
                 router.push("/profile");
             } else {
