@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { DatePicker } from "@/components/uiUtils/DatePicker";
 import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 import { MEDICINE_TYPES } from "@/config/constants";
-import axios from "axios";
+import { AddReminderApi } from "@/endPoints/reminders.endPoints";
 import { useRouter } from "next/navigation";
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -41,15 +41,13 @@ const MedicineForm = () => {
 
   const onSubmit = async (form: FormData) => {
     try {
-      const data = {
-        medicineName: form.medicineName,
-        dosage: form.dosage,
-        selectedDays,
-        reminderTime: form.reminderTime,
-        medicineType: form.medicineType,
-
-      }
-      const response = await axios.post("/api/medicineReminder", data);
+      await AddReminderApi({
+        medicine_name: form.medicineName,
+        dosage: Number(form.dosage),
+        medicine_type: form.medicineType,
+        days_of_week: selectedDays,
+        reminder_time: form.reminderTime,
+      });
       router.push("/profile");
       toast({
         title: "Success!",
@@ -57,21 +55,16 @@ const MedicineForm = () => {
       })
     }
     catch (error: any) {
-      if (error.response && error.response.data && error.response.data.error) {
-        toast({
-          title: "Failed!",
-          description: error.response.data.error,
-          variant: "destructive",
-        })
-      } else {
-        toast({
-          title: "Failed!",
-          description: "An error occurred during signup.",
-          variant: "destructive",
-        })
-      }
-    } finally {
-
+      const detail =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "An error occurred while adding the reminder";
+      toast({
+        title: "Failed!",
+        description: detail,
+        variant: "destructive",
+      })
     }
   };
 

@@ -6,3 +6,4 @@ export * from "./doctor.urls";
 export * from "./feedback.urls";
 export * from "./patient.urls";
 export * from "./public.urls";
+export * from "./reminders.urls";

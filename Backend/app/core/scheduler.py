@@ -75,34 +75,128 @@ def shutdown_scheduler(wait: bool = False) -> None:
     _scheduler = None
 
 
-# ========== Reminder helpers (filled in by Module 6) ==========
+# ========== Reminder email job (top-level so APScheduler can serialize it) ==========
+def _send_reminder_email_job(
+    to: str,
+    medicine_name: str,
+    dosage: int,
+    medicine_type: str,
+) -> None:
+    """Scheduled job function called by APScheduler to email the patient."""
+    from app.core.mailer import send_email
+    send_email(
+        to=to,
+        subject=f"Medicine Reminder: {medicine_name}",
+        body=(
+            f"Hi,\n\n"
+            f"This is your scheduled reminder to take your medicine:\n"
+            f"  Medicine: {medicine_name}\n"
+            f"  Dosage: {dosage}\n"
+            f"  Type: {medicine_type}\n\n"
+            "Take care and stay healthy!"
+        ),
+    )
+
+# ========== Reminder helpers ==========
 
 def _reminder_job_id(reminder_id: str) -> str:
     """Stable job id for a medicine reminder so we can find/replace/remove it."""
     return f"reminder:{reminder_id}"
 
 
-def schedule_reminder(reminder) -> None:
+def schedule_reminder(reminder, user_email: str) -> None:
     """
     Register an APScheduler cron job for a MedicineReminder.
 
+    Args:
+        reminder: MedicineReminder ORM instance with days_of_week and reminder_time populated.
+        user_email: The patient's email address (passed explicitly to avoid a DB hit inside the job).
     """
-    logger.debug("schedule_reminder called for %r (no-op until Module 6)", getattr(reminder, "id", reminder))
+    scheduler = get_scheduler()
+    job_id = _reminder_job_id(reminder.id)
+
+    day_of_week = ",".join(d.lower() for d in (reminder.days_of_week or []))
+    hour = reminder.reminder_time.hour if reminder.reminder_time else 8
+    minute = reminder.reminder_time.minute if reminder.reminder_time else 0
+
+    trigger = CronTrigger(
+        day_of_week=day_of_week,
+        hour=hour,
+        minute=minute,
+        timezone=config.DEFAULT_TIMEZONE,
+    )
+
+    scheduler.add_job(
+        _send_reminder_email_job,
+        trigger=trigger,
+        id=job_id,
+        name=f"Reminder: {getattr(reminder, 'medicine_name', reminder.id)}",
+        kwargs={
+            "to": user_email,
+            "medicine_name": reminder.medicine_name,
+            "dosage": reminder.dosage,
+            "medicine_type": reminder.medicine_type,
+        },
+        replace_existing=True,
+    )
+    logger.info("Scheduled reminder job %s for %s", job_id, user_email)
 
 
-def reschedule_reminder(reminder) -> None:
-    """Update an existing reminder's schedule. Implemented in Module 6."""
-    logger.debug("reschedule_reminder called for %r (no-op until Module 6)", getattr(reminder, "id", reminder))
+def reschedule_reminder(reminder, user_email: str) -> None:
+    """Update an existing reminder's schedule (convenience wrapper)."""
+    schedule_reminder(reminder, user_email)
 
 
 def unschedule_reminder(reminder_id: str) -> None:
-    """Remove an APScheduler job for a reminder. Implemented in Module 6."""
-    logger.debug("unschedule_reminder called for %r (no-op until Module 6)", reminder_id)
+    """Remove the APScheduler job for a reminder (silently ignores missing jobs)."""
+    scheduler = get_scheduler()
+    job_id = _reminder_job_id(reminder_id)
+    if scheduler.get_job(job_id):
+        scheduler.remove_job(job_id)
+        logger.info("Unscheduled reminder job %s", job_id)
+    else:
+        logger.debug("No job found for %s — nothing to remove", job_id)
 
 
 def _rehydrate_reminder_jobs() -> None:
-    """Re-register active reminders into the scheduler on startup. Filled in by Module 6."""
-    logger.debug("_rehydrate_reminder_jobs is a no-op until Module 6")
+    """Re-register any active reminders that are missing from the job store.
+
+    Called once at startup after the scheduler starts, so jobs survive app restarts
+    even if the APScheduler job table was cleared.
+    """
+    from app.db.database import SessionLocal
+    from app.models.reminder import MedicineReminder
+    from app.models.patient import Patient
+    from app.models.user import User
+    from sqlalchemy.orm import joinedload
+
+    scheduler = get_scheduler()
+    db = SessionLocal()
+    try:
+        reminders = (
+            db.query(MedicineReminder)
+            .options(
+                joinedload(MedicineReminder.patient).joinedload(Patient.user)
+            )
+            .filter(
+                MedicineReminder.is_active.is_(True),
+                MedicineReminder.deleted_at.is_(None),
+            )
+            .all()
+        )
+        rehydrated = 0
+        for reminder in reminders:
+            job_id = _reminder_job_id(reminder.id)
+            if not scheduler.get_job(job_id):
+                try:
+                    user_email = reminder.patient.user.email
+                    schedule_reminder(reminder, user_email)
+                    rehydrated += 1
+                except Exception as exc:
+                    logger.warning("Could not rehydrate reminder %s: %s", reminder.id, exc)
+        logger.info("Rehydrated %d/%d reminder job(s)", rehydrated, len(reminders))
+    finally:
+        db.close()
 
 
 __all__ = [
