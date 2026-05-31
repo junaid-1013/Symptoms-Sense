@@ -2,6 +2,7 @@
 import { STORAGE_KEYS } from '@/config/localStorageKeys';
 import { readStorage, writeStorage } from '@/helpers/localStorageHelper';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {tokenBridge} from '@/lib/tokenBridge';
 
 // TYPES
 interface User {
@@ -103,20 +104,26 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [doctorSchedule, setDoctorScheduleState] = useState<any[] | null>(null);
   const [clinicMedicines, setClinicMedicinesState] = useState<any[] | null>(null);
 
+  const setAuthData = ({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
+  setState((prev) => {
+    const normalizedTokens = normalizeTokens(tokens);
+    const newData = {
+      user: user ?? prev.user,
+      tokens: tokens ? normalizedTokens : prev.tokens,
+      isAuthenticated: Boolean((normalizedTokens?.accessToken || normalizedTokens?.refreshToken) || user),
+    };
+    writeStorage(STORAGE_KEYS.user, newData.user);
+    writeStorage(STORAGE_KEYS.tokens, newData.tokens);
 
-  const setAuthData = useCallback(({ user, tokens }: { user?: User | null; tokens?: Tokens | null }) => {
-    setState((prev) => {
-      const normalizedTokens = normalizeTokens(tokens);
-      const newData: AuthState = {
-        user: user !== undefined ? user : prev.user,
-        tokens: tokens !== undefined ? normalizedTokens : prev.tokens,
-        isAuthenticated: Boolean((normalizedTokens && (normalizedTokens.accessToken || normalizedTokens.refreshToken)) || user),
-      };
-      writeStorage(STORAGE_KEYS.user, newData.user);
-      writeStorage(STORAGE_KEYS.tokens, newData.tokens);
-      return newData;
-    });
-  }, []);
+    tokenBridge.setTokens(
+      normalizedTokens?.accessToken ?? null,
+      normalizedTokens?.refreshToken ?? null
+    );
+
+    return newData;
+  });
+};
+
 
   const setClinicDoctors = useCallback((data: any[]) => {
     setClinicDoctorsState(data || []);
@@ -135,7 +142,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const clearAuthData = useCallback(() => {
     setState(defaultState);
-    localStorage.clear();
   }, []);
 
   const updateUserType = useCallback((type: string) => {
@@ -161,6 +167,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const storedTokensRaw = readStorage(STORAGE_KEYS.tokens);
     const storedTokens = normalizeTokens(storedTokensRaw);
+    if (storedTokens?.accessToken || storedTokens?.refreshToken) {
+    tokenBridge.setTokens(
+      storedTokens?.accessToken ?? null,
+      storedTokens?.refreshToken ?? null
+    );
+  }
     const storedUser = readStorage<User>(STORAGE_KEYS.user);
     const storedDoctorSchedule = readStorage<any[]>(STORAGE_KEYS.doctorSchedule);
     const storedClinicDoctors = readStorage<any[]>(STORAGE_KEYS.clinicDoctors);
@@ -183,6 +195,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+  tokenBridge.setLogoutHandler(clearAuthData);
+}, [clearAuthData]);
 
   const value = useMemo<UserContextType>(() => ({
     user: state.user,

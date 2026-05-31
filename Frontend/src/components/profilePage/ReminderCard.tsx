@@ -23,11 +23,11 @@ export const ReminderCard = ({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <div className="text-2xl">{getMedicineIcon(data.medicineType)}</div>
+            <div className="text-2xl">{getMedicineIcon(data.medicine_type)}</div>
             <div>
-              <h4 className="font-semibold text-foreground capitalize">{data.medicineName}</h4>
+              <h4 className="font-semibold text-foreground capitalize">{data.medicine_name}</h4>
               <Badge variant="secondary" className="mt-1 text-xs">
-                {data.medicineType}
+                {data.medicine_type}
               </Badge>
             </div>
           </div>
@@ -37,12 +37,12 @@ export const ReminderCard = ({
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-muted-foreground" />
-            <span className="font-medium">{data.reminderTime}</span>
+            <span className="font-medium">{data.reminder_time}</span>
           </div>
           <div className="flex items-start gap-2">
             <CalendarDays className="w-4 h-4 text-muted-foreground mt-0.5" />
             <div className="flex flex-wrap gap-1">
-              {data.selectedDays.map((day: string, idx: number) => (
+              {data.days_of_week.map((day: string, idx: number) => (
                 <Badge key={idx} variant="outline" className="text-xs">
                   {day}
                 </Badge>

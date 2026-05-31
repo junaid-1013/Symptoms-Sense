@@ -96,13 +96,12 @@ export const medicineColumns: ColumnDef<Medicine>[] = [
 // ACTIONS CELL
 function MedicineActions({ medicine }: { medicine: Medicine }) {
   const { toast } = useToast()
-  const { tokens, setClinicMedicines } = useUser()
+  const { setClinicMedicines } = useUser()
 
   const handleDelete = async () => {
 
     DeleteMedicineApi({
-      medicineId: medicine.id,
-      token: tokens?.accessToken || ""
+      medicineId: medicine.id
     })
       .then(response => {
         if (response?.data?.data) {
@@ -114,10 +113,14 @@ function MedicineActions({ medicine }: { medicine: Medicine }) {
         })
       })
       .catch(error => {
+        const message =
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          "Could not delete medicine";
         toast({
           variant: "destructive",
           title: "Delete failed",
-          description: error?.response?.data?.detail || "Could not delete medicine",
+          description: message,
         })
       })
   }

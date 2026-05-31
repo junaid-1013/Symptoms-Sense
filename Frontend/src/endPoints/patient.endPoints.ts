@@ -7,8 +7,7 @@ export const RegisterPatientApi = async ({
     gender,
     blood_group,
     emergency_contact,
-    address,
-    token
+    address
 }: RegisterPatientApiProps) => {
     const response = await axiosInstance.post(
         `${RegisterPatientUrl}`,
@@ -18,11 +17,6 @@ export const RegisterPatientApi = async ({
             blood_group,
             emergency_contact,
             address
-        },
-        {
-            headers: {
-                Authorization: `Bearer ${token}`
-            },
         }
     )
     return response;

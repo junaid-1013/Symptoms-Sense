@@ -53,7 +53,7 @@ export default function AddDoctor() {
   });
 
   const [loading, setLoading] = useState(false);
-  const { tokens, updateUserDetails } = useUser();
+  const { updateUserDetails } = useUser();
   const router = useRouter();
 
   // useFieldArray for dynamic fields
@@ -134,8 +134,7 @@ export default function AddDoctor() {
       experience: data.experience.map(e => e.value),
       license_no: data.license_no,
       experience_years: Number(data.experience_years),
-      bio: data.bio,
-      token: tokens?.accessToken || "",
+      bio: data.bio
     };
 
     DoctorOnboardingApi(apiData)

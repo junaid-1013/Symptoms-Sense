@@ -1,6 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { BulkUpdateDoctorScheduleApiProps, CompleteAppointmentApiProps, RegisterDoctorApiProps } from "@/types";
-import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, CompleteAppointmentUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
+import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, CompleteAppointmentUrl, DoctorReviewsUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
   specializations,
@@ -9,8 +9,7 @@ export const DoctorOnboardingApi = async ({
   experience,
   license_no,
   experience_years,
-  bio,
-  token
+  bio
 }: RegisterDoctorApiProps) => {
   const response = await axiosInstance.post(
     `${RegisterDoctorUrl}`,
@@ -21,13 +20,7 @@ export const DoctorOnboardingApi = async ({
       experience,
       license_no,
       experience_years,
-      bio,
-      token
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      bio
     }
   );
 
@@ -37,29 +30,19 @@ export const GetDoctorDetailApi = async ({ doctor_id }: { doctor_id: string }) =
   const response = await axiosInstance.get(`${GetDoctorDetailUrl}/${doctor_id}`);
   return response;
 };
-export const GetDoctorWeeklyScheduleApi = async ({ token }: { token: string }) => {
+export const GetDoctorWeeklyScheduleApi = async () => {
   const response = await axiosInstance.get(
-    `${GetDoctorWeeklyScheduleUrl}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    `${GetDoctorWeeklyScheduleUrl}`
   );
   return response;
 };
 export const BulkUpdateDoctorScheduleApi = async ({
-  slotDuration, schedules, token
+  slotDuration, schedules
 }: BulkUpdateDoctorScheduleApiProps) => {
   const response = await axiosInstance.put(
     `${BulkUpdateDoctorScheduleUrl}`,
     {
-      slotDuration, schedules, token
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      slotDuration, schedules
     }
   );
 
@@ -73,37 +56,55 @@ export const BlockDoctorSlotApi = async (payload: {
   day_of_week: string;
   date?: string;
   reason?: string;
-  token: string;
 }) => {
-  const { token, ...requestBody } = payload;
-  
+  const { ...requestBody } = payload;
+
   const response = await axiosInstance.post(
     `${BlockDoctorSlotUrl}`,
-    requestBody,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    requestBody
   );
   return response;
 };
 
 export const UnblockDoctorSlotApi = async ({
   blocked_slot_id,
-  token
 }: {
   blocked_slot_id: string;
-  token: string;
 }) => {
   const response = await axiosInstance.delete(
-    `/schedules/blocked-slots/${blocked_slot_id}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+    `/schedules/blocked-slots/${blocked_slot_id}`
   );
+  return response;
+};
+
+export const GetDoctorReviewsApi = async ({
+  doctor_id,
+  page = 1,
+  page_size = 10,
+}: {
+  doctor_id: string;
+  page?: number;
+  page_size?: number;
+}) => {
+  const response = await axiosInstance.get(DoctorReviewsUrl(doctor_id), {
+    params: { page, page_size },
+  });
+  return response;
+};
+
+export const PostDoctorReviewApi = async ({
+  doctor_id,
+  rating,
+  review,
+}: {
+  doctor_id: string;
+  rating: number;
+  review: string;
+}) => {
+  const response = await axiosInstance.post(DoctorReviewsUrl(doctor_id), {
+    rating,
+    review,
+  });
   return response;
 };
 
@@ -114,11 +115,10 @@ export const CompleteAppointmentApi = async ({
   diagnosis_details,
   prescription_notes,
   prescription_instructions,
-  medicines,
-  token,
+  medicines
 }: CompleteAppointmentApiProps) => {
   const response = await axiosInstance.post(
-    `${CompleteAppointmentUrl}`, 
+    `${CompleteAppointmentUrl}`,
     {
       appointment_id,
       symptoms,
@@ -127,11 +127,6 @@ export const CompleteAppointmentApi = async ({
       prescription_notes,
       prescription_instructions,
       medicines,
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
     }
   );
 
