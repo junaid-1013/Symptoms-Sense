@@ -52,7 +52,16 @@ class Config:
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "")
     if not OPENAI_API_KEY:
         raise ValueError("OPENAI_API_KEY environment variable is required")
-    
+
+    # ========== Mailer Configuration ==========
+    MAILER_HOST: str = os.getenv("MAILER_HOST", "smtp.gmail.com")
+    MAILER_PORT: int = int(os.getenv("MAILER_PORT", "587"))
+    MAILER_USERNAME: str = os.getenv("MAILER_USERNAME", "")
+    MAILER_PASSWORD: str = os.getenv("MAILER_PASSWORD", "")
+    MAILER_FROM: str = os.getenv("MAILER_FROM", "") or os.getenv("MAILER_USERNAME", "")
+    MAILER_USE_TLS: bool = os.getenv("MAILER_USE_TLS", "True").lower() == "true"
+    CONTACT_EMAIL_TO: str = os.getenv("CONTACT_EMAIL_TO", "") or os.getenv("MAILER_USERNAME", "")
+
     ENVIRONMENT: str = os.getenv("ENVIRONMENT")
 
 

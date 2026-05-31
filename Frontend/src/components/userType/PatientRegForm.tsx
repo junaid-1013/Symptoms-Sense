@@ -19,17 +19,9 @@ export default function PatientRegForm() {
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<RegisterPatientApiProps>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { tokens, updateUserType } = useUser(); 
+  const { updateUserType } = useUser(); 
 
   const onRegister = (data: RegisterPatientApiProps) => {
-    if (!tokens?.accessToken) {
-      toast({
-        title: "Unauthorized",
-        description: "Please log in again.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setLoading(true);
     RegisterPatientApi({
@@ -37,8 +29,7 @@ export default function PatientRegForm() {
       gender: data.gender,
       blood_group: data.blood_group,
       emergency_contact: data.emergency_contact,
-      address: data.address,
-      token: tokens.accessToken,
+      address: data.address
     })
       .then((response) => {
         console.log("Patient Registered:", response.data);

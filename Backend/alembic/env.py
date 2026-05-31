@@ -33,10 +33,18 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 target_metadata = Base.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+# Tables managed by external libraries (created at runtime). Skip them during
+# autogenerate so we don't accidentally drop them in a migration.
+EXTERNAL_TABLES = {"apscheduler_jobs"}
+
+
+def include_object(object_, name, type_, reflected, compare_to):
+    """Filter out runtime-managed tables (e.g. APScheduler) from autogenerate."""
+    if type_ == "table" and name in EXTERNAL_TABLES:
+        return False
+    if type_ == "index" and getattr(object_, "table", None) is not None and object_.table.name in EXTERNAL_TABLES:
+        return False
+    return True
 
 
 def run_migrations_offline() -> None:
@@ -58,6 +66,7 @@ def run_migrations_offline() -> None:
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
         compare_type=True,
+        include_object=include_object,
     )
 
     with context.begin_transaction():
@@ -82,6 +91,7 @@ def run_migrations_online() -> None:
             connection=connection, 
             target_metadata=target_metadata,
             compare_type=True,
+            include_object=include_object,
         )
 
         with context.begin_transaction():

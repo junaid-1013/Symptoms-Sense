@@ -85,18 +85,20 @@ export const columns: ColumnDef<Doctor>[] = [
 
 function ActionsCell({ doctor }: { doctor: Doctor }) {
     const { toast } = useToast()
-    const { tokens, setClinicDoctors } = useUser()
+    const { setClinicDoctors } = useUser()
 
     const handleDelete = async () => {
-        clinicDoctorDeleteApi({ doctorId: doctor.id, token: tokens?.accessToken || "" })
+        clinicDoctorDeleteApi({ doctorId: doctor.id })
             .then(response => {
-                if (response.data.clinic_doctors.doctors) {
-                    setClinicDoctors(response.data.clinic_doctors.doctors)
-                }
+                const doctors = response.data.data?.doctors || []
+                setClinicDoctors(doctors)
                 toast({ title: "Deleted", description: "Doctor removed successfully" })
             })
             .catch(error => {
-                toast({ title: "Failed", description: error?.response?.data?.detail || "Could not delete doctor", variant: "destructive" })
+                const message =
+                    error?.response?.data?.detail || 
+                    error?.response?.data?.message || "Something went wrong";
+                toast({ title: "Failed", description: message, variant: "destructive" })
             })
     }
 

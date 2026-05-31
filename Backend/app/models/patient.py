@@ -24,3 +24,4 @@ class Patient(Base, SoftDeletableMixin):
     diagnoses = relationship("Diagnosis", back_populates="patient", cascade="all, delete-orphan")
     prescriptions = relationship("Prescription", back_populates="patient", cascade="all, delete-orphan")
     tests = relationship("Test", back_populates="patient", cascade="all, delete-orphan")
+    reminders = relationship("MedicineReminder", back_populates="patient", cascade="all, delete-orphan")

@@ -24,7 +24,7 @@ import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 
 const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId, setAppointments }) => {
   const { toast } = useToast();
-  const { clinicMedicines, tokens} = useUser();
+  const { clinicMedicines} = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -53,7 +53,6 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
   
 
   const onSubmit = (data: FormValues) => {
-    if (!tokens?.accessToken) return;
     setIsSubmitting(true);
 
   CompleteAppointmentApi({
@@ -63,8 +62,7 @@ const CompleteAppointment: React.FC<CompleteAppointmentProps> = ({ appointmentId
     diagnosis_details: data.diagnosis_details,
     prescription_notes: data.prescription_notes,
     prescription_instructions: data.prescription_instructions,
-    medicines: data.medicines,
-    token: tokens.accessToken,
+    medicines: data.medicines
   })
     .then((response) => {
       if (response.data.status === "success") {
