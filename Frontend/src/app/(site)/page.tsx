@@ -1,3 +1,4 @@
+'use client';
 import ContactUs from "@/components/landingPage/ContactUs/ContactUs";
 import Doctors from "@/components/landingPage/Doctors";
 import Hero from "@/components/landingPage/Hero";
@@ -11,7 +12,6 @@ export default function Home() {
     <>
       <Hero />
       <Services />
-      {/* <Chat /> */}
       <Doctors />
       <Testimonials />
       <RatingForm />

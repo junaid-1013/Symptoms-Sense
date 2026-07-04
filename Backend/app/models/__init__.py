@@ -9,6 +9,9 @@ from app.models.appointment import Appointment
 from app.models.diagnosis import Diagnosis
 from app.models.prescription import Prescription, Medicine, PrescriptionMedicine
 from app.models.test import Test
+from app.models.feedback import SiteFeedback
+from app.models.doctor_review import DoctorReview
+from app.models.reminder import MedicineReminder
 
 __all__ = [
     "User",
@@ -25,4 +28,7 @@ __all__ = [
     "Medicine",
     "PrescriptionMedicine",
     "Test",
+    "SiteFeedback",
+    "DoctorReview",
+    "MedicineReminder",
 ]

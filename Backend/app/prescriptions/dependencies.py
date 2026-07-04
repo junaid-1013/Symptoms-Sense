@@ -8,6 +8,7 @@ from app.db.database import get_db
 from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.models.doctor import Doctor
+from app.core.constants import UserType
 from app.core.exceptions import InsufficientPermissionsException, UserNotFoundException
 
 
@@ -22,7 +23,7 @@ def get_current_doctor_for_prescription(
         InsufficientPermissionsException: If user is not a doctor
         UserNotFoundException: If doctor profile not found
     """
-    if current_user.user_type != "doctor":
+    if current_user.user_type != UserType.DOCTOR:
         raise InsufficientPermissionsException("Only doctors can manage prescriptions")
 
     doctor = db.query(Doctor).filter(

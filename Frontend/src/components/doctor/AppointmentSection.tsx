@@ -17,7 +17,8 @@ const AppointmentSection: React.FC<AppointmentSectionProps> = ({
     cardClassName,
     sectionClassName,
     onApprove,
-    onCancel
+    onCancel,
+    setAppointments
 }) => {
     return (
         <section className={`text-center space-y-6 ${sectionClassName ?? ""}`}>
@@ -35,6 +36,7 @@ const AppointmentSection: React.FC<AppointmentSectionProps> = ({
                                 className={cardClassName}
                                 onApprove={onApprove}
                                 onCancel={onCancel}
+                                setAppointments={setAppointments}
                             />
                         </CarouselItem>
                     ))}

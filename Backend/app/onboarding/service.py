@@ -13,6 +13,7 @@ from app.onboarding.schema import (
     DoctorOnboardingRequest, 
     ClinicOnboardingRequest
 )
+from app.core.constants import UserType
 from app.core.exceptions import UserNotFoundException, UserAlreadyExistsException
 
 
@@ -27,6 +28,15 @@ class OnboardingService:
     def get_patient_by_user_id(self, user_id: str) -> Optional[Patient]:
         """Get patient by user ID."""
         return self.db.query(Patient).filter(
+            Patient.user_id == user_id,
+            Patient.deleted_at.is_(None)
+        ).first()
+
+    def get_patient_profile_for_display(self, user_id: str) -> Optional[Patient]:
+        """Get patient with user relationship loaded for API response. Returns None if not found."""
+        return self.db.query(Patient).options(
+            joinedload(Patient.user)
+        ).filter(
             Patient.user_id == user_id,
             Patient.deleted_at.is_(None)
         ).first()
@@ -57,8 +67,7 @@ class OnboardingService:
             address=onboarding_data.address
         )
 
-        # Set user_type to patient
-        user.user_type = "patient"
+        user.user_type = UserType.PATIENT
 
         self.db.add(patient)
         self.db.commit()
@@ -178,6 +187,15 @@ class OnboardingService:
             Clinic.deleted_at.is_(None)
         ).first()
 
+    def get_clinic_profile_for_display(self, user_id: str) -> Optional[Clinic]:
+        """Get clinic with user relationship loaded for API response. Returns None if not found."""
+        return self.db.query(Clinic).options(
+            joinedload(Clinic.user)
+        ).filter(
+            Clinic.user_id == user_id,
+            Clinic.deleted_at.is_(None)
+        ).first()
+
     def create_clinic_profile(self, user_id: str, onboarding_data: ClinicOnboardingRequest) -> Clinic:
         """Create a new clinic profile."""
         # Check if user exists
@@ -202,8 +220,7 @@ class OnboardingService:
             established_year=onboarding_data.established_year,
             total_doctors=0 
         )
-        # Set user_type to Clinic
-        user.user_type = "clinic"
+        user.user_type = UserType.CLINIC
         self.db.add(clinic)
         self.db.commit()
         self.db.refresh(clinic)

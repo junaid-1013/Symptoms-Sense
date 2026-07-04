@@ -50,7 +50,7 @@ const DoctorAppointmentHandler = (
             return;
         }
 
-        if (!tokens?.accessToken || !user?.id) {
+        if (!user?.id) {
             toast({
                 title: "Error",
                 description: "You must be logged in to book an appointment",
@@ -76,8 +76,7 @@ const DoctorAppointmentHandler = (
             endTime: selectedSlot.endTime,
             generatedFromSchedule: selectedSlot.generatedFromSchedule,
             appointmentType,
-            chiefComplaint: reason || undefined,
-            token: tokens.accessToken,
+            chiefComplaint: reason || undefined
         })
             .then((res) => {
                 if (res.data.status === 'success') {
@@ -86,7 +85,9 @@ const DoctorAppointmentHandler = (
                         description: "Appointment booked successfully!",
                     });
                     setIsDialogOpen(false);
-                    router.push('/profile');
+                    if(user?.user_type === "patient"){
+                        router.push("/profile");
+                    }
                 }else {
                     toast({
                         title: "Failed!",
@@ -96,19 +97,21 @@ const DoctorAppointmentHandler = (
                 }
             })
             .catch((error) => {
-                if (error.response?.data?.error) {
+               let message = error?.response?.data?.detail 
+                  ?? error?.response?.data?.message 
+                  ?? "Something went wrong";
+                    if (typeof message === "object") {
+                        if (Array.isArray(message)) {
+                            message = message.join(", ");
+                        } else {
+                            message = JSON.stringify(message);
+                        }
+                    }
                     toast({
                         title: "Failed!",
-                        description: error.response.data.error,
+                        description: message,
                         variant: "destructive",
                     });
-                } else {
-                    toast({
-                        title: "Error",
-                        description: error?.message || "Please select time for the appointment",
-                        variant: "destructive",
-                    });
-                }
             });
     };
 

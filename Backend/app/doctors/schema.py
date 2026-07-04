@@ -132,3 +132,30 @@ class DoctorDeleteResponse(BaseModel):
     """ Response after deleting a doctor."""
     message: str
     clinic_doctors: ClinicDoctorsResponse
+# ========== Doctor Review Schemas ==========
+class DoctorReviewCreateRequest(BaseModel):
+    """Payload for POST /api/doctors/{doctor_id}/reviews."""
+    rating: int = Field(..., ge=1, le=5, description="Rating between 1 and 5")
+    review: str = Field(..., min_length=10, max_length=200, description="Review text")
+class DoctorReviewItem(BaseModel):
+    """Single doctor review item."""
+    id: str
+    doctor_id: str
+    user_id: str
+    reviewer_name: Optional[str] = None
+    reviewer_avatar: Optional[str] = None
+    rating: int
+    review: str
+    created_at: datetime
+    class Config:
+        from_attributes = True
+class DoctorReviewListResponse(BaseModel):
+    """Paginated doctor review list response."""
+    reviews: List[DoctorReviewItem]
+    total: int
+    page: int = 1
+    page_size: int = 10
+class DoctorReviewCreateResponse(BaseModel):
+    """Response after creating a doctor review."""
+    message: str
+    success: bool

@@ -1,4 +1,5 @@
 import { APPOINTMENT_TYPES } from "@/config/constants";
+import { Appointment } from "@/types";
 
 export interface DoctorAppointmentItem {
     appointmentId: string;
@@ -17,6 +18,7 @@ export interface AppointmentSectionProps {
     sectionClassName?: string;
     onApprove?: (appointmentId: string) => void;
     onCancel?: (appointmentId: string) => void;
+    setAppointments?: (appointments: Appointment[]) => void;
 }
 export interface CreateAppointmentApiProps {
     patientId: string;
@@ -27,21 +29,14 @@ export interface CreateAppointmentApiProps {
     generatedFromSchedule: string;
     appointmentType: (typeof APPOINTMENT_TYPES)[number];
     chiefComplaint?: string;
-    token: string;
 }
 export interface GetAvailableSlotsApiProps {
     doctorId: string;
     date: string;
-    token: string;
-}
-export interface GetMyAppointmentsApiProps{
-    token: string;
 }
 export interface CancelAppointmentApiProps{
     appointmentId: string;
-    token: string;
 }
 export interface ApproveAppointmentApiProps{
     appointmentId: string;
-    token: string;
 }

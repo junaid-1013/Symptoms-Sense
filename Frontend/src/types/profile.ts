@@ -31,11 +31,13 @@ export interface Appointment {
   updated_at: string;
 }
 export interface Reminder {
-  medicineName: string
+  id: string
+  medicine_name: string
   dosage: number
-  selectedDays: string[]
-  reminderTime: string
-  medicineType: string
+  days_of_week: string[]
+  reminder_time: string
+  medicine_type: string
+  is_active: boolean
 }
 export interface ProfileStats {
   upcomingAppointments: number
