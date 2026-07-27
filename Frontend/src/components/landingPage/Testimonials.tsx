@@ -14,17 +14,19 @@ interface Testimonial {
     rating?: number
 }
 
-export default function Testimonials() {
+export default function Testimonials({ refreshKey = 0 }: { refreshKey?: number }) {
     const [loading, setLoading] = useState(true)
     const [testimonials, setTestimonials] = useState<Testimonial[]>([])
     const { toast } = useToast();
 
     useEffect(() => {
+        let cancelled = false;
         const fetchTestimonials = async () => {
             try {
                 const response = await GetFeedbackApi(6)
-                setTestimonials(response.data.data.feedbacks ?? [])
+                if (!cancelled) setTestimonials(response.data.data.feedbacks ?? [])
             } catch (error) {
+                if (cancelled) return;
                 console.error("Failed to fetch testimonials:", error)
                 toast({
                     title: "Failed!",
@@ -32,13 +34,13 @@ export default function Testimonials() {
                     variant: "destructive",
                 })
             } finally {
-                setTimeout(() => setLoading(false), 1000)
+                if (!cancelled) setLoading(false)
             }
         }
 
         fetchTestimonials()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        return () => { cancelled = true; }
+    }, [refreshKey, toast])
 
     return (
         <section id="feedback" className="py-20 bg-background">

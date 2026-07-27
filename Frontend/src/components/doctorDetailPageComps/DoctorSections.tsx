@@ -1,5 +1,6 @@
 import { DoctorData } from '@/types';
 import InfoSection from './InfoSection';
+import DoctorReviews from './DoctorReviews';
 
 const DoctorSections = (props: { doctor: DoctorData }) => {
     const { doctor } = props;
@@ -70,7 +71,7 @@ const DoctorSections = (props: { doctor: DoctorData }) => {
             )}
 
             <InfoSection title="Reviews">
-                <p className="mt-4 text-gray-500 text-sm">No reviews available yet.</p>
+                <DoctorReviews key={doctor.id} doctorId={doctor.id} />
             </InfoSection>
         </>
     );

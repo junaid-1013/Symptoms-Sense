@@ -1,6 +1,5 @@
 "use client";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
-import Loading from "@/components/Loading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,7 +10,6 @@ import { RegisterApi } from "@/endPoints/auth.endPoints";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 
 const Register = () => {
@@ -19,13 +17,11 @@ const Register = () => {
     const { setAuthData } = useUser();
     const { toast } = useToast()
     type FormData = { email: string; password: string; username: string; confirmPassword: string; phone: string };
-    const [isLoading, setIsLoading] = useState(false);
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
     const password = watch('password');
 
     const onRegister = async (data: FormData) => {
-        setIsLoading(true);
-        RegisterApi({ email: data.email, password: data.password, name: data.username, phone: data.phone })
+        return RegisterApi({ email: data.email, password: data.password, name: data.username, phone: data.phone })
             .then((response) => {
                 const user = response.data?.user;
                 const tokens = response.data?.tokens || response.data?.data?.tokens || null;
@@ -53,18 +49,11 @@ const Register = () => {
                     description: message,
                     variant: "destructive",
                 })
-            })
-            .finally(() => setIsLoading(false));
+            });
     }
 
     return (
         <div className="py-6">
-            {/* Full-screen loader overlay while API call is in flight */}
-            {isLoading && (
-                <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center">
-                    <Loading />
-                </div>
-            )}
             <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
                 <div className="w-full p-8 lg:w-1/2">
                     <div className="flex justify-center mb-2">
@@ -150,7 +139,7 @@ const Register = () => {
                     </div>
                     <div className="mt-8">
                         <form onSubmit={handleSubmit(onRegister)}>
-                            <SpinnerButton state={isSubmitting} name="Sign Up" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75 disabled:opacity-50 disabled:cursor-not-allowed" />
+                            <SpinnerButton state={isSubmitting} disabled={isSubmitting} aria-busy={isSubmitting} aria-label={isSubmitting ? "Signing up" : "Sign Up"} name="Sign Up" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75 disabled:opacity-50 disabled:cursor-not-allowed" />
                         </form>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-x-2">

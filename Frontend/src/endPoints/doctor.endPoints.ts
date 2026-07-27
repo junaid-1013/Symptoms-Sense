@@ -1,5 +1,6 @@
 import axiosInstance from "@/lib/axiosInstance";
 import { BulkUpdateDoctorScheduleApiProps, CompleteAppointmentApiProps, RegisterDoctorApiProps } from "@/types";
+import { DoctorReviewList } from "@/types/doctors";
 import { BlockDoctorSlotUrl, BulkUpdateDoctorScheduleUrl, CompleteAppointmentUrl, DoctorReviewsUrl, GetDoctorDetailUrl, GetDoctorWeeklyScheduleUrl, RegisterDoctorUrl } from "./URLs";
 
 export const DoctorOnboardingApi = async ({
@@ -86,7 +87,7 @@ export const GetDoctorReviewsApi = async ({
   page?: number;
   page_size?: number;
 }) => {
-  const response = await axiosInstance.get(DoctorReviewsUrl(doctor_id), {
+  const response = await axiosInstance.get<{ data: DoctorReviewList }>(DoctorReviewsUrl(doctor_id), {
     params: { page, page_size },
   });
   return response;

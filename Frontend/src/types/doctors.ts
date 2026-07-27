@@ -1,6 +1,22 @@
 import { APPOINTMENT_TYPES } from "@/config/constants";
-import { DoctorAppointmentItem } from "./appointments";
 import { Appointment } from "@/types";
+import { DoctorAppointmentItem } from "./appointments";
+export interface DoctorReview {
+    id: string;
+    doctor_id: string;
+    user_id: string;
+    reviewer_name: string | null;
+    reviewer_avatar: string | null;
+    rating: number;
+    review: string;
+    created_at: string;
+}
+export interface DoctorReviewList {
+    reviews: DoctorReview[];
+    total: number;
+    page: number;
+    page_size: number;
+}
 export interface DoctorBasicInfo {
     id: string;
     user_id: string;
@@ -111,38 +127,6 @@ export interface BookingDialogContentProps {
 };
 
 export interface Medicine {
-  name: string;
-  description: string;
-  manufacturer: string;
-  category: string;
-  dosage: string;
-  frequency: string;
-  duration_days: number;
-}
-
-export interface CompleteAppointmentApiProps {
-  appointment_id: string;
-  symptoms: string;
-  diagnosis: string;
-  diagnosis_details: string;
-  prescription_notes: string;
-  prescription_instructions: string;
-  medicines: Medicine[];
-}
-
-export interface CompleteAppointmentProps {
-  appointmentId: string;
-  onComplete?: (updatedAppointment: { id: string; status: string }) => void;
-  setAppointments?: (appointments: Appointment[]) => void;
-}
-
-export interface FormValues {
-  symptoms: string;
-  diagnosis: string;
-  diagnosis_details: string;
-  prescription_notes: string;
-  prescription_instructions: string;
-  medicines: {
     name: string;
     description: string;
     manufacturer: string;
@@ -150,5 +134,37 @@ export interface FormValues {
     dosage: string;
     frequency: string;
     duration_days: number;
-  }[];
+}
+
+export interface CompleteAppointmentApiProps {
+    appointment_id: string;
+    symptoms: string;
+    diagnosis: string;
+    diagnosis_details: string;
+    prescription_notes: string;
+    prescription_instructions: string;
+    medicines: Medicine[];
+}
+
+export interface CompleteAppointmentProps {
+    appointmentId: string;
+    onComplete?: (updatedAppointment: { id: string; status: string }) => void;
+    setAppointments?: (appointments: Appointment[]) => void;
+}
+
+export interface FormValues {
+    symptoms: string;
+    diagnosis: string;
+    diagnosis_details: string;
+    prescription_notes: string;
+    prescription_instructions: string;
+    medicines: {
+        name: string;
+        description: string;
+        manufacturer: string;
+        category: string;
+        dosage: string;
+        frequency: string;
+        duration_days: number;
+    }[];
 }

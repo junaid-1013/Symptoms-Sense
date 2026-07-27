@@ -5,18 +5,15 @@ import { useUser } from "@/contextApis/UserContext"
 import { GetMyAppointmentsApi } from "@/endPoints/appointments.endPoints"
 import { DeleteReminderApi, GetMyRemindersApi } from "@/endPoints/reminders.endPoints"
 import { Appointment, ProfileStats, Reminder } from "@/types/profile"
-import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { StatsGrid } from "./StatsGrid"
 import { TabsSection } from "./TabsSection"
 
 const Profile = () => {
-  const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
   const [appointments, setAppointments] = useState<Appointment[]>([])
-  const [completedAppointments, setCompletedAppointments] = useState<Appointment[]>([])
   const [reminders, setReminders] = useState<Reminder[]>([])
   const { tokens } = useUser()
 
@@ -86,16 +83,20 @@ const Profile = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tokens])
 
-  // Calculate stats
-  const totalAppointments = appointments.length + 0
+  const upcomingAppointments = appointments.filter((appointment) =>
+    ["pending", "scheduled"].includes(appointment.status)
+  )
+  const completedAppointments = appointments.filter((appointment) => appointment.status === "completed")
+  // Completion rate includes cancelled appointments in the denominator.
+  const totalAppointments = appointments.length
   const completionRate = totalAppointments > 0
-    ? Math.round((0 / totalAppointments) * 100)
+    ? Math.round((completedAppointments.length / totalAppointments) * 100)
     : 0
 
   const stats: ProfileStats = {
-    upcomingAppointments: appointments.length,
+    upcomingAppointments: upcomingAppointments.length,
     activeReminders: reminders.length,
-    completedAppointments: 0,
+    completedAppointments: completedAppointments.length,
     completionRate
   }
 
@@ -108,7 +109,7 @@ const Profile = () => {
           <ProfileHeader stats={stats} />
           <StatsGrid stats={stats} />
           <TabsSection
-            appointments={appointments}
+            appointments={upcomingAppointments}
             reminders={reminders}
             completedAppointments={completedAppointments}
             onCancelReminder={cancelReminder}

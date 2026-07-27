@@ -3,8 +3,8 @@ import RatingForm from "@/components/landingPage/RatingForm"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { AppointmentCardProps } from "@/types"
 import { CheckCircle, Clock, MapPin, User } from "lucide-react"
-import { useState } from "react"
 import Image from "next/image"
+import { useState } from "react"
 
 export const AppointmentCard = ({
   data,
@@ -70,8 +70,8 @@ export const AppointmentCard = ({
           <div className="flex justify-between">
             <span className="text-muted-foreground">Status:</span>
             <span className={`font-medium capitalize ${data.status === "pending" ? "text-yellow-600" :
-                data.status === "confirmed" ? "text-blue-600" :
-                  "text-green-600"
+              data.status === "confirmed" ? "text-blue-600" :
+                "text-green-600"
               }`}>
               {data.status}
             </span>
@@ -79,7 +79,7 @@ export const AppointmentCard = ({
         </div>
 
         {type === "completed" && (
-          <RatingForm doctorData={data} />
+          <RatingForm doctorId={data.doctor.id} />
         )}
       </CardContent>
     </Card>

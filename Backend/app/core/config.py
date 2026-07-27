@@ -17,6 +17,7 @@ class Config:
         raise ValueError("DATABASE_URL environment variable is required")
     
     # ========== Application ==========
+    ENVIRONMENT: str = (os.getenv("ENVIRONMENT") or "development").strip().lower() or "development"
     DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
     
@@ -61,8 +62,6 @@ class Config:
     MAILER_FROM: str = os.getenv("MAILER_FROM", "") or os.getenv("MAILER_USERNAME", "")
     MAILER_USE_TLS: bool = os.getenv("MAILER_USE_TLS", "True").lower() == "true"
     CONTACT_EMAIL_TO: str = os.getenv("CONTACT_EMAIL_TO", "") or os.getenv("MAILER_USERNAME", "")
-
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT")
 
 
 # Create config instance

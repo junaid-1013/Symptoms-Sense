@@ -35,6 +35,7 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     message = _detail_to_message(exc.detail)
     return JSONResponse(
         status_code=exc.status_code,
+        headers=exc.headers,
         content=APIErrorResponse(message=message).model_dump()
     )
 

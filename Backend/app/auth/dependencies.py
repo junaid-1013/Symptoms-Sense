@@ -13,13 +13,15 @@ from app.core.exceptions import InvalidCredentialsException, UserNotFoundExcepti
 from app.models.user import User
 from app.auth.service import AuthService
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: Session = Depends(get_db)
 ) -> User:
     """Get current authenticated user from JWT token."""
+    if credentials is None:
+        raise InvalidCredentialsException("Missing or invalid authorization header")
     # if not authorization:
     #     raise InvalidCredentialsException("Missing authorization header")
     

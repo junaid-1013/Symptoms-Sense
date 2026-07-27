@@ -1,155 +1,94 @@
-"use client"
+"use client";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton";
 import { PostDoctorReviewApi } from "@/endPoints/doctor.endPoints";
 import { PostFeedbackApi } from "@/endPoints/feedback.endPoints";
 import { Star } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-interface ChildProps {
-    doctorData?: any;
+import { FormEvent, useId, useState } from "react";
+
+interface RatingFormProps {
+    doctorId?: string;
+    onSubmitted?: () => void;
 }
 
-const RatingForm: React.FC<ChildProps> = ({ doctorData }) => {
+export default function RatingForm({ doctorId, onSubmitted }: RatingFormProps) {
     const router = useRouter();
-    const { toast } = useToast()
-    const [modalOpen, setModalOpen] = useState(false);
-    const trigger = useRef<HTMLButtonElement | null>(null);
-    const modal = useRef<HTMLDivElement | null>(null);
+    const { toast } = useToast();
+    const messageId = useId();
+    const [open, setOpen] = useState(false);
     const [rating, setRating] = useState(1);
-    const [message, setMessage] = useState('');
+    const [message, setMessage] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    const handleStarClick = (newRating: number) => {
-        setRating(newRating);
-    };
-
-    const onSubmit = async () => {
+    const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (submitting) return;
+        const text = message.trim();
+        if (text.length < 10 || text.length > 200) {
+            toast({ title: "Check your review", description: "Please write between 10 and 200 characters.", variant: "destructive" });
+            return;
+        }
+        setSubmitting(true);
         try {
-            if (doctorData) {
-                await PostDoctorReviewApi({
-                    doctor_id: doctorData.doctor.id,
-                    rating,
-                    review: message,
-                });
-                router.push("/profile");
+            if (doctorId) {
+                await PostDoctorReviewApi({ doctor_id: doctorId, rating, review: text });
             } else {
-                // Site-wide testimonial — now served by FastAPI.
-                await PostFeedbackApi({ rating, message });
-                router.push("/");
+                await PostFeedbackApi({ rating, message: text });
             }
-
-            window.location.reload();
-            toast({
-                title: "Success!",
-                description: "Thank you for sharing your feedback",
-            });
-            setMessage('');
+            setOpen(false);
+            setMessage("");
+            setRating(1);
+            toast({ title: "Success!", description: "Thank you for sharing your feedback" });
+            onSubmitted?.();
+            if (doctorId) router.push(`/doctorDetail?id=${encodeURIComponent(doctorId)}`);
         } catch (error: any) {
-            const detail =
-                error?.response?.data?.message ||
-                error?.response?.data?.error ||
-                "An error occurred during feedback";
             toast({
                 title: "Failed!",
-                description: detail,
+                description: error?.response?.data?.message || "Could not submit your feedback. Please try again.",
                 variant: "destructive",
             });
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    // close on click outside
-    useEffect(() => {
-        const clickHandler = ({ target }: MouseEvent) => {
-            if (!modal.current) return;
-            if (
-                !modalOpen ||
-                modal.current.contains(target as Node) ||
-                trigger.current?.contains(target as Node)
-            )
-                return;
-            setModalOpen(false);
-        };
-        document.addEventListener("click", clickHandler);
-        return () => document.removeEventListener("click", clickHandler);
-    });
-
-    // close if the esc key is pressed
-    useEffect(() => {
-        const keyHandler = ({ keyCode }: KeyboardEvent) => {
-            if (!modalOpen || keyCode !== 27) return;
-            setModalOpen(false);
-        };
-        document.addEventListener("keydown", keyHandler);
-        return () => document.removeEventListener("keydown", keyHandler);
-    }, [modalOpen]);
-
     return (
-        <>
-            <div className="flex container mx-auto justify-center">
-                <button
-                    ref={trigger}
-                    onClick={() => setModalOpen(true)}
-                    className={`rounded-lg bg-[#192a56] px-6 py-3 text-base font-medium text-white flex gap-x-2 hover:bg-[#192a56]/90`}
-                >
-                    <div className="flex items-center flex-row-reverse group">
-                        <Star className="w-5 h-5 ml-2 place-items-end group-hover:animate-ping absolute " />
-                        <Star className="w-5 h-5 ml-2 place-items-end relative" />
-                        <span className="place-items-end">Rate</span>
-                    </div>
-                </button>
-                <div className={`z-30 fixed left-0 top-0 flex h-full min-h-screen w-full items-center justify-center 
-                        bg-black/80 backdrop-blur-sm px-4 py-5 ${modalOpen ? "block" : "hidden"}`}>
-                    <div
-                        ref={modal}
-                        onFocus={() => setModalOpen(true)}
-                        className="w-full max-w-[570px] rounded-[20px] bg-white px-8 py-12 text-center md:px-[70px] md:py-[60px]">
-                        <h3 className="pb-[18px] text-xl font-semibold text-black  sm:text-2xl">Rate your experience</h3>
-                        <span className={`mx-auto mb-4 inline-block h-1 w-[90px] rounded bg-[#192a56]`}></span>
-                        <div className="flex flex-col gap-y-4">
-                            <div className="flex flex-row-reverse justify-center">
-                                <Star
-                                    className={`fill-gray-400 peer peer-hover:fill-yellow-400 hover:fill-yellow-400 
-                                    text-transparent cursor-pointer ${rating <= 1 ? 'fill-yellow-400' : ''}`}
-                                    onClick={() => handleStarClick(1)}
-                                />
-                                <Star
-                                    className={`fill-gray-400 peer peer-hover:fill-yellow-400 hover:fill-yellow-400 
-                                    text-transparent cursor-pointer ${rating <= 2 ? 'fill-yellow-400' : ''}`}
-                                    onClick={() => handleStarClick(2)}
-                                />
-                                <Star
-                                    className={`fill-gray-400 peer peer-hover:fill-yellow-400 hover:fill-yellow-400 
-                                    text-transparent cursor-pointer ${rating <= 3 ? 'fill-yellow-400' : ''}`}
-                                    onClick={() => handleStarClick(3)}
-                                />
-                                <Star
-                                    className={`fill-gray-400 peer peer-hover:fill-yellow-400 hover:fill-yellow-400 
-                                    text-transparent cursor-pointer ${rating <= 4 ? 'fill-yellow-400' : ''}`}
-                                    onClick={() => handleStarClick(4)}
-                                />
-                                <Star
-                                    className={`fill-gray-400 peer peer-hover:fill-yellow-400 hover:fill-yellow-400 
-                                    text-transparent cursor-pointer ${rating <= 5 ? 'fill-yellow-400' : ''}`}
-                                    onClick={() => handleStarClick(5)}
-                                />
-                            </div>
-                            <textarea className="flex w-full p-4 text-gray-500 rounded-xl resize-none border"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                placeholder="Let us Know here"
-                            ></textarea>
-                            <button
-                                onClick={onSubmit}
-                                className="rounded-md border border-[#192a56] bg-[#192a56] p-3 text-center 
-                                    text-base font-medium text-white transition hover:bg-[#192a56]/90 w-1/3 self-center"
-                            >
-                                Submit
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <Dialog open={open} onOpenChange={(value) => { if (!submitting) setOpen(value); }}>
+            <div className="flex justify-center">
+                <DialogTrigger asChild>
+                    <Button className="gap-2"><Star className="h-4 w-4" aria-hidden="true" />Rate</Button>
+                </DialogTrigger>
             </div>
-        </>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Rate your experience</DialogTitle>
+                    <DialogDescription>{doctorId ? "Share your experience with this doctor." : "Tell us about your experience with Symptoms Sense."}</DialogDescription>
+                </DialogHeader>
+                <form onSubmit={onSubmit} className="space-y-4">
+                    <fieldset disabled={submitting} className="space-y-2">
+                        <legend className="text-sm font-medium">Rating</legend>
+                        <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((value) => (
+                                <button key={value} type="button" aria-label={`${value} ${value === 1 ? "star" : "stars"}`} aria-pressed={rating === value}
+                                    onClick={() => setRating(value)} className="rounded p-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                                    <Star aria-hidden="true" className={`h-6 w-6 ${value <= rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`} />
+                                </button>
+                            ))}
+                        </div>
+                    </fieldset>
+                    <div className="space-y-2">
+                        <label htmlFor={messageId} className="text-sm font-medium">Your review</label>
+                        <Textarea id={messageId} required minLength={10} maxLength={200} disabled={submitting}
+                            value={message} onChange={(event) => setMessage(event.target.value)} placeholder="Write 10–200 characters" />
+                    </div>
+                    <SpinnerButton state={submitting} disabled={submitting} aria-busy={submitting}
+                        aria-label={submitting ? "Submitting review" : "Submit review"} name="Submit" type="submit" />
+                </form>
+            </DialogContent>
+        </Dialog>
     );
-};
-
-export default RatingForm;
+}

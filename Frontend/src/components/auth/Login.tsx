@@ -1,6 +1,5 @@
 "use client";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
-import Loading from "@/components/Loading";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
@@ -11,21 +10,19 @@ import { useUser } from '@/contextApis/UserContext';
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 const Login = () => {
     const { toast } = useToast()
     type FormData = { email: string; password: string };
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(false);
     const { setAuthData, setClinicDoctors, setClinicMedicines} = useUser();
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
     const onLogin = async (data: FormData) => {
-        setIsLoading(true);
-        LoginApi({ email: data.email, password: data.password })
+        return LoginApi({ email: data.email, password: data.password })
             .then((response) => {
                 const user = response.data?.data.user;
                 const tokens = response.data?.data.tokens || response.data?.data?.tokens || null;
@@ -61,8 +58,7 @@ const Login = () => {
                     description: message,
                     variant: "destructive",
                 })
-            })
-            .finally(() => setIsLoading(false));
+            });
     }
 
     useEffect(() => {
@@ -100,12 +96,6 @@ const Login = () => {
 
     return (
         <div className="py-6">
-            {/* Full-screen loader overlay while API call is in flight */}
-            {isLoading && (
-                <div className="fixed inset-0 z-50 bg-white/80 backdrop-blur-sm flex items-center justify-center">
-                    <Loading />
-                </div>
-            )}
             <div className="flex bg-white rounded-lg shadow-lg overflow-hidden mx-auto max-w-sm lg:max-w-4xl">
                 <div className="w-full p-8 lg:w-1/2">
                     <div className="flex justify-center mb-2 ">
@@ -144,7 +134,7 @@ const Login = () => {
                     </div>
                     <div className="mt-8">
                         <form onSubmit={handleSubmit(onLogin)}>
-                            <SpinnerButton state={isSubmitting} name="Login" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75" />
+                            <SpinnerButton state={isSubmitting} disabled={isSubmitting} aria-busy={isSubmitting} aria-label={isSubmitting ? "Logging in" : "Login"} name="Login" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75" />
                         </form>
                     </div>
                     <div className="mt-4 flex items-center justify-between gap-x-2">
