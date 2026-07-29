@@ -53,8 +53,8 @@ def init_scheduler() -> BackgroundScheduler:
         job_defaults=job_defaults,
         timezone=config.DEFAULT_TIMEZONE,
     )
-    _scheduler.start()
-    logger.info("Scheduler started (timezone=%s)", config.DEFAULT_TIMEZONE)
+    # Persisted triggers may use an old timezone. Inspect them before any job runs.
+    _scheduler.start(paused=True)
 
     # rehydrate active medicine reminders from the DB so
     # any reminders not present in the SQLAlchemy job store get re-registered.
@@ -62,6 +62,11 @@ def init_scheduler() -> BackgroundScheduler:
         _rehydrate_reminder_jobs()
     except Exception as exc:
         logger.exception("Failed to rehydrate reminder jobs: %s", exc)
+        shutdown_scheduler()
+        raise
+
+    _scheduler.resume()
+    logger.info("Scheduler started (timezone=%s)", config.DEFAULT_TIMEZONE)
 
     return _scheduler
 
@@ -104,6 +109,21 @@ def _reminder_job_id(reminder_id: str) -> str:
     return f"reminder:{reminder_id}"
 
 
+def _build_reminder_trigger(reminder) -> CronTrigger:
+    """Interpret persisted weekdays/time in the configured zone at minute precision."""
+    if not reminder.days_of_week or reminder.reminder_time is None:
+        raise ValueError("Reminder weekdays and time are required")
+    if reminder.reminder_time.second or reminder.reminder_time.microsecond:
+        raise ValueError("Reminder time must use minute precision")
+    return CronTrigger(
+        day_of_week=",".join(day.lower() for day in reminder.days_of_week),
+        hour=reminder.reminder_time.hour,
+        minute=reminder.reminder_time.minute,
+        second=0,
+        timezone=config.DEFAULT_TIMEZONE,
+    )
+
+
 def schedule_reminder(reminder, user_email: str) -> None:
     """
     Register an APScheduler cron job for a MedicineReminder.
@@ -115,16 +135,7 @@ def schedule_reminder(reminder, user_email: str) -> None:
     scheduler = get_scheduler()
     job_id = _reminder_job_id(reminder.id)
 
-    day_of_week = ",".join(d.lower() for d in (reminder.days_of_week or []))
-    hour = reminder.reminder_time.hour if reminder.reminder_time else 8
-    minute = reminder.reminder_time.minute if reminder.reminder_time else 0
-
-    trigger = CronTrigger(
-        day_of_week=day_of_week,
-        hour=hour,
-        minute=minute,
-        timezone=config.DEFAULT_TIMEZONE,
-    )
+    trigger = _build_reminder_trigger(reminder)
 
     scheduler.add_job(
         _send_reminder_email_job,
@@ -159,15 +170,14 @@ def unschedule_reminder(reminder_id: str) -> None:
 
 
 def _rehydrate_reminder_jobs() -> None:
-    """Re-register any active reminders that are missing from the job store.
+    """Restore missing active jobs and correct stale times/timezones before execution.
 
-    Called once at startup after the scheduler starts, so jobs survive app restarts
+    Called once at startup while the scheduler is paused, so jobs survive app restarts
     even if the APScheduler job table was cleared.
     """
     from app.db.database import SessionLocal
     from app.models.reminder import MedicineReminder
     from app.models.patient import Patient
-    from app.models.user import User
     from sqlalchemy.orm import joinedload
 
     scheduler = get_scheduler()
@@ -187,13 +197,15 @@ def _rehydrate_reminder_jobs() -> None:
         rehydrated = 0
         for reminder in reminders:
             job_id = _reminder_job_id(reminder.id)
-            if not scheduler.get_job(job_id):
-                try:
-                    user_email = reminder.patient.user.email
-                    schedule_reminder(reminder, user_email)
-                    rehydrated += 1
-                except Exception as exc:
-                    logger.warning("Could not rehydrate reminder %s: %s", reminder.id, exc)
+            existing = scheduler.get_job(job_id)
+            expected = _build_reminder_trigger(reminder)
+            if existing is None:
+                schedule_reminder(reminder, reminder.patient.user.email)
+                rehydrated += 1
+            elif (str(existing.trigger) != str(expected)
+                  or str(existing.trigger.timezone) != str(expected.timezone)):
+                scheduler.reschedule_job(job_id, trigger=expected)
+                logger.info("Updated reminder %s trigger to timezone %s", reminder.id, config.DEFAULT_TIMEZONE)
         logger.info("Rehydrated %d/%d reminder job(s)", rehydrated, len(reminders))
     finally:
         db.close()

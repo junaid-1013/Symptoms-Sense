@@ -36,6 +36,7 @@ export interface Reminder {
   dosage: number
   days_of_week: string[]
   reminder_time: string
+  timezone: string
   medicine_type: string
   is_active: boolean
 }

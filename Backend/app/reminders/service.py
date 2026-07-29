@@ -10,6 +10,7 @@ from app.models.patient import Patient
 from app.models.reminder import MedicineReminder
 from app.reminders.schema import ReminderCreateRequest, ReminderItem
 from app.core.exceptions import UserNotFoundException, InsufficientPermissionsException
+from app.core.config import config
 
 class ReminderService:
     def __init__(self, db: Session):
@@ -104,13 +105,11 @@ class ReminderService:
             medicine_type=r.medicine_type,
             days_of_week=r.days_of_week or [],
             reminder_time=r.reminder_time.strftime("%H:%M") if r.reminder_time else "",
+            timezone=config.DEFAULT_TIMEZONE,
             is_active=r.is_active,
             created_at=r.created_at,
         )
 
     @staticmethod
     def _parse_time(time_str: str) -> time_cls:
-        parts = time_str.strip().split(":")
-        hour = int(parts[0])
-        minute = int(parts[1]) if len(parts) > 1 else 0
-        return time_cls(hour=hour, minute=minute)
+        return time_cls.fromisoformat(ReminderCreateRequest.validate_time(time_str))

@@ -14,6 +14,9 @@ export const GetMyRemindersApi = async () => {
   return response;
 };
 
+export const GetReminderConfigApi = () =>
+  axiosInstance.get<{ data: { timezone: string } }>(`${RemindersUrl}/config`);
+
 export const AddReminderApi = async (payload: AddReminderPayload) => {
   const response = await axiosInstance.post(RemindersUrl, payload);
   return response;

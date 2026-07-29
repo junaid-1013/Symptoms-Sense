@@ -37,7 +37,7 @@ export const ReminderCard = ({
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-muted-foreground" />
-            <span className="font-medium">{data.reminder_time}</span>
+            <span className="font-medium">{data.reminder_time} ({data.timezone})</span>
           </div>
           <div className="flex items-start gap-2">
             <CalendarDays className="w-4 h-4 text-muted-foreground mt-0.5" />

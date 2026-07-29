@@ -5,6 +5,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.constants import UserType
+from app.core.config import config
 from app.core.mailer import send_email
 from app.core.response import APIResponse, APIResponseGeneric
 from app.core import scheduler as sched
@@ -16,11 +17,20 @@ from app.reminders.schema import (
     ReminderCreateResponse,
     ReminderDeleteResponse,
     ReminderListResponse,
+    ReminderConfigResponse,
 )
 from app.reminders.service import ReminderService
 from app.core.exceptions import UserNotFoundException, InsufficientPermissionsException
 
 router = APIRouter(prefix="/reminders", tags=["reminders"])
+
+@router.get("/config", response_model=APIResponseGeneric[ReminderConfigResponse])
+async def reminder_config():
+    """Public scheduling convention; contains no patient data or credentials."""
+    return APIResponse(
+        message="Reminder configuration",
+        data=ReminderConfigResponse(timezone=config.DEFAULT_TIMEZONE),
+    ).model_dump()
 
 def _require_patient(current_user: User) -> None:
     if current_user.user_type != UserType.PATIENT:
@@ -79,7 +89,7 @@ async def create_reminder(
             f"  Dosage: {payload.dosage}\n"
             f"  Type: {payload.medicine_type}\n"
             f"  Days: {', '.join(payload.days_of_week)}\n"
-            f"  Time: {payload.reminder_time}\n\n"
+            f"  Time: {payload.reminder_time} ({config.DEFAULT_TIMEZONE})\n\n"
             "You'll receive an email reminder at the scheduled time."
         ),
     )

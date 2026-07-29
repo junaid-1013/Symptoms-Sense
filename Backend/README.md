@@ -26,7 +26,9 @@ Contact requests queue background delivery; a successful API response does not c
 
 The sample and production Compose configuration explicitly use `DEFAULT_TIMEZONE=Asia/Karachi`. The Python fallback remains `UTC` if the variable is omitted. Reminder times are wall-clock times in this configured zone, not the browser's local zone.
 
-Existing persisted jobs retain their serialized triggers. Changing the environment variable alone does not convert those jobs. Before restarting an existing deployment with a new timezone, inspect its reminder/job records and complete the reconciliation in migration wrap-up Phases 4–5. The Phase 2 configuration change does not migrate live jobs.
+At startup, the scheduler stays paused while active reminder jobs are inspected. Missing jobs are restored and stale time/timezone triggers are rebuilt from the saved weekday and clock time before execution resumes. If reconciliation fails, startup fails rather than running unverified schedules. Changing the timezone preserves the saved wall-clock time in the new zone; it does not preserve the old UTC instant. Inspect existing reminder records before changing a deployed timezone. Inactive/orphan job cleanup is still part of the pending scheduler consistency work.
+
+The form reads the scheduling zone from public `GET /api/reminders/config`; reminder list items also include `timezone`, and confirmation emails label it explicitly. Times use minute precision: `HH:MM` is canonical and legacy `HH:MM:00` is normalized. Other seconds, ISO dates, and malformed times are rejected. Medicine names/types cannot be blank, dosage must be a positive integer, and at least one valid weekday is required.
 
 Run exactly **one API worker and one API container/replica** while APScheduler runs inside the FastAPI lifespan. The existing entrypoint uses `--workers 1`; preserve that setting. Multiple processes must not share this job store without a separate scheduler ownership design. Jobs are stored in PostgreSQL and the scheduler creates its own job table at startup.
 
