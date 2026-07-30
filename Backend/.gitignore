@@ -45,6 +45,7 @@ venv.bak/
 .env.*.local
 
 # Database
+/uploads/
 *.db
 *.sqlite3
 

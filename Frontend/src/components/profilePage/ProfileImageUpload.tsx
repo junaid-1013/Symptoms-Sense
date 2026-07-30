@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label"
 import { ProfileImageUploadProps } from "@/types"
 import { Camera, Upload } from "lucide-react"
 
-export const ProfileImageUpload = ({ imagePreview, onFileChange }: ProfileImageUploadProps) => {
+export const ProfileImageUpload = ({ imagePreview, onFileChange, disabled }: ProfileImageUploadProps) => {
   return (
     <div className="space-y-2">
       <Label className="text-base font-medium">Profile Image</Label>
@@ -25,11 +25,12 @@ export const ProfileImageUpload = ({ imagePreview, onFileChange }: ProfileImageU
           </div>
           <label className="absolute bottom-0 right-0 p-2 bg-accent text-accent-foreground rounded-full cursor-pointer hover:bg-accent/90 transition-colors shadow-lg">
             <Upload className="w-4 h-4" />
-            <input type="file" className="hidden" accept="image/*" onChange={onFileChange} />
+            <span className="sr-only">Choose profile image</span>
+            <input type="file" className="sr-only" accept="image/jpeg,image/png,image/webp" disabled={disabled} onChange={onFileChange} />
           </label>
         </div>
         <p className="text-sm text-muted-foreground text-center">
-          Click the upload button to select a profile image
+          Optional: JPEG, PNG, or WebP, up to 2 MB and 16 megapixels.
         </p>
       </div>
     </div>

@@ -4,7 +4,7 @@ Medicine-reminder business logic.
 from datetime import time as time_cls
 from typing import List, Tuple
 
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 
 from app.models.patient import Patient
 from app.models.reminder import MedicineReminder
@@ -48,7 +48,7 @@ class ReminderService:
         patient_id: str,
         data: ReminderCreateRequest,
     ) -> MedicineReminder:
-        """Persist a new MedicineReminder row and return it with relationships loaded."""
+        """Persist an inactive reminder; activate only after job registration succeeds."""
         reminder_time = self._parse_time(data.reminder_time)
 
         reminder = MedicineReminder(
@@ -58,32 +58,34 @@ class ReminderService:
             medicine_type=data.medicine_type,
             days_of_week=data.days_of_week,
             reminder_time=reminder_time,
-            is_active=True,
+            is_active=False,
         )
         self.db.add(reminder)
         self.db.commit()
         self.db.refresh(reminder)
 
-        # Reload with patient → user so the controller can pass the email to the scheduler.
-        return (
-            self.db.query(MedicineReminder)
-            .options(joinedload(MedicineReminder.patient).joinedload(Patient.user))
-            .filter(MedicineReminder.id == reminder.id)
-            .one()
-        )
+        return reminder
+
+    def activate_reminder(self, reminder: MedicineReminder) -> None:
+        reminder.is_active = True
+        try:
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
 
     def delete_reminder(
         self,
         reminder_id: str,
         patient_id: str,
-    ) -> MedicineReminder:
-        """Soft-delete a reminder after verifying ownership."""
+    ) -> Tuple[MedicineReminder, bool]:
+        """Soft-delete once after verifying ownership; return whether state changed."""
         reminder = (
             self.db.query(MedicineReminder)
             .filter(
                 MedicineReminder.id == reminder_id,
-                MedicineReminder.deleted_at.is_(None),
             )
+            .with_for_update()
             .first()
         )
         if not reminder:
@@ -91,10 +93,17 @@ class ReminderService:
         if reminder.patient_id != patient_id:
             raise InsufficientPermissionsException("You can only delete your own reminders")
 
+        if reminder.deleted_at is not None and not reminder.is_active:
+            return reminder, False
+
         reminder.is_active = False
         reminder.soft_delete()
-        self.db.commit()
-        return reminder
+        try:
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            raise
+        return reminder, True
 
     # ========== Helpers ==========
     def _build_item(self, r: MedicineReminder) -> ReminderItem:

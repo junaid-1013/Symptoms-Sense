@@ -44,3 +44,5 @@ openai==1.55.3
 langgraph>=0.3.0
 # Background scheduling
 APScheduler==3.10.4
+# Avatar validation and metadata-free image encoding
+Pillow==12.3.0

@@ -27,6 +27,17 @@ class AuthService:
     
     def __init__(self, db: Session):
         self.db = db
+
+    def update_profile(self, user: User, name: str) -> User:
+        """Update display fields without changing auth, role, or avatar state."""
+        user.name = name
+        try:
+            self.db.commit()
+            self.db.refresh(user)
+        except Exception:
+            self.db.rollback()
+            raise
+        return user
     
     def get_user_by_email(self, email: str) -> Optional[User]:
         """Get user by email."""
@@ -339,7 +350,8 @@ class AuthService:
             if user:
                 # Link Google account to existing user
                 user.google_id = google_id
-                user.avatar_url = avatar_url
+                if not user.avatar_url:
+                    user.avatar_url = avatar_url
                 user.is_email_verified = True
             else:
                 # Create new user
@@ -354,7 +366,8 @@ class AuthService:
                 self.db.add(user)
         else:
             # Update user info
-            user.avatar_url = avatar_url
+            if not user.avatar_url:
+                user.avatar_url = avatar_url
             user.last_login = datetime.now(timezone.utc)
         
         self.db.commit()

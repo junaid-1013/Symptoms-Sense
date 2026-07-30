@@ -77,6 +77,7 @@ export interface UserProfileFormData {
   name: string
 }
 export interface ProfileImageUploadProps {
+  disabled?: boolean
   imagePreview: string | null
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }

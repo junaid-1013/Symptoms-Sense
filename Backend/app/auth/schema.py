@@ -1,7 +1,7 @@
 """
 Authentication schemas for request/response validation.
 """
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from app.prescriptions.schema import MedicineResponse
 from typing import Optional, List
 from datetime import datetime
@@ -33,6 +33,11 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ProfileUpdateRequest(BaseModel):
+    """Only the authenticated user's display name is editable here."""
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+    name: str = Field(..., min_length=2, max_length=100)
 
 class PatientLoginResponse(BaseModel):
     """Patient login response with user and patient data."""

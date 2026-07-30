@@ -34,6 +34,13 @@ export const MeApi = async () => {
     const response = await axiosInstance.get(`${MeApiUrl}`);
     return response;
 };
+export const UpdateProfileApi = (payload: { name: string }) =>
+    axiosInstance.patch<{ data: { name: string; avatar_url: string | null } }>(MeApiUrl, payload);
+export const UploadAvatarApi = (image: File) => {
+    const payload = new FormData();
+    payload.append("avatar", image);
+    return axiosInstance.post<{ data: { name: string; avatar_url: string | null } }>(`${MeApiUrl}/avatar`, payload);
+};
 export const RefreshTokenApi = async (refreshToken: string) => {
     const response = await axiosInstance.post(`${RefreshApiUrl}`, {
         refresh_token: refreshToken,

@@ -5,20 +5,26 @@ import { UserProfileFormData } from "@/types"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { ProfileImageUpload } from "./ProfileImageUpload"
+import { SpinnerButton } from "@/components/uiUtils/SpinnerButton"
+import { useEffect } from "react"
 
 interface ProfileFormProps {
   onSubmit: (data: UserProfileFormData) => void
   isLoading: boolean
+  initialName: string
   imagePreview: string | null
   onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void
 }
 
-export const ProfileForm = ({ onSubmit, isLoading, imagePreview, onFileChange }: ProfileFormProps) => {
+export const ProfileForm = ({ onSubmit, isLoading, initialName, imagePreview, onFileChange }: ProfileFormProps) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
-  } = useForm<UserProfileFormData>()
+  } = useForm<UserProfileFormData>({ defaultValues: { name: initialName } })
+
+  useEffect(() => { reset({ name: initialName }) }, [initialName, reset])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -26,6 +32,7 @@ export const ProfileForm = ({ onSubmit, isLoading, imagePreview, onFileChange }:
       <ProfileImageUpload
         imagePreview={imagePreview}
         onFileChange={onFileChange}
+        disabled={isLoading}
       />
 
       {/* Name Input */}
@@ -37,8 +44,12 @@ export const ProfileForm = ({ onSubmit, isLoading, imagePreview, onFileChange }:
           id="name"
           type="text"
           placeholder="Enter your full name"
+          disabled={isLoading}
+          maxLength={100}
           {...register("name", {
             required: "Name is required",
+            setValueAs: (value: string) => value.trim(),
+            maxLength: { value: 100, message: "Use at most 100 characters" },
             minLength: {
               value: 2,
               message: "Name must be at least 2 characters",
@@ -51,9 +62,8 @@ export const ProfileForm = ({ onSubmit, isLoading, imagePreview, onFileChange }:
 
       {/* Action Buttons */}
       <div className="flex gap-4 pt-4">
-        <Button type="submit" disabled={isLoading} className="flex-1">
-          {isLoading ? "Updating..." : "Update Profile"}
-        </Button>
+        <SpinnerButton type="submit" state={isLoading} disabled={isLoading} aria-busy={isLoading}
+          aria-label={isLoading ? "Updating profile" : "Update Profile"} name="Update Profile" className="flex-1" />
         <Link href="/profile" className="flex-1">
           <Button type="button" variant="outline" className="w-full bg-transparent">
             Cancel

@@ -1,8 +1,8 @@
 """
 Authentication controller with FastAPI routes.
 """
-from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.responses import RedirectResponse
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi.responses import RedirectResponse, FileResponse
 from typing import Optional
 from sqlalchemy.orm import Session
 
@@ -14,6 +14,8 @@ from app.auth.schema import (
     PasswordChange, GoogleAuthRequest, EmailVerificationRequest
 )
 from app.auth.service import AuthService
+from app.auth.schema import ProfileUpdateRequest
+from app.auth.avatars import MAX_AVATAR_BYTES, save_avatar, avatar_path
 from app.models.user import User
 from app.core.exceptions import (
     InvalidCredentialsException, UserNotFoundException, UserInactiveException,
@@ -24,6 +26,42 @@ from app.core.security import SecurityUtils
 from app.core.response import APIResponse, APIResponseGeneric
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
+
+@router.get("/avatars/{filename}")
+def get_avatar(filename: str):
+    return FileResponse(avatar_path(filename), media_type="image/webp", headers={"X-Content-Type-Options": "nosniff"})
+
+@router.post("/me/avatar", response_model=APIResponseGeneric[UserResponse])
+def upload_avatar(
+    avatar: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    content = avatar.file.read(MAX_AVATAR_BYTES + 1)
+    path, url = save_avatar(content, avatar.content_type or "")
+    try:
+        current_user.avatar_url = url
+        db.commit()
+    except Exception:
+        db.rollback()
+        path.unlink(missing_ok=True)
+        raise
+    return APIResponse(
+        message="Profile image updated successfully",
+        data=UserResponse.model_validate(current_user),
+    ).model_dump()
+
+@router.patch("/me", response_model=APIResponseGeneric[UserResponse])
+def update_profile(
+    payload: ProfileUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    user = AuthService(db).update_profile(current_user, payload.name)
+    return APIResponse(
+        message="Profile updated successfully",
+        data=UserResponse.model_validate(user),
+    ).model_dump()
 
 
 @router.post("/register", response_model=APIResponseGeneric[dict], status_code=status.HTTP_201_CREATED)

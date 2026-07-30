@@ -1,6 +1,7 @@
 """
 Medicine-reminder controller.
 """
+import logging
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -23,6 +24,14 @@ from app.reminders.service import ReminderService
 from app.core.exceptions import UserNotFoundException, InsufficientPermissionsException
 
 router = APIRouter(prefix="/reminders", tags=["reminders"])
+logger = logging.getLogger(__name__)
+
+def _cleanup_job(reminder_id: str) -> None:
+    """Best-effort cleanup after deactivation; inactive jobs cannot deliver mail."""
+    try:
+        sched.unschedule_reminder(reminder_id)
+    except Exception:
+        logger.exception("Job cleanup deferred until reconciliation for reminder %s", reminder_id)
 
 @router.get("/config", response_model=APIResponseGeneric[ReminderConfigResponse])
 async def reminder_config():
@@ -74,9 +83,26 @@ async def create_reminder(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     reminder = service.create_reminder(patient_id=patient.id, data=payload)
+    reminder_id = reminder.id
+    patient_id = patient.id
 
     user_email = current_user.email
-    sched.schedule_reminder(reminder, user_email)
+    try:
+        sched.schedule_reminder(reminder)
+        service.activate_reminder(reminder)
+    except Exception:
+        logger.exception("Could not activate reminder %s", reminder_id)
+        db.rollback()
+        try:
+            service.delete_reminder(reminder_id, patient_id)
+        except Exception:
+            db.rollback()
+            logger.exception("Could not finalize failed reminder %s; reconciliation required", reminder_id)
+        _cleanup_job(reminder_id)
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Could not schedule your reminder. Please try again later.",
+        )
 
     background_tasks.add_task(
         send_email,
@@ -115,24 +141,25 @@ async def delete_reminder(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
 
     try:
-        reminder = service.delete_reminder(reminder_id=reminder_id, patient_id=patient.id)
+        reminder, changed = service.delete_reminder(reminder_id=reminder_id, patient_id=patient.id)
     except UserNotFoundException as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
     except InsufficientPermissionsException as e:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(e))
 
-    sched.unschedule_reminder(reminder_id)
+    _cleanup_job(reminder_id)
 
-    background_tasks.add_task(
-        send_email,
-        to=current_user.email,
-        subject="Medicine Reminder Removed",
-        body=(
-            f"Hi {current_user.name or 'there'},\n\n"
-            f"Your medicine reminder for '{reminder.medicine_name}' has been removed.\n\n"
-            "You will no longer receive emails for this reminder."
-        ),
-    )
+    if changed:
+        background_tasks.add_task(
+            send_email,
+            to=current_user.email,
+            subject="Medicine Reminder Removed",
+            body=(
+                f"Hi {current_user.name or 'there'},\n\n"
+                f"Your medicine reminder for '{reminder.medicine_name}' has been removed.\n\n"
+                "You will no longer receive emails for this reminder."
+            ),
+        )
 
     return APIResponse(
         message="Reminder removed successfully",

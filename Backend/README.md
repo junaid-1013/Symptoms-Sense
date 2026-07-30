@@ -4,6 +4,18 @@
 
 Copy `.env.sample` to `.env` for local use and replace the database, JWT, and OpenAI placeholders. Set SMTP credentials to enable contact and medicine-reminder emails. The sample deliberately leaves mail credentials empty; the mailer logs a failure and skips delivery until they are configured.
 
+### Local venv and Uvicorn
+
+The local development setup uses `Backend/venv` and a locally accessible PostgreSQL database. From `Backend/`, after creating `.env` and installing `requirements.txt` into the venv, run:
+
+```bash
+source venv/bin/activate
+alembic upgrade head
+uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Check `http://127.0.0.1:8000/health` before starting the frontend. Uvicorn starts the reminder scheduler through the FastAPI lifespan, but does **not** run Alembic automatically; apply migrations explicitly before starting it. Run one Uvicorn worker so only one process owns the scheduler. Local avatar uploads default to `Backend/uploads/avatars`, which is ignored by Git; keep that directory when preserving uploaded profile photos. The Docker instructions below apply only when choosing a container deployment.
+
 `ENVIRONMENT` defaults to `development` when absent or blank. It is normalized to lowercase; `production` disables `/docs` and `/redoc`. Set `DEBUG=False` separately in production to disable SQL echo. The production Compose service sets both explicitly.
 
 ### Frontend connection
@@ -26,11 +38,31 @@ Contact requests queue background delivery; a successful API response does not c
 
 The sample and production Compose configuration explicitly use `DEFAULT_TIMEZONE=Asia/Karachi`. The Python fallback remains `UTC` if the variable is omitted. Reminder times are wall-clock times in this configured zone, not the browser's local zone.
 
-At startup, the scheduler stays paused while active reminder jobs are inspected. Missing jobs are restored and stale time/timezone triggers are rebuilt from the saved weekday and clock time before execution resumes. If reconciliation fails, startup fails rather than running unverified schedules. Changing the timezone preserves the saved wall-clock time in the new zone; it does not preserve the old UTC instant. Inspect existing reminder records before changing a deployed timezone. Inactive/orphan job cleanup is still part of the pending scheduler consistency work.
+At startup, the scheduler stays paused while reminder jobs are inspected. Missing active jobs are restored; stale time/timezone triggers and legacy email payloads are replaced; jobs for inactive, deleted, or missing reminders are removed. Unrelated jobs are preserved. If reconciliation fails, startup fails rather than running unverified schedules. Changing the timezone preserves the saved wall-clock time in the new zone; it does not preserve the old UTC instant. Inspect existing reminder records before changing a deployed timezone.
 
 The form reads the scheduling zone from public `GET /api/reminders/config`; reminder list items also include `timezone`, and confirmation emails label it explicitly. Times use minute precision: `HH:MM` is canonical and legacy `HH:MM:00` is normalized. Other seconds, ISO dates, and malformed times are rejected. Medicine names/types cannot be blank, dosage must be a positive integer, and at least one valid weekday is required.
 
-Run exactly **one API worker and one API container/replica** while APScheduler runs inside the FastAPI lifespan. The existing entrypoint uses `--workers 1`; preserve that setting. Multiple processes must not share this job store without a separate scheduler ownership design. Jobs are stored in PostgreSQL and the scheduler creates its own job table at startup.
+### Reminder persistence and failure handling
+
+New reminders are saved inactive, registered with the job store, then activated. Registration or activation failure returns 503, attempts to soft-delete the inactive record and remove any partial job, and sends no added confirmation. An interrupted creation can leave an inactive record; it is excluded from the active list and its job is removed at reconciliation.
+
+Scheduled jobs contain only a reminder ID. Each execution reads the current reminder, medicine details, and patient email from the database. Missing, inactive, or deleted reminders and unavailable patient/user accounts do not receive email. The legacy serialized function remains loadable for migration but will not send email from an old cached payload.
+
+Deletion verifies ownership and persists deactivation before removing the job. A job-store cleanup failure is logged and retried on a repeated delete or the next startup; the stale job cannot pass the database activity check. Repeated deletes succeed without sending duplicate removal confirmations. SMTP failures are logged separately and do not undo a successful create/delete. Confirmation emails are best-effort background tasks, not durable delivery guarantees.
+
+Cancellation cannot recall an email whose delivery has already passed the active-state check. SMTP delivery is not transactional with the application database. Keep the single-process scheduler restriction below.
+
+Run exactly **one API worker/process** while APScheduler runs inside the FastAPI lifespan, whether using local Uvicorn or a container. The Docker entrypoint uses `--workers 1`; preserve that setting. Multiple processes must not share this job store without a separate scheduler ownership design. Jobs are stored in PostgreSQL and the scheduler creates its own job table at startup.
+
+## Profile editing and avatar storage
+
+`PATCH /api/auth/me` updates the authenticated user's name (2–100 characters after trimming). Other fields are rejected, and the existing avatar and authentication fields are preserved. `POST /api/auth/me/avatar` accepts an optional multipart `avatar` upload separately. Both endpoints derive ownership from the access token. The frontend updates cached user details without replacing tokens or reloading the page. If an image upload fails after the name was saved, it reports that partial outcome and lets the user retry.
+
+Avatar uploads accept JPEG, PNG, or WebP up to 2 MB and 16 megapixels. Pillow validates and re-encodes images as WebP, strips source metadata, and resizes them to fit 1024×1024. Only a generated filename is used; client filenames are discarded. The database stores the public URL. Files are served publicly at `/api/auth/avatars/{filename}` because profile avatars also appear in public testimonials/reviews. Google sign-in preserves an existing avatar.
+
+Locally, files default to `Backend/uploads/avatars`. In Docker, `AVATAR_STORAGE_DIR=/app/uploads/avatars` lives under the named uploads volume mounted at `/app/uploads` in both Compose configurations. The image creates that directory with ownership for the non-root app user. For a plain `docker run`, add `--mount source=symptoms-sense-uploads,target=/app/uploads` and `-e AVATAR_STORAGE_DIR=/app/uploads/avatars`; without a volume, container recreation loses uploads. Back up the uploads volume alongside PostgreSQL, and do not remove it with `docker compose down -v` if its data is needed.
+
+Set `PUBLIC_BACKEND_URL` to the externally accessible backend origin without `/api` (local default: `http://localhost:8000`). Production Compose requires it explicitly. Configure the reverse proxy to serve the avatar route and allow a multipart request slightly above 2 MB; the application validates the file limit. Existing URLs should remain reachable if the origin changes. Replaced avatar files are retained so old URLs remain valid; file retention/cleanup is not automated. Files created by a failed database update are removed.
 
 ## Docker build and run
 

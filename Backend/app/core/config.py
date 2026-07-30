@@ -2,6 +2,7 @@
 Configuration settings with type safety and validation.
 """
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -20,6 +21,9 @@ class Config:
     ENVIRONMENT: str = (os.getenv("ENVIRONMENT") or "development").strip().lower() or "development"
     DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
     FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    # Avatar files must live on a persistent volume in container deployments.
+    AVATAR_STORAGE_DIR: str = os.getenv("AVATAR_STORAGE_DIR", str(Path(__file__).resolve().parents[2] / "uploads" / "avatars"))
+    PUBLIC_BACKEND_URL: str = os.getenv("PUBLIC_BACKEND_URL", "http://localhost:8000").rstrip("/")
     
     # ========== JWT Configuration ==========
     SECRET_KEY: str = os.getenv("SECRET_KEY", "")
