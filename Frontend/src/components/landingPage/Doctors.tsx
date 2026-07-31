@@ -65,9 +65,6 @@ export default function Doctors() {
         [api]
     );
 
-    // Stats for credibility
-
-
     return (
         <section id="doctors" className="py-20 bg-gradient-to-b from-background via-background to-secondary/5 relative overflow-hidden">
             {/* Background decoration */}
@@ -95,18 +92,11 @@ export default function Doctors() {
                     </h2>
 
                     <p className="text-lg text-muted-foreground max-w-3xl mx-auto text-pretty leading-relaxed">
-                        Our network of {totalDoctors > 0 ? `${totalDoctors}+` : ''} certified doctors and specialists are here to provide
-                        personalized care and expert medical guidance, available 24/7 for your health needs.
+                        Browse {totalDoctors > 0 ? `${totalDoctors} ` : ""}doctor profiles across specialties and compare their services, clinics, and availability.
                     </p>
-
-                    {/* Trust indicators */}
                     <div className="flex flex-wrap justify-center gap-6 mt-8">
                         {DOCTOR_CAROUSEL_STATS.map((stat, index) => (
-                            <div
-                                key={index}
-                                className="flex items-center gap-2 text-sm animate-in fade-in slide-in-from-bottom-4"
-                                style={{ animationDelay: `${index * 100}ms` }}
-                            >
+                            <div key={index} className="flex items-center gap-2 text-sm animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${index * 100}ms` }}>
                                 <stat.icon className="w-4 h-4 text-primary" />
                                 <span className="text-muted-foreground">{stat.label}:</span>
                                 <span className="font-semibold">{stat.value}</span>
@@ -129,6 +119,10 @@ export default function Doctors() {
                                 </div>
                             ))}
                         </div>
+                    ) : doctors.length === 0 ? (
+                        <p className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground">
+                            No doctors are listed yet. Check back later or explore another service.
+                        </p>
                     ) : (
                         <>
                             <Carousel
@@ -243,11 +237,7 @@ export default function Doctors() {
                             href="/doctors"
                             className="text-muted-foreground hover:text-primary transition-colors duration-200 flex items-center gap-1 group"
                         >
-                            <span className="relative flex h-2 w-2 mr-1">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
-                            </span>
-                            Need urgent care?
+                            Looking for a doctor?
                             <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </Link>
 

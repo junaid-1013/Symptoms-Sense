@@ -119,6 +119,7 @@ class MedicalChatRequest(BaseModel):
     query: str = Field(..., min_length=1, max_length=2000, description="User's query")
     history: List[Message] = Field(default_factory=list, description="Conversation history")
     conversation_state: Optional[Dict[str, Any]] = Field(None, description="Current conversation state")
+    conversation_id: Optional[str] = Field(None, description="Saved conversation to continue when signed in")
 
 
 class MedicalChatResponse(BaseModel):
@@ -132,3 +133,4 @@ class MedicalChatResponse(BaseModel):
     doctors_list: Optional[List[DoctorInfo]] = Field(None, description="List of doctors")
     conversation_state: Optional[Dict[str, Any]] = Field(None, description="Updated conversation state")
     appointment_created: Optional[Dict[str, Any]] = Field(None, description="Created appointment details if booking completed")
+    conversation_id: Optional[str] = Field(None, description="Saved conversation ID for signed-in users")

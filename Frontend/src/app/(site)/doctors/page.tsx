@@ -15,27 +15,28 @@ import { useEffect, useState } from "react";
 export default function DoctorsPage() {
   const [loading, setLoading] = useState(true);
   const [doctors, setDoctors] = useState<DoctorBasicInfo[]>([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const pageSize = 12;
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSpecialization, setSelectedSpecialization] = useState("all");
   const [clinicId, setClinicId] = useState("");
   const { toast } = useToast();
 
-  const fetchDoctors = (search = "", specialization = "", clinic = "") => {
+  const fetchDoctors = (search = "", specialization = "", clinic = "", nextPage = 1) => {
     setLoading(true);
-    GetAllDoctorsApi({ search, specialization, clinic })
+    GetAllDoctorsApi({ search, specialization: specialization === "all" ? "" : specialization, clinic, page: nextPage, page_size: pageSize })
       .then((response) => {
-        setDoctors(response?.data?.data?.doctors);
-        toast({
-          title: "Success",
-          description: "Doctors fetched successfully",
-        });
+        setDoctors(response?.data?.data?.doctors ?? []);
+        setTotal(response?.data?.data?.total ?? 0);
+        setPage(nextPage);
         setLoading(false);
       })
       .catch((error) => {
         console.error("Error fetching doctors:", error);
         toast({
           title: "Error",
-          description: error.response.data.detail || "An unkown error occurred. Please try again later.",
+          description: error?.response?.data?.detail || "An unknown error occurred. Please try again later.",
           variant: "destructive",
         });
         setLoading(false);
@@ -71,14 +72,14 @@ export default function DoctorsPage() {
             Meet Our Expert <span className="text-primary">Healthcare Professionals</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Browse through our comprehensive directory of certified doctors and specialists ready to provide personalized care.
+            Explore provider profiles by name, specialty, and clinic.
           </p>
         </div>
 
         {/* Search and Filter Section */}
         <div className="mb-12 bg-card p-6 rounded-lg border shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-end">
-            <div className="flex-1">
+            <div className="w-full flex-1">
               <label className="block text-sm font-medium mb-2">Search Doctors</label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -92,7 +93,7 @@ export default function DoctorsPage() {
               </div>
             </div>
 
-            <div className="flex-1">
+            <div className="w-full flex-1">
               <label className="block text-sm font-medium mb-2">Specialization</label>
               <Select value={selectedSpecialization} onValueChange={setSelectedSpecialization}>
                 <SelectTrigger>
@@ -109,7 +110,7 @@ export default function DoctorsPage() {
               </Select>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex w-full gap-2 md:w-auto">
               <Button onClick={handleSearch} className="flex items-center gap-2">
                 <Filter className="w-4 h-4" />
                 Search
@@ -136,6 +137,13 @@ export default function DoctorsPage() {
             <Button variant="outline" onClick={handleClearFilters} className="mt-4">
               Clear Filters
             </Button>
+          </div>
+        )}
+        {!loading && total > pageSize && (
+          <div className="mt-10 flex items-center justify-center gap-4">
+            <Button variant="outline" disabled={page === 1} onClick={() => fetchDoctors(searchTerm, selectedSpecialization, clinicId, page - 1)}>Previous</Button>
+            <span className="text-sm text-muted-foreground">Page {page} of {Math.ceil(total / pageSize)} · {total} doctors</span>
+            <Button variant="outline" disabled={page >= Math.ceil(total / pageSize)} onClick={() => fetchDoctors(searchTerm, selectedSpecialization, clinicId, page + 1)}>Next</Button>
           </div>
         )}
       </div>

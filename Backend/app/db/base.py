@@ -15,3 +15,4 @@ from app.models.test import Test
 from app.models.feedback import SiteFeedback
 from app.models.doctor_review import DoctorReview
 from app.models.reminder import MedicineReminder
+from app.models.chat_conversation import ChatConversation, ChatMessage

@@ -1,4 +1,4 @@
-import { Award, BarChartIcon, Bot, Building, Clock, HelpCircleIcon, Shield, Star, Stethoscope, UserCircle, Workflow, Pill} from "lucide-react";
+import { Award, BarChartIcon, Bot, Building, Clock, HelpCircleIcon, Shield, Star, Stethoscope, UserCircle, Pill} from "lucide-react";
 
 export const MEDICINE_TYPES = [
     "Tablet",
@@ -11,28 +11,28 @@ export const MEDICINE_TYPES = [
 ]
 export const SERVICES = [
     {
-        icon: Stethoscope,
-        title: "Disease Diagnosis & Recommendation",
-        description:
-            "Experience precise disease diagnosis and personalized recommendations, empowering you to take control of your well-being with expert guidance.",
-        badge: "AI-Powered",
-        color: "text-primary",
-    },
-    {
         icon: Bot,
-        title: "Customized AI Medical Chatbot",
-        description:
-            "Unlock the future of healthcare with our custom AI Medical Chatbot Development, designed to cater to your unique healthcare needs.",
-        badge: "24/7 Available",
+        title: "Explore Symptoms",
+        description: "Ask questions, organize your symptoms, and learn what to discuss with a healthcare professional.",
+        badge: "AI Guidance",
         color: "text-primary",
+        href: "/chat-agent",
     },
     {
-        icon: Workflow,
-        title: "Seamless Integration",
-        description:
-            "Streamline healthcare interactions with seamless chatbot integration, enhancing communication and support while saving time and resources.",
-        badge: "Enterprise Ready",
+        icon: Stethoscope,
+        title: "Find Doctors",
+        description: "Browse doctors and specialties to find care that fits your needs.",
+        badge: "Doctor Directory",
         color: "text-primary",
+        href: "/doctors",
+    },
+    {
+        icon: Pill,
+        title: "Medicine Reminders",
+        description: "Set a recurring schedule for the medicines you need to remember.",
+        badge: "Stay Organized",
+        color: "text-primary",
+        href: "/medicineReminder",
     },
 ]
 export const TEAM_MEMBERS = [
@@ -82,6 +82,13 @@ export const NAV_LINKS = [
     { label: "Services", href: "/#services" },
     { label: "Testimonials", href: "/#feedback" },
     { label: "Contact Us", href: "/#contact-us" },
+    { label: "About", href: "/about" },
+];
+export const DOCTOR_CAROUSEL_STATS = [
+    { icon: Star, label: "4.9 Average Rating", value: "4.9/5" },
+    { icon: Shield, label: "All Verified", value: "100%" },
+    { icon: Clock, label: "Avg Response Time", value: "< 2hrs" },
+    { icon: Award, label: "Board Certified", value: "98%" }
 ];
 export const USER_TYPES = [
     {
@@ -157,14 +164,9 @@ export const DOCTOR_SPECIALIZATIONS = [
     "Pulmonologist",
     "Nephrologist",
     "Gastroenterologist",
+    "Rheumatologist",
     "Physiotherapist",
     "Anesthesiologist",
-];
-export const DOCTOR_CAROUSEL_STATS = [
-    { icon: Star, label: "4.9 Average Rating", value: "4.9/5" },
-    { icon: Shield, label: "All Verified", value: "100%" },
-    { icon: Clock, label: "Avg Response Time", value: "< 2hrs" },
-    { icon: Award, label: "Board Certified", value: "98%" }
 ];
 export const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 export const APPOINTMENT_TYPES = [

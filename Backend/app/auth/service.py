@@ -22,6 +22,7 @@ from app.prescriptions.schema import MedicineResponse
 from sqlalchemy.orm import joinedload
 from app.core.config import config
 from app.clinics.service import ClinicsService
+from app.auth.avatars import cache_google_avatar, is_google_avatar_url
 class AuthService:
     """Authentication service class."""
     
@@ -345,32 +346,41 @@ class AuthService:
         # Check if user exists
         user = self.get_user_by_google_id(google_id)
         if not user:
-            # Check if user exists with this email
             user = self.get_user_by_email(email)
-            if user:
-                # Link Google account to existing user
-                user.google_id = google_id
-                if not user.avatar_url:
-                    user.avatar_url = avatar_url
-                user.is_email_verified = True
-            else:
-                # Create new user
-                user = User(
-                    email=email,
-                    name=name,
-                    google_id=google_id,
-                    avatar_url=avatar_url,
-                    is_email_verified=True,
-                    user_type=UserType.PATIENT  # Default user type for OAuth users
-                )
-                self.db.add(user)
+
+        existing_avatar = user.avatar_url if user else None
+        cached_avatar = None
+        if avatar_url and (not existing_avatar or is_google_avatar_url(existing_avatar)):
+            cached_avatar = await cache_google_avatar(avatar_url)
+        selected_avatar = cached_avatar[1] if cached_avatar else (existing_avatar or avatar_url)
+
+        if not user:
+            # Create new user
+            user = User(
+                email=email,
+                name=name,
+                google_id=google_id,
+                avatar_url=selected_avatar,
+                is_email_verified=True,
+                user_type=UserType.PATIENT  # Default user type for OAuth users
+            )
+            self.db.add(user)
+        elif not user.google_id:
+            # Link Google to an account with the same email.
+            user.google_id = google_id
+            user.avatar_url = selected_avatar
+            user.is_email_verified = True
         else:
-            # Update user info
-            if not user.avatar_url:
-                user.avatar_url = avatar_url
+            user.avatar_url = selected_avatar
             user.last_login = datetime.now(timezone.utc)
         
-        self.db.commit()
+        try:
+            self.db.commit()
+        except Exception:
+            self.db.rollback()
+            if cached_avatar:
+                cached_avatar[0].unlink(missing_ok=True)
+            raise
         self.db.refresh(user)
         
         if not user.is_active:

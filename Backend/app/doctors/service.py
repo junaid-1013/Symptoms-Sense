@@ -354,7 +354,7 @@ class DoctorsService:
         )
 
         total = query.count()
-        doctors = query.offset((page - 1) * page_size).limit(page_size).all()
+        doctors = query.order_by(Doctor.id.asc()).offset((page - 1) * page_size).limit(page_size).all()
 
         return [self._build_doctor_basic_info(doctor) for doctor in doctors], total
 
@@ -437,7 +437,7 @@ class DoctorsService:
         doctors = query.options(
             joinedload(Doctor.user),
             joinedload(Doctor.clinic).joinedload(Clinic.user)
-        ).offset((page - 1) * page_size).limit(page_size).all()
+        ).order_by(User.name.asc(), Doctor.id.asc()).offset((page - 1) * page_size).limit(page_size).all()
 
         return [self._build_doctor_basic_info(doctor) for doctor in doctors], total
 
@@ -508,6 +508,7 @@ class DoctorsService:
             id=doctor.id,
             user_id=doctor.user_id,
             name=doctor.user.name if doctor.user else None,
+            avatar_url=doctor.user.avatar_url if doctor.user else None,
             email=doctor.user.email if doctor.user else None,
             specializations=doctor.specializations,
             services=doctor.services,
@@ -526,6 +527,7 @@ class DoctorsService:
             id=doctor.id,
             user_id=doctor.user_id,
             name=doctor.user.name if doctor.user else None,
+            avatar_url=doctor.user.avatar_url if doctor.user else None,
             email=doctor.user.email if doctor.user else None,
             phone=doctor.user.phone if doctor.user else None,
             specializations=doctor.specializations,

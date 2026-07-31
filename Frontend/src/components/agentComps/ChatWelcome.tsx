@@ -43,7 +43,7 @@ const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => {
     ];
 
     return (
-        <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+        <div className="flex min-h-full items-start justify-center overflow-y-auto px-4 py-6 lg:items-center lg:p-6">
             <div className="max-w-3xl w-full space-y-8">
                 {/* Welcome Header */}
                 <motion.div
@@ -60,7 +60,7 @@ const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => {
                     >
                         <Sparkles className="h-10 w-10 text-primary" />
                     </motion.div>
-                    <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent sm:text-4xl">
                         Welcome to Symptoms Sense AI
                     </h1>
                     <p className="text-muted-foreground text-lg max-w-2xl mx-auto">

@@ -1,13 +1,11 @@
 ﻿"use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Brain, ShieldCheck, Stethoscope, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-/*  Live counter that starts when the element enters the viewport  */
 function useInViewCounter(end: number, duration = 2000) {
     const [count, setCount] = useState(0);
     const [triggered, setTriggered] = useState(false);
@@ -16,15 +14,12 @@ function useInViewCounter(end: number, duration = 2000) {
     useEffect(() => {
         const el = ref.current;
         if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    setTriggered(true);
-                    setCount(0);
-                }
-            },
-            { threshold: 0.5 }
-        );
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                setTriggered(true);
+                setCount(0);
+            }
+        }, { threshold: 0.5 });
         observer.observe(el);
         return () => observer.disconnect();
     }, []);
@@ -49,32 +44,13 @@ function useInViewCounter(end: number, duration = 2000) {
     return { count, ref };
 }
 
-/*  Individual stat card  */
-interface StatProps {
-    end: number;
-    suffix: string;
-    label: string;
-    isStatic?: boolean;
-    staticValue?: string;
-}
-
-function StatCard({ end, suffix, label, isStatic = false, staticValue }: StatProps) {
+function StatCard({ end, suffix, label, staticValue }: { end: number; suffix: string; label: string; staticValue?: string }) {
     const { count, ref } = useInViewCounter(end);
-    const display = isStatic
-        ? staticValue
-        : end >= 1000
-        ? `${Math.floor(count / 1000)}K`
-        : count;
-
+    const display = staticValue ?? (end >= 1000 ? `${Math.floor(count / 1000)}K` : count);
     return (
-        <div
-            ref={isStatic ? undefined : ref}
-            className="flex flex-col items-center justify-center min-w-[90px] px-5 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors duration-300 group"
-        >
-            <span className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums group-hover:scale-110 transition-transform duration-300">
-                {display}{suffix}
-            </span>
-            <span className="text-[11px] text-white/50 mt-1 text-center leading-snug">{label}</span>
+        <div ref={staticValue ? undefined : ref} className="flex flex-col items-center justify-center min-w-[90px] px-5 py-4 rounded-2xl bg-white/5 border border-white/20 backdrop-blur-sm hover:bg-white/10 transition-colors duration-300 group">
+            <span className="text-2xl sm:text-3xl font-extrabold text-white tabular-nums group-hover:scale-110 transition-transform duration-300">{display}{suffix}</span>
+            <span className="text-[11px] text-slate-200 mt-1 text-center leading-snug">{label}</span>
         </div>
     );
 }
@@ -132,28 +108,35 @@ export default function Hero() {
                                     <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-60" />
                                 </span>
                             </h1>
-                            <h2 className="text-2xl sm:text-3xl xl:text-4xl font-light text-white/40">
+                            <h2 className="text-2xl sm:text-3xl xl:text-4xl font-light text-slate-200">
                                 Predicting Wellness
                             </h2>
                         </div>
 
                         {/* Description */}
-                        <p className="text-base sm:text-lg text-white/55 leading-relaxed max-w-lg">
+                        <p className="text-base sm:text-lg text-slate-200 leading-relaxed max-w-lg">
                             A revolutionary platform enhancing healthcare decision-making through
-                            AI-powered insights and personalized recommendations  available 24/7.
+                            AI-powered insights and personalized recommendations available 24/7.
                         </p>
 
-                        {/*  Live Stat Cards  */}
+                        {/* Live stat cards */}
                         <div className="flex flex-wrap gap-3">
                             <StatCard end={10000} suffix="+" label="Patients Helped" />
                             <StatCard end={95} suffix="%" label="Accuracy Rate" />
-                            <StatCard
-                                end={0}
-                                suffix=""
-                                label="AI Support"
-                                isStatic
-                                staticValue="24/7"
-                            />
+                            <StatCard end={0} suffix="" label="AI Support" staticValue="24/7" />
+                        </div>
+
+                        <div className="flex flex-wrap gap-2 pt-1">
+                            {[
+                                { icon: ShieldCheck, text: "HIPAA Compliant" },
+                                { icon: ShieldCheck, text: "FDA Approved" },
+                                { icon: ShieldCheck, text: "ISO 27001" },
+                            ].map(({ icon: Icon, text }) => (
+                                <span key={text} className="inline-flex items-center gap-1.5 rounded-full border border-white/20 px-3 py-1 text-xs text-slate-200">
+                                    <Icon className="h-3 w-3 text-blue-300" aria-hidden="true" />
+                                    {text}
+                                </span>
+                            ))}
                         </div>
 
                         {/* CTAs */}
@@ -171,29 +154,13 @@ export default function Hero() {
                             <Button
                                 variant="ghost"
                                 size="lg"
-                                className="text-white/70 hover:text-white border border-white/15 hover:border-white/30 hover:bg-white/5 rounded-full px-8"
+                                className="text-slate-100 hover:text-white border border-white/30 hover:border-white/50 hover:bg-white/5 rounded-full px-8"
                                 asChild
                             >
                                 <Link href="/#services">Explore Services</Link>
                             </Button>
                         </div>
 
-                        {/* Trust pills */}
-                        <div className="flex flex-wrap gap-2 pt-1">
-                            {[
-                                { icon: ShieldCheck, text: "HIPAA Compliant" },
-                                { icon: ShieldCheck, text: "FDA Approved" },
-                                { icon: ShieldCheck, text: "ISO 27001" },
-                            ].map(({ icon: Icon, text }) => (
-                                <span
-                                    key={text}
-                                    className="inline-flex items-center gap-1.5 text-xs text-white/40 border border-white/10 rounded-full px-3 py-1"
-                                >
-                                    <Icon className="w-3 h-3 text-blue-400/60" />
-                                    {text}
-                                </span>
-                            ))}
-                        </div>
                     </div>
 
                     {/*  RIGHT: Image  */}
@@ -228,8 +195,8 @@ export default function Hero() {
                                     <Brain className="w-4 h-4 text-blue-400" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-semibold text-white whitespace-nowrap">AI Diagnosis</div>
-                                    <div className="text-[11px] text-white/40">Real-time analysis</div>
+                                    <div className="text-sm font-semibold text-white whitespace-nowrap">Symptom Insights</div>
+                                    <div className="text-[11px] text-slate-300">Explore your questions</div>
                                 </div>
                             </div>
                         </div>
@@ -244,8 +211,8 @@ export default function Hero() {
                                     <Users className="w-4 h-4 text-cyan-400" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-semibold text-white whitespace-nowrap">Expert Doctors</div>
-                                    <div className="text-[11px] text-white/40">Available 24/7</div>
+                                    <div className="text-sm font-semibold text-white whitespace-nowrap">Find Doctors</div>
+                                    <div className="text-[11px] text-slate-300">Browse care options</div>
                                 </div>
                             </div>
                         </div>
@@ -260,8 +227,8 @@ export default function Hero() {
                                     <Stethoscope className="w-4 h-4 text-green-400" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-semibold text-white whitespace-nowrap">95% Accuracy</div>
-                                    <div className="text-[11px] text-white/40">Clinically validated</div>
+                                    <div className="text-sm font-semibold text-white whitespace-nowrap">Medicine Reminders</div>
+                                    <div className="text-[11px] text-slate-300">Stay on schedule</div>
                                 </div>
                             </div>
                         </div>

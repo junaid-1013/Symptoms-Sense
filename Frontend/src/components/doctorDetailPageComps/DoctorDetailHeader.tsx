@@ -1,5 +1,5 @@
 import { DoctorData } from '@/types';
-import Image from "next/image";
+import DoctorPortrait from "@/components/doctor/DoctorPortrait";
 
 const DoctorDetailHeader = (props: { doctor: DoctorData }) => {
     const { doctor } = props;
@@ -7,13 +7,12 @@ const DoctorDetailHeader = (props: { doctor: DoctorData }) => {
         <div className="relative block overflow-hidden rounded-lg border border-gray-100 p-4 sm:p-6 lg:p-8 
         md:col-span-3 col-span-5 shadow-lg">
             <div className="flex gap-5">
-                <div className="block shrink-0">
-                    <Image
-                        alt={doctor.name}
-                        src="/doctor-placeholder2.svg"
-                        width={112}
-                        height={112}
-                        className="h-28 w-28 rounded-full object-cover shadow-lg"
+                <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-full bg-slate-100 shadow-lg">
+                    <DoctorPortrait
+                        name={doctor.name}
+                        src={doctor.avatar_url}
+                        sizes="112px"
+                        className="object-cover"
                     />
                 </div>
                 <div>

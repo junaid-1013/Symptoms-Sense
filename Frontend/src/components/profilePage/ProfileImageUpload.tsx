@@ -1,20 +1,24 @@
 import { Label } from "@/components/ui/label"
 import { ProfileImageUploadProps } from "@/types"
 import { Camera, Upload } from "lucide-react"
+import { useState } from "react"
 
 export const ProfileImageUpload = ({ imagePreview, onFileChange, disabled }: ProfileImageUploadProps) => {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null)
+  const showPreview = Boolean(imagePreview && failedSrc !== imagePreview)
   return (
     <div className="space-y-2">
       <Label className="text-base font-medium">Profile Image</Label>
       <div className="flex flex-col items-center gap-4">
         <div className="relative">
           <div className="w-32 h-32 rounded-full border-2 border-dashed border-border overflow-hidden bg-muted flex items-center justify-center">
-            {imagePreview ? (
+            {showPreview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={imagePreview || "/placeholder.svg"}
+                src={imagePreview || undefined}
                 alt="Profile Preview"
                 className="w-full h-full object-cover"
+                onError={() => setFailedSrc(imagePreview)}
               />
             ) : (
               <div className="text-center">

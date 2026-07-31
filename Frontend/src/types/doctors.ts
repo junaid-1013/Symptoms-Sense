@@ -22,13 +22,14 @@ export interface DoctorBasicInfo {
     user_id: string;
     name?: string;
     email?: string;
-    specializations?: string;
+    specializations?: string[];
     experience_years?: number;
     bio?: string;
     clinic_name?: string;
     clinic_address?: string;
     status: string;
     img?: string;
+    avatar_url?: string | null;
 }
 export interface RegisterDoctorApiProps {
     specializations: string[];
@@ -64,6 +65,7 @@ export interface DoctorData {
     id: string;
     user_id: string;
     name: string;
+    avatar_url?: string | null;
     email: string;
     phone: string;
     specializations: string[];

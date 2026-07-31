@@ -60,6 +60,7 @@ class DoctorBasicInfo(BaseModel):
     id: str
     user_id: str
     name: Optional[str] = None
+    avatar_url: Optional[str] = None
     email: Optional[str] = None
     specializations: Optional[List[str]] = None
     services: Optional[List[str]] = None
@@ -80,6 +81,7 @@ class DoctorDetailResponse(BaseModel):
     id: str
     user_id: str
     name: Optional[str] = None
+    avatar_url: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
     specializations: Optional[List[str]] = None

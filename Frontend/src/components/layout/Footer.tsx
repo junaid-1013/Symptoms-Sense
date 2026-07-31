@@ -20,7 +20,7 @@ const Footer = () => {
                                 Ready to take control of{" "}
                                 <span className="text-blue-400">your health?</span>
                             </h2>
-                            <p className="text-sm text-white/50 max-w-md">
+                            <p className="text-sm text-slate-200 max-w-md">
                                 Join thousands of patients already benefiting from AI-powered diagnosis and personalized care.
                             </p>
                         </div>
@@ -48,24 +48,19 @@ const Footer = () => {
                             height={40}
                             className="h-9 w-auto opacity-90"
                         />
-                        <p className="text-sm text-white/50 leading-relaxed max-w-xs">
+                        <p className="text-sm text-slate-200 leading-relaxed max-w-xs">
                             Empowering healthy lives through AI-powered disease prediction and personalized healthcare guidance.
                         </p>
                         <div className="flex gap-2 pt-1">
                             {["HIPAA", "FDA", "ISO"].map((badge) => (
-                                <span
-                                    key={badge}
-                                    className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-white/10 text-white/40"
-                                >
-                                    {badge}
-                                </span>
+                                <span key={badge} className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-white/20 text-slate-200">{badge}</span>
                             ))}
                         </div>
                     </div>
 
                     {/* Quick Links */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+                        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-300">
                             Navigation
                         </h3>
                         <ul className="space-y-3">
@@ -85,7 +80,7 @@ const Footer = () => {
 
                     {/* Contact */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+                        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-300">
                             Contact
                         </h3>
                         <ul className="space-y-3.5">
@@ -111,33 +106,22 @@ const Footer = () => {
                                     {CONTACT_INFO.phone}
                                 </a>
                             </li>
-                            <li className="flex items-start gap-3 text-sm text-white/60">
+                            <li className="flex items-start gap-3 text-sm text-slate-200">
                                 <span className="mt-0.5 flex-shrink-0 w-7 h-7 rounded-full bg-white/5 flex items-center justify-center">
                                     <MapPin className="w-3.5 h-3.5 text-blue-400" />
                                 </span>
-                                <span>
-                                    {CONTACT_INFO.address.area},{" "}
-                                    {CONTACT_INFO.address.country}
-                                </span>
+                                <span>{CONTACT_INFO.address.area}, {CONTACT_INFO.address.country}</span>
                             </li>
                         </ul>
                     </div>
 
-                    {/* Hours */}
+                    {/* Support */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-semibold uppercase tracking-widest text-white/40">
-                            Support Hours
+                        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+                            Support
                         </h3>
-                        <ul className="space-y-3">
-                            <li className="text-sm text-white/60">{CONTACT_INFO.hours.weekdays}</li>
-                            <li className="text-sm text-white/60">{CONTACT_INFO.hours.weekends}</li>
-                            <li>
-                                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-400 bg-blue-400/10 px-3 py-1.5 rounded-full">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
-                                    {CONTACT_INFO.hours.emergency}
-                                </span>
-                            </li>
-                        </ul>
+                        <p className="text-sm leading-relaxed text-slate-200">Questions about using Symptoms Sense? Reach out through the contact form or email us.</p>
+                        <Link href="/#contact-us" className="inline-flex text-sm font-medium text-blue-300 hover:text-white">Contact us</Link>
                     </div>
                 </div>
 

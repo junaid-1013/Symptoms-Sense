@@ -99,7 +99,7 @@ const Navbar = () => {
                 <button className="flex items-center gap-2 focus:outline-none rounded-full p-0.5 ring-1 ring-white/20 hover:ring-white/40 transition-all duration-200">
                   <Avatar className="h-8 w-8">
                     <AvatarImage
-                      src={isAuthenticated ? user?.avatar_url || "/placeholder.svg" : undefined}
+                      src={isAuthenticated ? user?.avatar_url || undefined : undefined}
                       alt={user?.name || "User"}
                     />
                     <AvatarFallback className="bg-[#273c75] text-white text-xs font-semibold">

@@ -108,6 +108,7 @@ const Login = () => {
                         />
                     </div>
                     <p className="text-lg text-gray-500 text-center font-semibold">Hello! Welcome back!</p>
+                    <form onSubmit={handleSubmit(onLogin)}>
                     <div className="mt-4">
                         <Label className="block text-gray-700 text-sm font-bold mb-2">Email</Label>
                         <Input
@@ -133,10 +134,9 @@ const Login = () => {
                         />
                     </div>
                     <div className="mt-8">
-                        <form onSubmit={handleSubmit(onLogin)}>
-                            <SpinnerButton state={isSubmitting} disabled={isSubmitting} aria-busy={isSubmitting} aria-label={isSubmitting ? "Logging in" : "Login"} name="Login" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75" />
-                        </form>
+                        <SpinnerButton state={isSubmitting} disabled={isSubmitting} aria-busy={isSubmitting} aria-label={isSubmitting ? "Logging in" : "Login"} name="Login" type="submit" className="bg-[#192a56] text-white font-bold w-full hover:bg-[#192a56]/75" />
                     </div>
+                    </form>
                     <div className="mt-4 flex items-center justify-between gap-x-2">
                         <span className="border-b w-full"></span>
                         <p className="text-xs text-center text-gray-500 uppercase">or</p>

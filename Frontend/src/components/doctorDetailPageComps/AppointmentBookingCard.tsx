@@ -1,6 +1,6 @@
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { AppointmentBookingCardProps } from "@/types";
-import { Clock4 } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import BookingDialogContent from './BookingDialogContent';
 
 const AppointmentBookingCard = ({
@@ -38,22 +38,16 @@ const AppointmentBookingCard = ({
                     </div>
 
                     <div className="flex justify-between">
-                        <p className="text-sm">Fee:</p>
-                        <p className="text-sm font-semibold">Rs. 1500</p>
-                    </div>
-                    <hr className="-mt-6" />
-
-                    <div className="flex justify-between">
                         <p className="text-sm">Address:</p>
                         <p className="text-sm font-semibold">{doctor.clinic_address}</p>
                     </div>
                     <hr className="-mt-6" />
 
-                    <div className="flex justify-between">
+                    <div className="flex justify-between gap-4">
                         <p className="flex gap-x-2 text-sm text-[#2a872e] font-semibold">
-                            <Clock4 className="w-5 h-5" />Online Hours
+                            <CalendarDays className="w-5 h-5" />Availability
                         </p>
-                        <p className="text-sm font-semibold">10:00 AM - 7:00 PM</p>
+                        <p className="text-right text-sm font-semibold">Select a date to view appointment times</p>
                     </div>
 
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

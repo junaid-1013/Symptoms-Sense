@@ -52,10 +52,10 @@ export default function Testimonials({ refreshKey = 0 }: { refreshKey?: number }
                         Testimonials
                     </Badge>
                     <h2 className="text-3xl md:text-4xl font-bold text-balance mb-4">
-                        Trusted by Healthcare <span className="text-primary">Professionals</span>
+                        What people say about <span className="text-primary">Symptoms Sense</span>
                     </h2>
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-                        Read what healthcare providers and patients say about our AI-powered platform
+                        Read feedback shared by people using the platform.
                     </p>
                 </div>
 

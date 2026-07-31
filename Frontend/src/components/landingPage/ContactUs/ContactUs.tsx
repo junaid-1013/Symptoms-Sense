@@ -13,7 +13,6 @@ import {
   Building2,
   CheckCircle2,
   Headphones,
-  Heart,
   Loader2,
   Mail,
   MapPin,
@@ -22,7 +21,8 @@ import {
   Send,
   Shield,
   Star,
-  Users
+  Heart,
+  Users,
 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -60,7 +60,7 @@ export default function ContactUs() {
       setSubmitStatus("success");
       toast({
         title: "Message Sent Successfully!",
-        description: "Thank you for contacting us. We'll respond within 24 hours.",
+        description: "Thank you for contacting us. Your message has been received.",
         duration: 5000,
       });
 
@@ -107,8 +107,7 @@ export default function ContactUs() {
           </h2>
 
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Have questions about our services or need medical guidance?
-            Our dedicated team is here to support your healthcare journey.
+            Have a question about Symptoms Sense? Send us a message about using the platform or share feedback.
           </p>
         </div>
 
@@ -148,6 +147,7 @@ export default function ContactUs() {
                       subValue={CONTACT_INFO.address.area}
                       className="text-primary-foreground"
                     />
+
                   </div>
                 </div>
               </CardContent>
@@ -164,24 +164,22 @@ export default function ContactUs() {
               <CardContent className="space-y-3">
                 <FeatureItem
                   icon={<CheckCircle2 className="w-4 h-4 text-green-600" />}
-                  text="Quick response within 24 hours"
+                  text="Questions about using the platform"
                 />
                 <FeatureItem
                   icon={<CheckCircle2 className="w-4 h-4 text-green-600" />}
-                  text="Expert medical professionals"
+                  text="Help finding features and doctors"
                 />
                 <FeatureItem
                   icon={<CheckCircle2 className="w-4 h-4 text-green-600" />}
-                  text="Personalized healthcare guidance"
+                  text="Questions about medicine reminders"
                 />
                 <FeatureItem
                   icon={<CheckCircle2 className="w-4 h-4 text-green-600" />}
-                  text="100% Confidential consultation"
+                  text="Product feedback and suggestions"
                 />
               </CardContent>
             </Card>
-
-            {/* Trust Indicators */}
             <div className="grid grid-cols-3 gap-4 p-4 bg-muted/30 rounded-lg border border-border/50">
               <div className="text-center">
                 <Shield className="w-6 h-6 text-primary mx-auto mb-1" />
@@ -210,7 +208,7 @@ export default function ContactUs() {
                   Send Us a Message
                 </CardTitle>
                 <CardDescription className="text-base pt-4 pb-2">
-                  Fill out the form below and we&apos;ll respond within 24 hours
+                  Fill out the form below and we&apos;ll get back to you as soon as we can
                 </CardDescription>
               </CardHeader>
 
@@ -294,8 +292,8 @@ export default function ContactUs() {
                     <div className="flex items-start gap-2">
                       <Headphones className="w-4 h-4 text-primary mt-0.5" />
                       <div className="text-sm text-muted-foreground">
-                        <p className="font-medium text-foreground">Need immediate assistance?</p>
-                        <p>Call our 24/7 emergency hotline at {CONTACT_INFO.phone}</p>
+                        <p className="font-medium text-foreground">Need urgent medical care?</p>
+                        <p>Contact your local emergency service. This form is for questions about Symptoms Sense.</p>
                       </div>
                     </div>
                   </div>

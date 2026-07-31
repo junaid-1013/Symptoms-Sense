@@ -2,8 +2,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { DoctorBasicInfo } from "@/types/doctors";
+import DoctorPortrait from "@/components/doctor/DoctorPortrait";
 import { GraduationCap, MapPin, UserCheck } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
   const specialization =
@@ -13,12 +13,12 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
   return (
     <Card className="group hover:shadow-xl transition-all duration-500 hover:-translate-y-2 bg-card border-border overflow-hidden">
       <CardContent className="p-0">
-        <div className="relative h-56 overflow-hidden">
-        <Image
-            src={doctor.img || "/doctor-placeholder.svg"}
-            alt={doctor.name || "Doctor"}
-            fill
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+        <div className="relative h-72 overflow-hidden">
+        <DoctorPortrait
+            src={doctor.avatar_url || doctor.img}
+            name={doctor.name}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
@@ -68,11 +68,9 @@ const DoctorCard = ({ doctor }: { doctor: DoctorBasicInfo }) => {
             </div>
           )} */}
 
-          <Link href={`/doctorDetail?id=${doctor.id}`} className="block">
-            <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group-hover:shadow-lg transition-all duration-300 py-2 px-4 rounded-md">
+          <Link href={`/doctorDetail?id=${doctor.id}`} className="block w-full rounded-md bg-primary px-4 py-2 text-center text-primary-foreground transition-all duration-300 hover:bg-primary/90 group-hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
               <UserCheck className="w-4 h-4 mr-2 inline" />
               View Profile
-            </button>
           </Link>
         </div>
       </CardContent>

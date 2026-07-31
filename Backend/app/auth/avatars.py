@@ -4,7 +4,10 @@ from pathlib import Path
 from uuid import uuid4
 import re
 import warnings
+import logging
+from urllib.parse import urlparse
 
+import httpx
 from fastapi import HTTPException
 from PIL import Image, ImageOps, UnidentifiedImageError
 
@@ -12,6 +15,34 @@ from app.core.config import config
 
 MAX_AVATAR_BYTES = 2 * 1024 * 1024
 ALLOWED_TYPES = {"image/jpeg": "JPEG", "image/png": "PNG", "image/webp": "WEBP"}
+logger = logging.getLogger(__name__)
+
+
+def is_google_avatar_url(url: str) -> bool:
+    parsed = urlparse(url)
+    return parsed.scheme == "https" and parsed.hostname == "lh3.googleusercontent.com" and not parsed.username and not parsed.password
+
+
+async def cache_google_avatar(url: str) -> tuple[Path, str] | None:
+    """Keep Google's trusted profile picture on the existing persistent avatar store."""
+    if not is_google_avatar_url(url):
+        return None
+    try:
+        async with httpx.AsyncClient(timeout=5, follow_redirects=False) as client:
+            async with client.stream("GET", url) as response:
+                response.raise_for_status()
+                content_type = response.headers.get("content-type", "").split(";", 1)[0].lower()
+                if content_type not in ALLOWED_TYPES:
+                    return None
+                content = bytearray()
+                async for chunk in response.aiter_bytes():
+                    content.extend(chunk)
+                    if len(content) > MAX_AVATAR_BYTES:
+                        return None
+        return save_avatar(bytes(content), content_type)
+    except (httpx.HTTPError, HTTPException, OSError) as exc:
+        logger.warning("Could not cache Google profile image: %s", type(exc).__name__)
+        return None
 
 
 def save_avatar(content: bytes, content_type: str) -> tuple[Path, str]:

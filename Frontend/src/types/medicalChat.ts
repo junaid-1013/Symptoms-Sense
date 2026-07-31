@@ -48,6 +48,7 @@ export interface ConversationState {
 }
 
 export interface MedicalChatApiResponse {
+  conversation_id?: string | null;
   reply: string;
   extracted_symptoms: SymptomExtractionPayload;
   disease_reasoning: DiseaseReasoningPayload | null;

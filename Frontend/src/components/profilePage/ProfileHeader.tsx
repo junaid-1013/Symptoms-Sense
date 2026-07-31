@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { useUser } from "@/contextApis/UserContext"
@@ -14,6 +15,7 @@ import {
   Stethoscope
 } from "lucide-react"
 import Link from "next/link"
+import { getUserInitials } from "@/utils/user"
 
 export const ProfileHeader = ({ stats }: ProfileHeaderProps) => {
   const { user } = useUser()
@@ -131,14 +133,12 @@ export const ProfileHeader = ({ stats }: ProfileHeaderProps) => {
         <CardContent className="relative -mt-24 pb-8">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
             <div className="relative">
-              <div className="w-40 h-40 rounded-2xl overflow-hidden border-4 border-background shadow-2xl bg-gradient-to-br from-primary/20 to-primary/10">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  alt="Profile"
-                  src={user?.avatar_url || "/user.png"}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <Avatar className="w-40 h-40 rounded-2xl border-4 border-background shadow-2xl bg-gradient-to-br from-primary/20 to-primary/10">
+                <AvatarImage alt={`${user?.name || "User"}'s profile photo`} src={user?.avatar_url || undefined} className="object-cover" />
+                <AvatarFallback className="rounded-2xl text-4xl font-semibold text-primary">
+                  {getUserInitials(user?.name || user?.email || "U")}
+                </AvatarFallback>
+              </Avatar>
               <div className="absolute -bottom-2 -right-2 p-2 bg-green-500 rounded-full border-4 border-background">
                 <CheckCircle className="w-5 h-5 text-white" />
               </div>
