@@ -66,6 +66,33 @@ class ReminderService:
 
         return reminder
 
+    def create_scheduled_reminder(self, patient_id: str, data: ReminderCreateRequest) -> MedicineReminder:
+        """Create, register the recurring job, then activate; never leave a half-created active reminder.
+
+        Mirrors the POST /reminders flow for callers outside the HTTP controller (e.g. the chat agent).
+        """
+        import logging
+        from app.core import scheduler as sched
+
+        reminder = self.create_reminder(patient_id=patient_id, data=data)
+        reminder_id = reminder.id
+        try:
+            sched.schedule_reminder(reminder)
+            self.activate_reminder(reminder)
+        except Exception:
+            logging.getLogger(__name__).exception("Could not activate reminder %s", reminder_id)
+            self.db.rollback()
+            try:
+                self.delete_reminder(reminder_id, patient_id)
+            except Exception:
+                self.db.rollback()
+            try:
+                sched.unschedule_reminder(reminder_id)
+            except Exception:
+                pass
+            raise
+        return reminder
+
     def activate_reminder(self, reminder: MedicineReminder) -> None:
         reminder.is_active = True
         try:

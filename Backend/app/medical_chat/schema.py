@@ -99,6 +99,9 @@ class ChatRequest(BaseModel):
     conversation_history: List[Message] = Field(default_factory=list, description="Previous conversation messages")
     conversation_state: Optional[ConversationState] = Field(None, description="Current conversation state")
     patient_id: Optional[str] = Field(None, description="Patient ID if authenticated")
+    user_id: Optional[str] = Field(None, description="User ID if authenticated")
+    user_name: Optional[str] = Field(None, description="Display name if authenticated")
+    user_type: Optional[str] = Field(None, description="User type if authenticated")
 
 
 class ChatResponse(BaseModel):
@@ -112,6 +115,7 @@ class ChatResponse(BaseModel):
     doctors_list: Optional[List[DoctorInfo]] = Field(None, description="List of doctors for selection")
     conversation_state: Optional[ConversationState] = Field(None, description="Updated conversation state")
     appointment_created: Optional[Dict[str, Any]] = Field(None, description="Created appointment details if booking completed")
+    cards: List[Dict[str, Any]] = Field(default_factory=list, description="Structured UI cards for the reply")
 
 
 class MedicalChatRequest(BaseModel):
@@ -133,4 +137,5 @@ class MedicalChatResponse(BaseModel):
     doctors_list: Optional[List[DoctorInfo]] = Field(None, description="List of doctors")
     conversation_state: Optional[Dict[str, Any]] = Field(None, description="Updated conversation state")
     appointment_created: Optional[Dict[str, Any]] = Field(None, description="Created appointment details if booking completed")
+    cards: List[Dict[str, Any]] = Field(default_factory=list, description="Structured UI cards for the reply")
     conversation_id: Optional[str] = Field(None, description="Saved conversation ID for signed-in users")

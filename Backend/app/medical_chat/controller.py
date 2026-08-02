@@ -1,7 +1,9 @@
 """
 Production-grade medical chat controller with authentication support.
 """
-from fastapi import APIRouter, HTTPException, status, Depends
+import copy
+import logging
+from fastapi import APIRouter, BackgroundTasks, HTTPException, status, Depends
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -17,7 +19,10 @@ from app.medical_chat.schema import (
 )
 from app.medical_chat.service import MedicalChatService
 from app.core.response import APIResponse, APIResponseGeneric
+from app.core.exceptions import InsufficientPermissionsException, UserNotFoundException, ValidationException
+from app.core.mailer import send_email
 from app.db.database import get_db
+from app.medical_chat.tools import execute_pending_action
 from app.auth.dependencies import get_current_user
 from app.models.user import User
 from app.models.chat_conversation import ChatConversation, ChatMessage
@@ -37,7 +42,7 @@ def serialize_conversation(conversation: ChatConversation, include_messages: boo
     if include_messages:
         result.update({
             "messages": [
-                {"id": message.id, "role": message.role, "content": message.content, "created_at": message.created_at}
+                {"id": message.id, "role": message.role, "content": message.content, "cards": message.cards or [], "created_at": message.created_at}
                 for message in conversation.messages
             ],
             "conversation_state": conversation.conversation_state,
@@ -72,6 +77,123 @@ def delete_conversation(conversation_id: str, db: Session = Depends(get_db), cur
     db.delete(conversation)
     db.commit()
     return APIResponse(message="Conversation deleted", data={"id": conversation_id}).model_dump()
+
+
+def _history_text(message: ChatMessage) -> str:
+    """Message text for the model, plus bracketed notes about cards so later turns can reuse ids."""
+    notes = []
+    for card in message.cards or []:
+        kind = card.get("type")
+        if kind == "doctor_list":
+            names = "; ".join(f"{d['name']} (doctor_id {d['id']})" for d in card.get("doctors", []))
+            notes.append(f"doctor cards shown: {names}")
+        elif kind == "slot_picker":
+            notes.append(f"slot picker shown for {card['doctor']['name']} (doctor_id {card['doctor']['id']})")
+        elif kind == "appointment_list":
+            items = "; ".join(
+                f"{a['doctor_name']} on {a['date']} {a['time']} {a['status']} (appointment_id {a['id']})"
+                for a in card.get("appointments", [])
+            )
+            notes.append(f"appointments shown: {items}")
+        elif kind in ("appointment_confirm", "reminder_confirm", "cancel_confirm", "reschedule_confirm"):
+            notes.append(f"{kind} card shown, status {card.get('status')}")
+        elif kind.endswith(("_created", "_cancelled", "_rescheduled")):
+            notes.append(f"{kind} done")
+    return message.content + (f"\n[{' | '.join(notes)}]" if notes else "")
+
+
+def _owned_conversation(db: Session, conversation_id: str, user: User) -> ChatConversation:
+    conversation = db.get(ChatConversation, conversation_id)
+    if not conversation or conversation.user_id != user.id:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    return conversation
+
+
+def _take_pending_action(conversation: ChatConversation, action_id: str) -> dict:
+    """Remove a pending action from the stored state and return it (404 if unknown / already used)."""
+    state = copy.deepcopy(conversation.conversation_state or {})
+    pending = state.get("context_data", {}).get("pending_actions", {})
+    action = pending.pop(action_id, None)
+    if action is None:
+        raise HTTPException(status_code=404, detail="This action is no longer available. Ask me to prepare it again.")
+    conversation.conversation_state = state
+    return action
+
+
+def _mark_card(conversation: ChatConversation, action_id: str, card_status: str) -> None:
+    for message in conversation.messages:
+        if not message.cards:
+            continue
+        cards = copy.deepcopy(message.cards)
+        changed = False
+        for card in cards:
+            if card.get("action_id") == action_id:
+                card["status"] = card_status
+                changed = True
+        if changed:
+            message.cards = cards  # reassign so the JSON change is persisted
+
+
+@router.post("/conversations/{conversation_id}/actions/{action_id}/confirm")
+def confirm_action(
+    conversation_id: str,
+    action_id: str,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Commit a booking / cancellation / reschedule / reminder the assistant proposed."""
+    conversation = _owned_conversation(db, conversation_id, current_user)
+    patient_id = MedicalChatService(db=db).get_patient_id_for_user(current_user.id)
+    if not patient_id:
+        raise HTTPException(status_code=403, detail="Please sign in as a patient to do this.")
+    action = _take_pending_action(conversation, action_id)
+    try:
+        reply, card, email = execute_pending_action(
+            db, user_id=current_user.id, user_type=current_user.user_type, patient_id=patient_id, action=action,
+        )
+    except (ValidationException, UserNotFoundException, InsufficientPermissionsException) as exc:
+        db.rollback()
+        # The proposal is spent either way; keep that so a stale card cannot be replayed.
+        conversation = _owned_conversation(db, conversation_id, current_user)
+        _take_pending_action(conversation, action_id)
+        _mark_card(conversation, action_id, "failed")
+        db.commit()
+        raise HTTPException(status_code=400, detail=str(exc))
+    except Exception:
+        db.rollback()
+        logging.getLogger(__name__).exception("Confirming chat action %s failed", action_id)
+        raise HTTPException(status_code=500, detail="Could not complete that action. Please try again.")
+
+    _mark_card(conversation, action_id, "confirmed")
+    message = ChatMessage(conversation_id=conversation.id, role="assistant", content=reply, cards=[card])
+    db.add(message)
+    conversation.updated_at = datetime.now(timezone.utc)
+    db.commit()
+    if email:
+        background_tasks.add_task(send_email, to=current_user.email, subject=email["subject"],
+                                  body=f"Hi {current_user.name or 'there'},\n\n{email['body']}")
+    return APIResponse(
+        message="Action completed",
+        data={"id": message.id, "reply": reply, "cards": [card], "conversation_state": conversation.conversation_state},
+    ).model_dump()
+
+
+@router.post("/conversations/{conversation_id}/actions/{action_id}/dismiss")
+def dismiss_action(
+    conversation_id: str,
+    action_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Discard a proposed action without doing anything."""
+    conversation = _owned_conversation(db, conversation_id, current_user)
+    _take_pending_action(conversation, action_id)
+    _mark_card(conversation, action_id, "dismissed")
+    db.commit()
+    return APIResponse(
+        message="Action dismissed", data={"conversation_state": conversation.conversation_state}
+    ).model_dump()
 
 
 def get_optional_current_user(
@@ -147,11 +269,14 @@ async def chat_with_ai(
         internal_request = ChatRequest(
             message=request.query,
             conversation_history=(
-                [Message(role=msg.role, content=msg.content) for msg in conversation.messages]
+                [Message(role=msg.role, content=_history_text(msg)) for msg in conversation.messages]
                 if conversation else request.history
             ),
             conversation_state=conversation_state,
             patient_id=patient_id,
+            user_id=current_user.id if current_user else None,
+            user_name=current_user.name if current_user else None,
+            user_type=current_user.user_type if current_user else None,
         )
 
         # Get response from service
@@ -168,6 +293,7 @@ async def chat_with_ai(
             doctors_list=response.doctors_list,
             conversation_state=response.conversation_state.model_dump() if response.conversation_state else None,
             appointment_created=response.appointment_created,
+            cards=response.cards,
         )
 
         if current_user:
@@ -180,15 +306,17 @@ async def chat_with_ai(
                 db.add(conversation)
             db.add_all([
                 ChatMessage(conversation_id=conversation.id, role="user", content=request.query),
-                ChatMessage(conversation_id=conversation.id, role="assistant", content=response.reply),
+                ChatMessage(conversation_id=conversation.id, role="assistant", content=response.reply, cards=response.cards or None),
             ])
             conversation.conversation_state = chat_response.conversation_state
-            conversation.insights = {
-                "extracted_symptoms": chat_response.extracted_symptoms.model_dump(mode="json"),
-                "disease_reasoning": chat_response.disease_reasoning,
-                "doctor_suggestions": chat_response.doctor_suggestions,
-                "is_medical_query": chat_response.is_medical_query,
-            }
+            if chat_response.disease_reasoning or chat_response.extracted_symptoms.symptoms:
+                # Only replace insights when this turn produced an assessment.
+                conversation.insights = {
+                    "extracted_symptoms": chat_response.extracted_symptoms.model_dump(mode="json"),
+                    "disease_reasoning": chat_response.disease_reasoning,
+                    "doctor_suggestions": chat_response.doctor_suggestions,
+                    "is_medical_query": chat_response.is_medical_query,
+                }
             conversation.updated_at = datetime.now(timezone.utc)
             db.commit()
             chat_response.conversation_id = conversation.id
