@@ -47,7 +47,92 @@ export interface ConversationState {
   context_data?: Record<string, any>;
 }
 
+export interface CardDoctor {
+  id: string;
+  name: string;
+  specialization: string;
+  clinic?: string | null;
+  address?: string | null;
+  experience_years?: number | null;
+  avatar_url?: string | null;
+  rating?: number | null;
+  review_count?: number;
+}
+
+export interface CardAppointment {
+  id: string;
+  doctor_name: string;
+  specialization?: string;
+  clinic?: string;
+  date: string | null;
+  time: string | null;
+  status: string;
+  reason?: string | null;
+}
+
+export type ActionStatus = "pending" | "confirmed" | "dismissed" | "failed";
+
+export type ChatCard =
+  | { type: "doctor_list"; doctors: CardDoctor[] }
+  | {
+      type: "slot_picker";
+      doctor: CardDoctor;
+      days: Array<{ date: string; label: string; slots: Array<{ time: string; label: string }> }>;
+    }
+  | {
+      type: "appointment_confirm";
+      action_id: string;
+      status: ActionStatus;
+      summary: { doctor: CardDoctor; date_label: string; time_label: string; reason: string };
+    }
+  | { type: "cancel_confirm"; action_id: string; status: ActionStatus; summary: { appointment: CardAppointment } }
+  | {
+      type: "reschedule_confirm";
+      action_id: string;
+      status: ActionStatus;
+      summary: { appointment: CardAppointment; new_date_label: string; new_time_label: string };
+    }
+  | {
+      type: "reminder_confirm";
+      action_id: string;
+      status: ActionStatus;
+      summary: ReminderSummary;
+    }
+  | { type: "appointment_created"; summary: { doctor: CardDoctor; date?: string; time?: string; date_label: string; time_label: string; reason: string } }
+  | { type: "appointment_cancelled"; summary: { appointment: CardAppointment } }
+  | {
+      type: "appointment_rescheduled";
+      summary: { appointment: CardAppointment; new_date_label: string; new_time_label: string };
+    }
+  | { type: "reminder_created"; summary: ReminderSummary }
+  | { type: "appointment_list"; appointments: CardAppointment[] }
+  | {
+      type: "reminder_list";
+      timezone: string;
+      reminders: Array<{
+        id: string;
+        medicine_name: string;
+        dosage: number;
+        medicine_type: string;
+        days_of_week: string[];
+        reminder_time: string;
+      }>;
+    }
+  | { type: "login_required" }
+  | { type: "urgent_notice"; level: "high" | "emergency" };
+
+export interface ReminderSummary {
+  medicine_name: string;
+  dosage: number;
+  medicine_type: string;
+  days_of_week: string[];
+  time: string;
+  time_label: string;
+  timezone: string;
+}
+
 export interface MedicalChatApiResponse {
+  cards?: ChatCard[];
   conversation_id?: string | null;
   reply: string;
   extracted_symptoms: SymptomExtractionPayload;

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Bot, Copy, Check, User } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import ChatCards, { CardHandlers } from "@/components/agentComps/ChatCards";
+import { ChatCard } from "@/types/medicalChat";
 // Markdown rendering - using simple text formatting for now
 // Install react-markdown if you want full markdown support: npm install react-markdown
 
@@ -12,9 +14,15 @@ interface ChatMessageProps {
     content: string;
     timestamp?: string;
     isTyping?: boolean;
+    typingLabel?: string;
+    cards?: ChatCard[];
+    cardHandlers?: CardHandlers;
+    userName?: string | null;
+    userAvatar?: string | null;
+    onRetry?: () => void;
 }
 
-const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessageProps) => {
+const ChatMessage = ({ role, content, timestamp, isTyping = false, typingLabel, cards, cardHandlers, userName, userAvatar, onRetry }: ChatMessageProps) => {
     const isUser = role === "user";
     const [copied, setCopied] = useState(false);
     const [isVisible, setIsVisible] = useState(false);
@@ -44,7 +52,8 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
                 isUser ? "flex justify-end" : "flex justify-start"
             )}>
                 <div className={cn(
-                    "flex gap-3 max-w-[85%] sm:max-w-[75%]",
+                    "flex gap-3 min-w-0",
+                    cards?.length ? "w-full max-w-[95%] sm:max-w-[85%]" : "max-w-[85%] sm:max-w-[75%]",
                     isUser && "flex-row-reverse"
                 )}>
                     {/* Avatar */}
@@ -54,9 +63,9 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
                     )}>
                         {isUser ? (
                             <>
-                                <AvatarImage src="/user-avatar.png" alt="User" />
+                                {userAvatar && <AvatarImage src={userAvatar} alt={userName || "You"} />}
                                 <AvatarFallback className="bg-gradient-to-br from-muted to-muted/80 text-foreground border-2 border-border">
-                                    <User className="h-4 w-4" />
+                                    {userName ? userName[0]?.toUpperCase() : <User className="h-4 w-4" />}
                                 </AvatarFallback>
                             </>
                         ) : (
@@ -68,7 +77,7 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
 
                     {/* Message Bubble */}
                     <div className={cn(
-                        "flex flex-col gap-1.5 flex-1",
+                        "flex flex-col gap-1.5 flex-1 min-w-0",
                         isUser && "items-end"
                     )}>
                         <div className={cn(
@@ -84,11 +93,12 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
                                     variant="ghost"
                                     size="icon"
                                     className={cn(
-                                        "absolute -top-1 -right-1 h-7 w-7 opacity-0 group-hover:opacity-100",
+                                        "absolute -top-1 -right-1 h-7 w-7 opacity-70 md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100",
                                         "transition-opacity duration-200 bg-background/80 backdrop-blur-sm",
                                         "hover:bg-background border border-border shadow-sm"
                                     )}
                                     onClick={handleCopy}
+                                    aria-label={copied ? "Copied" : "Copy message"}
                                 >
                                     {copied ? (
                                         <Check className="h-3.5 w-3.5 text-green-600" />
@@ -100,7 +110,7 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
 
                             {/* Content */}
                             {isTyping ? (
-                                <TypingIndicator />
+                                <TypingIndicator label={typingLabel} />
                             ) : (
                                 <div className={cn(
                                     "text-sm leading-relaxed whitespace-pre-wrap break-words",
@@ -110,6 +120,14 @@ const ChatMessage = ({ role, content, timestamp, isTyping = false }: ChatMessage
                                 </div>
                             )}
                         </div>
+
+                        {!isUser && !isTyping && cards && cardHandlers && (
+                            <ChatCards cards={cards} handlers={cardHandlers} />
+                        )}
+
+                        {onRetry && (
+                            <Button variant="outline" size="sm" className="self-start" onClick={onRetry}>Try again</Button>
+                        )}
 
                         {/* Timestamp */}
                         {timestamp && (
@@ -141,7 +159,7 @@ const FormattedText = ({ content }: { content: string }) => {
                     return (
                         <ul key={idx} className="list-disc list-inside space-y-1 ml-2">
                             {items.map((item, i) => (
-                                <li key={i} className="ml-2">{item.replace(/^[-*]\s+/, '')}</li>
+                                <li key={i} className="ml-2"><Inline text={item.replace(/^[-*]\s+/, '')} /></li>
                             ))}
                         </ul>
                     );
@@ -153,7 +171,7 @@ const FormattedText = ({ content }: { content: string }) => {
                     return (
                         <ol key={idx} className="list-decimal list-inside space-y-1 ml-2">
                             {items.map((item, i) => (
-                                <li key={i} className="ml-2">{item.replace(/^\d+\.\s+/, '')}</li>
+                                <li key={i} className="ml-2"><Inline text={item.replace(/^\d+\.\s+/, '')} /></li>
                             ))}
                         </ol>
                     );
@@ -176,10 +194,21 @@ const FormattedText = ({ content }: { content: string }) => {
     );
 };
 
+// Inline **bold** inside list items
+const Inline = ({ text }: { text: string }) => (
+    <>
+        {text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+            part.startsWith('**') && part.endsWith('**')
+                ? <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>
+                : <span key={i}>{part}</span>
+        )}
+    </>
+);
+
 // Typing Indicator Component
-const TypingIndicator = () => {
+const TypingIndicator = ({ label }: { label?: string }) => {
     return (
-        <div className="flex items-center gap-1.5 py-1">
+        <div className="flex items-center gap-2.5 py-1" role="status" aria-live="polite">
             <div className="flex gap-1">
                 {[0, 1, 2].map((i) => (
                     <div
@@ -192,6 +221,7 @@ const TypingIndicator = () => {
                     />
                 ))}
             </div>
+            {label && <span className="text-sm text-muted-foreground">{label}</span>}
         </div>
     );
 };

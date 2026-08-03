@@ -3,14 +3,15 @@ import UserMenu from "@/components/common/UserMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/contextApis/UserContext";
-import { Menu, Sparkles } from "lucide-react";
+import { ArrowLeft, Menu, Sparkles } from "lucide-react";
 
 interface ChatTopBarProps {
     onMenuClick: () => void;
     sidebarOpen: boolean;
+    onBack?: () => void;
 }
 
-const ChatTopBar = ({ onMenuClick, sidebarOpen }: ChatTopBarProps) => {
+const ChatTopBar = ({ onMenuClick, sidebarOpen, onBack }: ChatTopBarProps) => {
     const { user } = useUser();
 
     return (
@@ -22,9 +23,16 @@ const ChatTopBar = ({ onMenuClick, sidebarOpen }: ChatTopBarProps) => {
                     size="icon"
                     className={sidebarOpen ? "lg:hidden" : ""}
                     onClick={onMenuClick}
+                    aria-label="Toggle chat history"
                 >
                     <Menu className="h-5 w-5" />
                 </Button>
+
+                {onBack && (
+                    <Button variant="ghost" size="icon" onClick={onBack} aria-label="Back to home">
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                )}
 
                 {/* Logo/Brand */}
                 <div className="flex items-center gap-2 font-semibold">

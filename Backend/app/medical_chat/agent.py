@@ -8,6 +8,7 @@ user confirms (see `execute_pending_action`).
 """
 import json
 import logging
+import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from zoneinfo import ZoneInfo
@@ -24,6 +25,8 @@ MODEL = "gpt-4o-mini"
 MAX_TOOL_ROUNDS = 6
 MAX_HISTORY_MESSAGES = 20
 MAX_TOOL_RESULT_CHARS = 6000
+# History carries bracketed notes about cards; the model sometimes echoes them.
+CARD_NOTE = re.compile(r"\s*\[[^\]]*(?:card[s]? shown|shown:|doctor_id|appointment_id|\bdone\b)[^\]]*\]")
 
 SYSTEM_PROMPT = """You are Symptoms Sense, a warm, concise health assistant on a platform where patients can find \
 doctors, book appointments and set medicine reminders. You act through tools; you never invent doctors, slots, \
@@ -35,14 +38,17 @@ yourself. The user is {user_line}.
 HOW TO WORK
 - Act, don't interrogate: call tools as soon as you reasonably can. Optional details (city, exact specialty) never block \
 a search; search first, refine after.
-- When the user describes symptoms, call assess_symptoms in that same turn (ask a follow-up only if there is nothing to \
-assess). Then answer from its result.
+- Whenever the user mentions symptoms, you MUST call assess_symptoms in that same turn, even if they also ask for a doctor \
+(it already returns matching doctors; call search_doctors only if it found none or the user wants a specific city/name). \
+Ask a follow-up instead only if there is nothing at all to assess.
 - Never ask "shall I proceed?" in text for bookings, cancellations, reschedules or reminders: call the propose_* tool and \
 the confirmation card does the asking.
 - Respond to the user's latest request; do not re-run earlier requests.
+- Never write bracketed notes like [... card shown] yourself; they are for your context only.
 - Doctors, slots and appointments are rendered as cards. Never list them (or their times) in your text; refer to them \
 briefly. Earlier cards appear in the history as bracketed notes with ids you can reuse; do not search again for a doctor \
 you already have an id for.
+- After get_available_slots or search_doctors, write ONE short sentence (e.g. "Pick a time below."). No bullet lists of times, doctors or dates.
 
 WHAT YOU DO
 - Symptoms: ask a clarifying question or two if the description is vague, then call assess_symptoms. Explain in plain \
@@ -196,6 +202,7 @@ class MedicalChatAgent:
                     "role": "tool", "tool_call_id": call.id,
                     "content": json.dumps(result, default=str)[:MAX_TOOL_RESULT_CHARS],
                 })
+        reply = CARD_NOTE.sub("", reply).strip()
         if not reply:
             reply = "Sorry, I couldn't finish that. Could you rephrase or try again?"
 

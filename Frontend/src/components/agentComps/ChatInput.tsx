@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Send, Sparkles } from "lucide-react";
+import { Loader2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface ChatInputProps {
@@ -59,7 +59,8 @@ const ChatInput = ({ onSendMessage, disabled, isLoading }: ChatInputProps) => {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={handleKeyDown}
-                            placeholder="Ask me anything about your health..."
+                            placeholder="Describe your symptoms or ask me to book something…"
+                            aria-label="Message"
                             disabled={disabled || isLoading}
                             className={`
                                 min-h-[60px] max-h-[200px] pr-14 resize-none 
@@ -74,6 +75,7 @@ const ChatInput = ({ onSendMessage, disabled, isLoading }: ChatInputProps) => {
                             type="submit"
                             size="icon"
                             disabled={!message.trim() || disabled || isLoading}
+                            aria-label="Send message"
                             className={`
                                 absolute bottom-2 right-2 h-9 w-9 rounded-lg
                                 transition-all duration-200
@@ -92,16 +94,9 @@ const ChatInput = ({ onSendMessage, disabled, isLoading }: ChatInputProps) => {
                         </Button>
                     </div>
                     
-                    {/* Helper text */}
-                    <div className="flex items-center justify-between mt-2 px-1">
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Sparkles className="h-3 w-3" />
-                            AI can make mistakes. Consider checking important information.
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                            Press <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-xs">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border text-xs">Shift+Enter</kbd> for new line
-                        </p>
-                    </div>
+                    <p className="mt-2 px-1 text-xs text-muted-foreground">
+                        AI can make mistakes and is not a substitute for a doctor. In an emergency, call your local emergency number.
+                    </p>
                 </form>
             </div>
         </div>

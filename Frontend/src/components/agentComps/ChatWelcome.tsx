@@ -1,109 +1,77 @@
 "use client";
-import {
-    Activity,
-    Heart,
-    MessageSquarePlus,
-    Pill,
-    Stethoscope,
-    Sparkles
-} from "lucide-react";
-import SuggestionCard from "./SuggestionCard";
+import { CalendarCheck, Pill, Sparkles, Stethoscope, HeartPulse } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ChatWelcomeProps {
     onSuggestionClick: (message: string) => void;
 }
 
-const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => {
-    const suggestions = [
-        {
-            icon: <Heart className="h-5 w-5" />,
-            title: "Symptom Check",
-            description: "Tell me about your symptoms and I'll help you understand them",
-            message: "I'm experiencing some symptoms and would like to understand what they might mean."
-        },
-        {
-            icon: <Activity className="h-5 w-5" />,
-            title: "Health Advice",
-            description: "Get personalized health and wellness recommendations",
-            message: "Can you give me some general health and wellness advice?"
-        },
-        {
-            icon: <Stethoscope className="h-5 w-5" />,
-            title: "Find a Doctor",
-            description: "Help me find the right specialist for my condition",
-            message: "I need help finding the right doctor for my condition."
-        },
-        {
-            icon: <Pill className="h-5 w-5" />,
-            title: "Medication Info",
-            description: "Learn about medications, dosages, and side effects",
-            message: "I have questions about my medication and how to take it."
-        },
-    ];
+const actions = [
+    {
+        icon: HeartPulse,
+        title: "Check my symptoms",
+        hint: "Describe what you feel and get pointed to the right specialist",
+        message: "I'd like to check some symptoms I've been having.",
+    },
+    {
+        icon: Stethoscope,
+        title: "Find a doctor",
+        hint: "Search by specialty or city and see open times",
+        message: "I need help finding a doctor.",
+    },
+    {
+        icon: CalendarCheck,
+        title: "My appointments",
+        hint: "View, reschedule or cancel what you've booked",
+        message: "Show my appointments.",
+    },
+    {
+        icon: Pill,
+        title: "Set a medicine reminder",
+        hint: "Get an email at the right time, on the days you choose",
+        message: "I want to set a medicine reminder.",
+    },
+];
 
-    return (
-        <div className="flex min-h-full items-start justify-center overflow-y-auto px-4 py-6 lg:items-center lg:p-6">
-            <div className="max-w-3xl w-full space-y-8">
-                {/* Welcome Header */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-center space-y-4"
-                >
-                    <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                        className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 mb-4 border border-primary/20"
-                    >
-                        <Sparkles className="h-10 w-10 text-primary" />
-                    </motion.div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent sm:text-4xl">
-                        Welcome to Symptoms Sense AI
-                    </h1>
-                    <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-                        Your intelligent health assistant. Ask me anything about your health concerns, 
-                        find doctors, or get personalized medical advice.
-                    </p>
-                </motion.div>
-
-                {/* Suggestion Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {suggestions.map((suggestion, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
-                        >
-                            <SuggestionCard
-                                icon={suggestion.icon}
-                                title={suggestion.title}
-                                description={suggestion.description}
-                                onClick={() => onSuggestionClick(suggestion.message)}
-                            />
-                        </motion.div>
-                    ))}
+const ChatWelcome = ({ onSuggestionClick }: ChatWelcomeProps) => (
+    <div className="flex min-h-full items-start justify-center px-4 py-8 lg:items-center lg:p-6">
+        <div className="w-full max-w-2xl space-y-8">
+            <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4 }}
+                className="space-y-3 text-center"
+            >
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <Sparkles className="h-7 w-7" aria-hidden />
                 </div>
+                <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">How can I help today?</h1>
+                <p className="mx-auto max-w-md text-muted-foreground">
+                    Tell me what&apos;s going on, or pick something to start with. I can find doctors, book appointments and set reminders for you.
+                </p>
+            </motion.div>
 
-                {/* Disclaimer */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.7, duration: 0.5 }}
-                    className="text-center"
-                >
-                    <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                        <strong className="text-foreground">Disclaimer:</strong> This AI assistant provides general health information
-                        and is not a substitute for professional medical advice, diagnosis, or treatment.
-                        Always seek the advice of your physician or other qualified health provider.
-                    </p>
-                </motion.div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {actions.map(({ icon: Icon, title, hint, message }, index) => (
+                    <motion.button
+                        key={title}
+                        type="button"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 + index * 0.06, duration: 0.3 }}
+                        onClick={() => onSuggestionClick(message)}
+                        className="flex items-start gap-3 rounded-xl border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:bg-accent"
+                    >
+                        <span className="rounded-lg bg-primary/10 p-2 text-primary"><Icon className="h-5 w-5" aria-hidden /></span>
+                        <span>
+                            <span className="block text-sm font-semibold">{title}</span>
+                            <span className="block text-sm text-muted-foreground">{hint}</span>
+                        </span>
+                    </motion.button>
+                ))}
             </div>
         </div>
-    );
-};
+    </div>
+);
 
 export default ChatWelcome;

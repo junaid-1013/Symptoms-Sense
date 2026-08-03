@@ -260,7 +260,8 @@ async def chat_with_ai(
         state_payload = conversation.conversation_state if conversation else request.conversation_state
         if state_payload:
             try:
-                conversation_state = ConversationState(**state_payload)
+                # Copy: the agent mutates the state, and mutating the ORM-loaded dict in place hides the change from SQLAlchemy.
+                conversation_state = ConversationState(**copy.deepcopy(state_payload))
             except Exception as e:
                 # Invalid state, start fresh
                 pass
