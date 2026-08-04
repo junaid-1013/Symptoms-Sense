@@ -66,7 +66,7 @@ export default function Doctors() {
     );
 
     return (
-        <section id="doctors" className="py-20 bg-gradient-to-b from-background via-background to-secondary/5 relative overflow-hidden">
+        <section id="doctors" className="py-14 md:py-20 bg-gradient-to-b from-background via-background to-secondary/5 relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />

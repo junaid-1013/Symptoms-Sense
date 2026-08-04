@@ -43,10 +43,15 @@ export default function DoctorsPage() {
       });
   };
 
+  // Search as you type (debounced); also runs once on load.
   useEffect(() => {
-    fetchDoctors();
+    const timer = setTimeout(
+      () => fetchDoctors(searchTerm.trim(), selectedSpecialization, clinicId),
+      searchTerm ? 350 : 0,
+    );
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [searchTerm, selectedSpecialization]);
 
   const handleSearch = () => {
     fetchDoctors(searchTerm, selectedSpecialization, clinicId);
@@ -56,11 +61,10 @@ export default function DoctorsPage() {
     setSearchTerm("");
     setSelectedSpecialization("all");
     setClinicId("");
-    fetchDoctors();
   };
 
   return (
-    <section className="py-20 bg-background min-h-screen">
+    <section className="py-14 md:py-20 bg-background min-h-screen">
       <div className="container mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-16">
@@ -80,15 +84,16 @@ export default function DoctorsPage() {
         <div className="mb-12 bg-card p-6 rounded-lg border shadow-sm">
           <div className="flex flex-col md:flex-row gap-4 items-end">
             <div className="w-full flex-1">
-              <label className="block text-sm font-medium mb-2">Search Doctors</label>
+              <label htmlFor="doctor-search" className="block text-sm font-medium mb-2">Search Doctors</label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Search aria-hidden className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                 <Input
+                  id="doctor-search"
                   placeholder="Search by name or specialization..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
             </div>
