@@ -6,6 +6,7 @@ import BookingDialogContent from './BookingDialogContent';
 const AppointmentBookingCard = ({
     doctor,
     availableSlots,
+    slotsLoading,
     selectedDate,
     onSelectDate,
     selectedTime,
@@ -61,7 +62,11 @@ const AppointmentBookingCard = ({
                         </DialogTrigger>
                         <BookingDialogContent
                             doctorName={doctor.name}
+                            doctorAvatar={doctor.avatar_url}
+                            doctorSpecialization={Array.isArray(doctor.specializations) ? doctor.specializations[0] : undefined}
+                            clinicName={doctor.clinic_name}
                             availableSlots={availableSlots}
+                            slotsLoading={slotsLoading}
                             selectedDate={selectedDate}
                             onSelectDate={onSelectDate}
                             selectedTime={selectedTime}

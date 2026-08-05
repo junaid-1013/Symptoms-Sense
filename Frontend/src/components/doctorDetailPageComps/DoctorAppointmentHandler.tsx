@@ -31,7 +31,7 @@ const DoctorAppointmentHandler = (
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = (): Promise<void> | void => {
         if (!doctorData) {
             toast({
                 title: "Error",
@@ -68,7 +68,7 @@ const DoctorAppointmentHandler = (
             return;
         }
 
-        CreateAppointmentApi({
+        return CreateAppointmentApi({
             patientId: selectedPatientId ?? user.id,
             doctorId: doctorData.id,
             clinicId: doctorData.clinic_id,

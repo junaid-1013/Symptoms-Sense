@@ -13,13 +13,14 @@ class FeedbackService:
     def __init__(self, db: Session):
         self.db = db
 
-    def list_feedbacks(self, limit: int = 6) -> Tuple[List[FeedbackItem], int]:
+    def list_feedbacks(self, limit: int = 6, offset: int = 0) -> Tuple[List[FeedbackItem], int]:
         """Return the most-recent `limit` active feedbacks joined with user info."""
         rows = (
             self.db.query(SiteFeedback, User)
             .join(User, SiteFeedback.user_id == User.id)
             .filter(SiteFeedback.deleted_at.is_(None))
             .order_by(SiteFeedback.created_at.desc())
+            .offset(offset)
             .limit(limit)
             .all()
         )

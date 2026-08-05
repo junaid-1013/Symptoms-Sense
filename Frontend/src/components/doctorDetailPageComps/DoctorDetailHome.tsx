@@ -21,6 +21,7 @@ const DoctorDetailHome = () => {
     const [doctorData, setDoctorData] = useState<DoctorData | null>(null);
     const [loading, setLoading] = useState(true);
     const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
+    const [slotsLoading, setSlotsLoading] = useState(false);
 
     const {
         selectedDate,
@@ -70,7 +71,9 @@ const DoctorDetailHome = () => {
     useEffect(() => {
         if (!id) return;
 
+        let cancelled = false;
         const fetchSlots = async () => {
+            setSlotsLoading(true);
             try {
                 const dateStr = format(selectedDate, "yyyy-MM-dd");
                 const res = await GetAvailableSlotsApi({
@@ -78,13 +81,16 @@ const DoctorDetailHome = () => {
                     date: dateStr
                 });
                 const timeslots: AvailableSlot[] = res?.data?.data?.timeslots || [];
-                setAvailableSlots(timeslots);
+                if (!cancelled) setAvailableSlots(timeslots);
             } catch (e) {
-                setAvailableSlots([]);
+                if (!cancelled) setAvailableSlots([]);
+            } finally {
+                if (!cancelled) setSlotsLoading(false);
             }
         };
 
         fetchSlots();
+        return () => { cancelled = true; };
     }, [id, selectedDate]);
 
     if (loading) {
@@ -113,6 +119,7 @@ const DoctorDetailHome = () => {
                         <AppointmentBookingCard
                             doctor={doctorData}
                             availableSlots={availableSlots}
+                            slotsLoading={slotsLoading}
                             selectedDate={selectedDate}
                             onSelectDate={setSelectedDate}
                             selectedTime={selectedTime}
@@ -138,6 +145,7 @@ const DoctorDetailHome = () => {
                     <AppointmentBookingCard
                         doctor={doctorData}
                         availableSlots={availableSlots}
+                            slotsLoading={slotsLoading}
                         selectedDate={selectedDate}
                         onSelectDate={setSelectedDate}
                         selectedTime={selectedTime}

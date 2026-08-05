@@ -93,6 +93,7 @@ export type AppointmentType = (typeof APPOINTMENT_TYPES)[number];
 export interface AppointmentBookingCardProps {
     doctor: DoctorData;
     availableSlots: AvailableSlot[];
+    slotsLoading?: boolean;
     selectedDate: Date;
     onSelectDate: (date: Date) => void;
     selectedTime: Date | null;
@@ -111,6 +112,10 @@ export interface AppointmentBookingCardProps {
 };
 export interface BookingDialogContentProps {
     doctorName: string;
+    slotsLoading?: boolean;
+    doctorAvatar?: string | null;
+    doctorSpecialization?: string;
+    clinicName?: string;
     availableSlots: AvailableSlot[];
     selectedDate: Date;
     onSelectDate: (date: Date) => void;
@@ -121,7 +126,7 @@ export interface BookingDialogContentProps {
     setAppointmentType: (val: AppointmentType) => void;
     reason: string;
     setReason: (val: string) => void;
-    onSubmit: () => void;
+    onSubmit: () => void | Promise<void>;
     onClose: () => void;
     selectedPatientId: string | null;
     setSelectedPatientId: (id: string) => void;

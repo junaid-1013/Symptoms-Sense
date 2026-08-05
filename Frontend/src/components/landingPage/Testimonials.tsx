@@ -1,30 +1,31 @@
 "use client"
+import TestimonialCard, { Testimonial } from "@/components/landingPage/TestimonialCard"
 import { TestimonialSkeleton } from "@/components/skeletons"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { GetFeedbackApi } from "@/endPoints/feedback.endPoints"
-import { Quote, Star } from "lucide-react"
+import { ArrowRight, Star } from "lucide-react"
+import Link from "next/link"
 import { useEffect, useState } from "react"
 
-interface Testimonial {
-    name: string
-    message: string
-    image?: string
-    rating?: number
-}
+// Home page shows a taster: 2 on phones, 4 on tablets, 6 on laptops. The rest live on /testimonials.
+const VISIBILITY = ["", "", "hidden md:block", "hidden md:block", "hidden lg:block", "hidden lg:block"]
 
 export default function Testimonials({ refreshKey = 0 }: { refreshKey?: number }) {
     const [loading, setLoading] = useState(true)
     const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+    const [total, setTotal] = useState(0)
     const { toast } = useToast();
 
     useEffect(() => {
         let cancelled = false;
         const fetchTestimonials = async () => {
             try {
-                const response = await GetFeedbackApi(12)
-                if (!cancelled) setTestimonials(response.data.data.feedbacks ?? [])
+                const response = await GetFeedbackApi(VISIBILITY.length)
+                if (cancelled) return
+                setTestimonials(response.data.data.feedbacks ?? [])
+                setTotal(response.data.data.total ?? 0)
             } catch (error) {
                 if (cancelled) return;
                 console.error("Failed to fetch testimonials:", error)
@@ -43,10 +44,9 @@ export default function Testimonials({ refreshKey = 0 }: { refreshKey?: number }
     }, [refreshKey, toast])
 
     return (
-        <section id="feedback" className="py-20 bg-background">
+        <section id="feedback" className="py-14 md:py-20 bg-background">
             <div className="container mx-auto px-4">
-                {/* Header */}
-                <div className="text-center mb-16">
+                <div className="text-center mb-10 md:mb-16">
                     <Badge variant="outline" className="mb-4">
                         <Star className="w-4 h-4 mr-2" />
                         Testimonials
@@ -63,45 +63,28 @@ export default function Testimonials({ refreshKey = 0 }: { refreshKey?: number }
                     <p className="text-center text-muted-foreground">No feedback yet. Be the first to share your experience.</p>
                 )}
 
-                {/* Testimonials Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {loading
-                        ? Array.from({ length: 6 }).map((_, i) => <TestimonialSkeleton key={i} />)
-                        : testimonials.map((testimonial, index) => (
-                            <Card key={index} className="bg-card border-border hover:shadow-md transition-shadow h-full">
-                                <CardContent className="p-6">
-                                    <div className="space-y-4">
-                                        {/* Quote Icon */}
-                                        <Quote className="w-8 h-8 text-primary/20" />
-
-                                        {/* Rating */}
-                                        <div className="flex gap-1">
-                                            {Array.from({ length: testimonial.rating ?? 5 }).map((_, i) => (
-                                                <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                                            ))}
-                                        </div>
-
-                                        {/* Message */}
-                                        <p className="text-muted-foreground text-pretty">&quot;{testimonial.message}&quot;</p>
-
-                                        {/* Author */}
-                                        <div className="flex items-center gap-3 pt-4 border-t border-border">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src={testimonial.image || "/user.png"}
-                                                alt={testimonial.name}
-                                                className="w-10 h-10 rounded-full object-cover"
-                                            />
-                                            <div>
-                                                <div className="font-semibold text-sm">{testimonial.name}</div>
-                                                <div className="text-xs text-muted-foreground">Patient</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                        ? Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className={VISIBILITY[i]}><TestimonialSkeleton /></div>
+                        ))
+                        : testimonials.slice(0, VISIBILITY.length).map((testimonial, index) => (
+                            <div key={testimonial.id ?? index} className={VISIBILITY[index]}>
+                                <TestimonialCard testimonial={testimonial} />
+                            </div>
                         ))}
                 </div>
+
+                {!loading && total > 2 && (
+                    <div className="mt-10 text-center">
+                        <Button asChild variant="outline" size="lg">
+                            <Link href="/testimonials">
+                                See all {total} reviews
+                                <ArrowRight className="ml-2 h-4 w-4" aria-hidden />
+                            </Link>
+                        </Button>
+                    </div>
+                )}
             </div>
         </section>
     )

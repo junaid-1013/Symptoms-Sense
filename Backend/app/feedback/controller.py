@@ -21,11 +21,12 @@ router = APIRouter(prefix="/feedback", tags=["feedback"])
 @router.get("", response_model=APIResponseGeneric[FeedbackListResponse])
 async def list_feedbacks(
     limit: int = Query(6, ge=1, le=50, description="Max number of testimonials to return"),
+    offset: int = Query(0, ge=0, description="Number of testimonials to skip (for paging)"),
     db: Session = Depends(get_db),
 ):
     """Public endpoint — returns the most-recent site testimonials."""
     service = FeedbackService(db)
-    items, total = service.list_feedbacks(limit=limit)
+    items, total = service.list_feedbacks(limit=limit, offset=offset)
     return APIResponse(
         message="Feedbacks retrieved successfully",
         data=FeedbackListResponse(feedbacks=items, total=total),
