@@ -20,6 +20,7 @@ from app.medical_chat.schema import (
 from app.medical_chat.service import MedicalChatService
 from app.core.response import APIResponse, APIResponseGeneric
 from app.core.exceptions import InsufficientPermissionsException, UserNotFoundException, ValidationException
+from app.core.email_templates import reminder_added
 from app.core.mailer import send_email
 from app.db.database import get_db
 from app.medical_chat.tools import execute_pending_action
@@ -171,8 +172,11 @@ def confirm_action(
     conversation.updated_at = datetime.now(timezone.utc)
     db.commit()
     if email:
-        background_tasks.add_task(send_email, to=current_user.email, subject=email["subject"],
-                                  body=f"Hi {current_user.name or 'there'},\n\n{email['body']}")
+        subject, body, html_body = reminder_added(
+            current_user.name, email["medicine"], email["dosage"], email["medicine_type"],
+            email["days"], email["time_label"],
+        )
+        background_tasks.add_task(send_email, to=current_user.email, subject=subject, body=body, html_body=html_body)
     return APIResponse(
         message="Action completed",
         data={"id": message.id, "reply": reply, "cards": [card], "conversation_state": conversation.conversation_state},

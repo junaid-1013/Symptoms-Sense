@@ -35,31 +35,60 @@ export const SERVICES = [
         href: "/medicineReminder",
     },
 ]
-export const TEAM_MEMBERS = [
+// Photos come from each member's GitHub avatar (github.com/<user>.png), so they update by themselves
+// when the member changes their GitHub picture. `imageSrc` is an optional local fallback.
+// A social icon only renders when its URL is set.
+export const TEAM_MEMBERS: Array<{
+    id: number;
+    name: string;
+    title: string;
+    imageSrc?: string;
+    linkedin?: string;
+    github?: string;
+}> = [
     {
         id: 1,
-        name: "Khubaib Mashood",
-        title: "Software Engineer",
-        imageSrc: "/khubaib.jpg",
-    },
-    {
-        id: 2,
         name: "Junaid Ali Bhatti",
         title: "Software Engineer",
         imageSrc: "/junaid.jpg",
+        github: "https://github.com/junaid-1013",
+        linkedin: "https://www.linkedin.com/in/junaid-ali-bhatti-101452/",
+    },
+    {
+        id: 2,
+        name: "Dilawar Ali",
+        title: "Software Engineer",
+        github: "https://github.com/Dilawar4Ali",
+        linkedin: "https://www.linkedin.com/in/dilawar-ali-thaheem-368707212/",
     },
     {
         id: 3,
-        name: "Asadullah Rind",
+        name: "Ayesha Mubashir",
         title: "Software Engineer",
-        imageSrc: "/asadullah.jpg",
+        github: "https://github.com/ayeeshaa5",
+        linkedin: "https://www.linkedin.com/in/ayesha-mubashir-008169275/",
     },
     {
         id: 4,
-        name: "Muhammad Muzammil",
+        name: "Humera Akmal",
         title: "Software Engineer",
-        imageSrc: "/muzzi.jpg",
+        github: "https://github.com/humerahub",
+        linkedin: "https://www.linkedin.com/in/humera-akmal-4a0b482a4/",
     },
+    {
+        id: 5,
+        name: "Faryal Awais",
+        title: "Software Engineer",
+        github: "https://github.com/faryal-awais",
+        linkedin: "https://www.linkedin.com/in/faryal-awais-b546771b3/",
+    },
+    {
+        id: 6,
+        name: "Mehar Aziz",
+        title: "Software Engineer",
+        github: "https://github.com/Mehar-Aziz",
+        linkedin: "https://www.linkedin.com/in/mehar-aziz-b588a0281/",
+    }
 ]
 export const CONTACT_INFO = {
     email: "support@symptomssense.com",

@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.constants import UserType
 from app.core.config import config
+from app.core.email_templates import reminder_added, reminder_removed
 from app.core.mailer import send_email
 from app.core.response import APIResponse, APIResponseGeneric
 from app.core import scheduler as sched
@@ -104,21 +105,11 @@ async def create_reminder(
             detail="Could not schedule your reminder. Please try again later.",
         )
 
-    background_tasks.add_task(
-        send_email,
-        to=user_email,
-        subject="Medicine Reminder Added",
-        body=(
-            f"Hi {current_user.name or 'there'},\n\n"
-            f"Your medicine reminder has been set up:\n"
-            f"  Medicine: {payload.medicine_name}\n"
-            f"  Dosage: {payload.dosage}\n"
-            f"  Type: {payload.medicine_type}\n"
-            f"  Days: {', '.join(payload.days_of_week)}\n"
-            f"  Time: {payload.reminder_time} ({config.DEFAULT_TIMEZONE})\n\n"
-            "You'll receive an email reminder at the scheduled time."
-        ),
+    subject, body, html_body = reminder_added(
+        current_user.name, payload.medicine_name, payload.dosage, payload.medicine_type,
+        payload.days_of_week, f"{payload.reminder_time} ({config.DEFAULT_TIMEZONE})",
     )
+    background_tasks.add_task(send_email, to=user_email, subject=subject, body=body, html_body=html_body)
 
     return APIResponse(
         message="Reminder added successfully",
@@ -150,15 +141,9 @@ async def delete_reminder(
     _cleanup_job(reminder_id)
 
     if changed:
+        subject, body, html_body = reminder_removed(current_user.name, reminder.medicine_name)
         background_tasks.add_task(
-            send_email,
-            to=current_user.email,
-            subject="Medicine Reminder Removed",
-            body=(
-                f"Hi {current_user.name or 'there'},\n\n"
-                f"Your medicine reminder for '{reminder.medicine_name}' has been removed.\n\n"
-                "You will no longer receive emails for this reminder."
-            ),
+            send_email, to=current_user.email, subject=subject, body=body, html_body=html_body,
         )
 
     return APIResponse(

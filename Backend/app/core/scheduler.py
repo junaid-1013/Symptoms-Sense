@@ -117,18 +117,14 @@ def _send_reminder_email_job(reminder_id: Optional[str] = None, **legacy_payload
             logger.info("Skipped reminder %s for unavailable patient", reminder_id)
             return
         recipient = user.email
-        subject = f"Medicine Reminder: {reminder.medicine_name}"
-        body = (
-            "Hi,\n\nThis is your scheduled reminder to take your medicine:\n"
-            f"  Medicine: {reminder.medicine_name}\n"
-            f"  Dosage: {reminder.dosage}\n"
-            f"  Type: {reminder.medicine_type}\n\n"
-            "Take care and stay healthy!"
+        from app.core.email_templates import reminder_due
+        subject, body, html_body = reminder_due(
+            user.name, reminder.medicine_name, reminder.dosage, reminder.medicine_type
         )
     finally:
         db.close()
     # Cancellation cannot recall an email already entering SMTP delivery.
-    send_email(to=recipient, subject=subject, body=body)
+    send_email(to=recipient, subject=subject, body=body, html_body=html_body)
 
 # ========== Reminder helpers ==========
 

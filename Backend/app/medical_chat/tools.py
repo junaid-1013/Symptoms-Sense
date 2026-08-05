@@ -450,14 +450,9 @@ def execute_pending_action(db: Session, *, user_id: str, user_type: str, patient
         reminder = ReminderService(db).create_scheduled_reminder(patient_id, ReminderCreateRequest(**payload))
         card = {"type": "reminder_created", "summary": summary, "reminder_id": reminder.id}
         email = {
-            "subject": "Medicine Reminder Added",
-            "body": (
-                f"Your medicine reminder has been set up:\n"
-                f"  Medicine: {summary['medicine_name']}\n  Dosage: {summary['dosage']}\n"
-                f"  Type: {summary['medicine_type']}\n  Days: {', '.join(summary['days_of_week'])}\n"
-                f"  Time: {summary['time']} ({config.DEFAULT_TIMEZONE})\n\n"
-                "You'll receive an email reminder at the scheduled time."
-            ),
+            "medicine": summary["medicine_name"], "dosage": summary["dosage"],
+            "medicine_type": summary["medicine_type"], "days": summary["days_of_week"],
+            "time_label": f"{summary['time']} ({config.DEFAULT_TIMEZONE})",
         }
         return (f"Reminder set: {summary['medicine_name']} at {summary['time_label']} on "
                 f"{', '.join(summary['days_of_week'])}. I'll email you at that time."), card, email

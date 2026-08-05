@@ -22,9 +22,13 @@ def send_email(
     body: str,
     html: bool = False,
     from_addr: Optional[str] = None,
+    html_body: Optional[str] = None,
 ) -> bool:
     """
     Send an email via the configured SMTP server.
+
+    `body` is the plain-text part. Pass `html_body` to send a multipart message whose HTML part is
+    preferred by mail clients and whose plain part is the fallback.
 
     Returns True on success, False on failure. Failures are logged but never
     raised so callers running in BackgroundTasks or scheduler jobs are safe.
@@ -40,6 +44,8 @@ def send_email(
     msg["From"] = sender
     msg["To"] = to
     msg.attach(MIMEText(body, "html" if html else "plain", "utf-8"))
+    if html_body:
+        msg.attach(MIMEText(html_body, "html", "utf-8"))
 
     try:
         with smtplib.SMTP(config.MAILER_HOST, config.MAILER_PORT, timeout=30) as server:
