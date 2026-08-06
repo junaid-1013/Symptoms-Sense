@@ -362,7 +362,8 @@ class AuthService:
                 google_id=google_id,
                 avatar_url=selected_avatar,
                 is_email_verified=True,
-                user_type=UserType.PATIENT  # Default user type for OAuth users
+                # No role yet: the frontend sends users without one to onboarding, where they pick patient /
+                # doctor / clinic and create the matching profile (which then sets user_type).
             )
             self.db.add(user)
         elif not user.google_id:
