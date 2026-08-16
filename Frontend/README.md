@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Symptoms Sense Frontend
 
-## Getting Started
+Next.js 14 (App Router) web app for Symptoms Sense. It talks to the [FastAPI backend](../Backend/README.md) over REST.
 
-First, run the development server:
+## Requirements
+
+- Node.js 18.17+ (20 recommended) and npm
+- The backend running locally (default `http://localhost:8000`)
+
+## Setup
 
 ```bash
+cd Frontend
+npm install
+cp .env.sample .env
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+| Variable | Description |
+|---|---|
+| `NEXT_PUBLIC_BACKEND_URL` | Browser-accessible API base URL **including** `/api/`, e.g. `http://localhost:8000/api/`. Next.js embeds it at build time, so rebuild after changing it. Don't use a Docker-internal hostname. |
 
-## Learn More
+Never put secrets in frontend environment files; every `NEXT_PUBLIC_*` value is visible in the browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Scripts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development server with hot reload |
+| `npm run build` | Production build |
+| `npm run start` | Serve the production build |
+| `npm run lint` | ESLint (Next.js config) |
+| `npx tsc --noEmit` | Type check |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Run lint and the type check before opening a pull request.
 
-## Deploy on Vercel
+## Project layout
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/
+│   ├── (site)/          Public pages: home, doctors, profile, reminders, testimonials, about, login
+│   ├── (agent)/         AI chat page
+│   └── (dash)/          Clinic dashboard
+├── components/
+│   ├── ui/              shadcn/ui primitives
+│   ├── agentComps/      Chat UI: messages, cards, input, sidebar
+│   ├── landingPage/     Home page sections, doctor and testimonial cards
+│   ├── doctorDetailPageComps/   Doctor page and the booking dialog
+│   └── ...              Auth, profile, dashboard, skeleton components
+├── endPoints/           API calls (one file per backend area) built on lib/axiosInstance
+├── contextApis/         User/auth context
+├── lib/                 axios instance (token refresh), utilities
+├── config/              Constants (nav links, team, specializations)
+└── types/               Shared TypeScript types
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Conventions
+
+- **API calls** go through `src/lib/axiosInstance.ts`. It attaches the access token and refreshes it on 401. Don't use raw `fetch` for authenticated calls.
+- **Styling:** Tailwind with theme tokens (`bg-primary`, `text-muted-foreground`). Prefer tokens over hardcoded colours. Headings use the display font set in `app/layout.tsx`.
+- **Components:** reuse the primitives in `components/ui` before adding new ones.
+- **Accessibility:** label icon-only buttons, keep focus outlines, and don't convey state by colour alone.
+
+## Learn more
+
+[Next.js docs](https://nextjs.org/docs), [Tailwind CSS](https://tailwindcss.com/docs), [shadcn/ui](https://ui.shadcn.com).

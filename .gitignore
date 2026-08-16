@@ -1,1 +1,10 @@
 .DS_Store
+
+# Secrets (only *.sample files are tracked)
+.env
+.env.*
+!.env.sample
+
+# Tooling
+.cursor/
+.pytest_cache/
