@@ -42,7 +42,7 @@ async def register(
                 "user": UserResponse.model_validate(user),
                 "tokens": tokens
             }
-        ).dict()
+        ).model_dump()
     except UserAlreadyExistsException as e:
         raise e
     except Exception as e:
@@ -69,7 +69,7 @@ async def login(
                 "user": user_data,
                 "tokens": tokens
             }
-        ).dict()
+        ).model_dump()
     except (InvalidCredentialsException, UserInactiveException) as e:
         raise e
     except Exception as e:
@@ -88,7 +88,7 @@ async def refresh_token(
     
     try:
         tokens = auth_service.refresh_access_token(refresh_data.refresh_token)
-        return APIResponse(message="Token refreshed", data=tokens).dict()
+        return APIResponse(message="Token refreshed", data=tokens).model_dump()
     except (InvalidCredentialsException, UserNotFoundException, UserInactiveException) as e:
         raise e
     except Exception as e:
@@ -112,14 +112,14 @@ async def logout(
             detail="Invalid refresh token"
         )
     
-    return APIResponse(message="Logout successful").dict()
+    return APIResponse(message="Logout successful").model_dump()
 
 @router.get("/me", response_model=APIResponseGeneric[UserResponse])
 async def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     """Get current user information."""
-    return APIResponse(message="Current user retrieved", data=UserResponse.model_validate(current_user)).dict()
+    return APIResponse(message="Current user retrieved", data=UserResponse.model_validate(current_user)).model_dump()
 
 @router.post("/google", response_model=APIResponseGeneric[dict])
 async def google_oauth_login(
@@ -139,7 +139,7 @@ async def google_oauth_login(
                 "user": user_data,
                 "tokens": tokens
             }
-        ).dict()
+        ).model_dump()
     except GoogleOAuthException as e:
         raise e
     except Exception as e:
@@ -152,7 +152,7 @@ async def google_oauth_login(
 async def get_google_auth_url():
     """Get Google OAuth2 authorization URL."""
     auth_url = SecurityUtils.get_google_auth_url()
-    return APIResponse(message="Google auth URL generated", data={"auth_url": auth_url}).dict()
+    return APIResponse(message="Google auth URL generated", data={"auth_url": auth_url}).model_dump()
 
 @router.get("/google/callback")
 async def google_oauth_callback(code: str, state: Optional[str] = None):
@@ -171,11 +171,11 @@ async def forgot_password(
     token = auth_service.generate_password_reset_token(password_reset_data.email)
     if not token:
         # Don't reveal if email exists or not
-        return APIResponse(message="If the email exists, a password reset link has been sent").dict()
+        return APIResponse(message="If the email exists, a password reset link has been sent").model_dump()
     
     # TODO: Send email with reset link
     # For now, return the token (in production, send via email)
-    return APIResponse(message="Password reset token generated", data={"token": token}).dict()
+    return APIResponse(message="Password reset token generated", data={"token": token}).model_dump()
 
 @router.post("/reset-password", response_model=APIResponseGeneric[dict])
 async def reset_password(
@@ -189,7 +189,7 @@ async def reset_password(
     if not success:
         raise PasswordResetTokenExpiredException()
     
-    return APIResponse(message="Password reset successful").dict()
+    return APIResponse(message="Password reset successful").model_dump()
 
 @router.post("/change-password", response_model=APIResponseGeneric[dict])
 async def change_password(
@@ -209,7 +209,7 @@ async def change_password(
         if not success:
             raise InvalidPasswordException()
         
-        return APIResponse(message="Password changed successfully").dict()
+        return APIResponse(message="Password changed successfully").model_dump()
     except InvalidPasswordException as e:
         raise e
     except Exception as e:
@@ -225,7 +225,7 @@ async def verify_email(
 ):
     """Verify user email address."""
     # TODO: Implement email verification logic
-    return APIResponse(message="Email verification not implemented yet").dict()
+    return APIResponse(message="Email verification not implemented yet").model_dump()
 
 @router.post("/resend-verification", response_model=APIResponseGeneric[dict])
 async def resend_verification(
@@ -234,4 +234,4 @@ async def resend_verification(
 ):
     """Resend email verification."""
     # TODO: Implement resend verification logic
-    return APIResponse(message="Resend verification not implemented yet").dict()
+    return APIResponse(message="Resend verification not implemented yet").model_dump()

@@ -19,14 +19,14 @@ const Login = () => {
     type FormData = { email: string; password: string };
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
-    const { setAuthData, setClinicDoctors} = useUser();
+    const { setAuthData, setClinicDoctors, setClinicMedicines} = useUser();
+
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({ mode: 'onChange' });
 
     const onLogin = async (data: FormData) => {
         setIsLoading(true);
         LoginApi({ email: data.email, password: data.password })
             .then((response) => {
-                console.log("Login Success", response.data);
                 const user = response.data?.data.user;
                 const tokens = response.data?.data.tokens || response.data?.data?.tokens || null;
                 setAuthData({ user, tokens });
@@ -36,8 +36,10 @@ const Login = () => {
                     router.push("/profile");
                 } else if (user?.user_type === "clinic") {
                     setClinicDoctors(response.data.data.user.clinic_doctors.doctors)
+                    setClinicMedicines(response.data.data.user.medicines|| [])
                     router.push("/clinicDashboard");
                 } else if (user?.user_type === "doctor") {
+                    setClinicMedicines(response.data.data.user.medicines|| [])
                     if(!user?.specializations || user.specializations.length === 0){
                         router.push("/doctorRegistration");
                     }
@@ -51,10 +53,12 @@ const Login = () => {
                 })
             })
             .catch((error) => {
-                console.log("Login Failed", error);
+                const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
                 toast({
                     title: "Failed!",
-                    description: "Login Failed",
+                    description: message,
                     variant: "destructive",
                 })
             })

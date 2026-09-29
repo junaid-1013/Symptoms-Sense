@@ -9,12 +9,15 @@ from datetime import datetime, timezone
 from app.models.doctor import Doctor
 from app.models.clinic import Clinic
 from app.models.user import User
+from app.models.doctor_review import DoctorReview
 from app.doctors.schema import (
     DoctorCreateRequest, 
     DoctorUpdateByClinicRequest, 
     DoctorUpdateOwnRequest,
     DoctorBasicInfo,
-    DoctorDetailResponse
+    DoctorDetailResponse,
+    DoctorReviewCreateRequest,
+    DoctorReviewItem,
 )
 from app.core.security import SecurityUtils
 from app.core.exceptions import (
@@ -538,6 +541,66 @@ class DoctorsService:
             status=doctor.status,
             created_at=doctor.created_at
         )
+
+    # ========== Doctor Review Methods ==========
+    def list_reviews(
+        self,
+        doctor_id: str,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> Tuple[List[DoctorReviewItem], int]:
+        """Return paginated reviews for a doctor joined with reviewer info."""
+        query = (
+            self.db.query(DoctorReview, User)
+            .join(User, DoctorReview.user_id == User.id)
+            .filter(
+                DoctorReview.doctor_id == doctor_id,
+                DoctorReview.deleted_at.is_(None),
+            )
+            .order_by(DoctorReview.created_at.desc())
+        )
+        total = query.count()
+        rows = query.offset((page - 1) * page_size).limit(page_size).all()
+
+        items = [
+            DoctorReviewItem(
+                id=dr.id,
+                doctor_id=dr.doctor_id,
+                user_id=dr.user_id,
+                reviewer_name=user.name,
+                reviewer_avatar=user.avatar_url if hasattr(user, "avatar_url") else None,
+                rating=dr.rating,
+                review=dr.review,
+                created_at=dr.created_at,
+            )
+            for dr, user in rows
+        ]
+        return items, total
+
+    def create_review(
+        self,
+        doctor_id: str,
+        user_id: str,
+        data: DoctorReviewCreateRequest,
+    ) -> DoctorReview:
+        """Persist a new doctor review row."""
+        doctor = self.db.query(Doctor).filter(
+            Doctor.id == doctor_id,
+            Doctor.deleted_at.is_(None),
+        ).first()
+        if not doctor:
+            raise UserNotFoundException("Doctor not found")
+
+        review = DoctorReview(
+            doctor_id=doctor_id,
+            user_id=user_id,
+            rating=data.rating,
+            review=data.review,
+        )
+        self.db.add(review)
+        self.db.commit()
+        self.db.refresh(review)
+        return review
 
     def _update_clinic_doctor_count(self, clinic_id: str) -> None:
         """

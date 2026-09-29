@@ -3,14 +3,13 @@ import { ProfileSkeleton } from "@/components/skeletons"
 import { useToast } from "@/components/ui/use-toast"
 import { useUser } from "@/contextApis/UserContext"
 import { GetMyAppointmentsApi } from "@/endPoints/appointments.endPoints"
+import { DeleteReminderApi, GetMyRemindersApi } from "@/endPoints/reminders.endPoints"
 import { Appointment, ProfileStats, Reminder } from "@/types/profile"
-import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ProfileHeader } from "./ProfileHeader"
 import { StatsGrid } from "./StatsGrid"
 import { TabsSection } from "./TabsSection"
-import { set } from "mongoose"
 
 const Profile = () => {
   const router = useRouter()
@@ -23,26 +22,28 @@ const Profile = () => {
 
   const cancelReminder = async (data: Reminder) => {
     try {
-      const response = await axios.put("/api/medicineReminder", data)
-      router.push("/profile")
+      await DeleteReminderApi(data.id)
+      setReminders((prev) => prev.filter((r) => r.id !== data.id))
       toast({
         title: "Reminder Removed",
         description: "Medicine reminder has been removed successfully",
       })
-      window.location.reload()
     } catch (error: any) {
+      const detail =
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        "Failed to remove reminder"
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to remove reminder",
+        description: detail,
         variant: "destructive",
       })
     }
   }
 
-
   useEffect(() => {
     if (tokens?.accessToken) {
-      GetMyAppointmentsApi({ token: tokens?.accessToken || "" })
+      GetMyAppointmentsApi()
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments)
@@ -55,9 +56,29 @@ const Profile = () => {
           }
         })
         .catch((err) => {
+          const message =
+            err?.response?.data?.detail ||
+            err?.response?.data?.message || "Something went wrong"
           toast({
             title: "Error",
-            description: err.response?.data?.error || "Failed to get appointments",
+            description: message,
+            variant: "destructive",
+          })
+        })
+
+      GetMyRemindersApi()
+        .then((response) => {
+          if (response.data.status === "success") {
+            setReminders(response.data.data.reminders)
+          }
+        })
+        .catch((err) => {
+          const message =
+            err?.response?.data?.detail ||
+            err?.response?.data?.message || "Failed to load reminders"
+          toast({
+            title: "Error",
+            description: message,
             variant: "destructive",
           })
         })

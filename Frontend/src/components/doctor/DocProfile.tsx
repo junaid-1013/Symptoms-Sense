@@ -72,9 +72,8 @@ const DoctorProfile = () => {
 
   // Function to fetch appointments
   const fetchAppointments = () => {
-    if (tokens?.accessToken) {
       setLoading(true);
-      GetMyAppointmentsApi({ token: tokens?.accessToken || "" })
+      GetMyAppointmentsApi()
         .then((response) => {
           if (response.data.status === "success") {
             setAppointments(response.data.data.appointments);
@@ -87,23 +86,25 @@ const DoctorProfile = () => {
           }
         })
         .catch((err) => {
+          const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message || "Something went wrong";
           toast({
             title: "Error",
-            description: err.response?.data?.detail || "Failed to get appointments",
+            description: message,
             variant: "destructive",
           });
         })
         .finally(() => {
           setLoading(false);
         });
-    }
+    
   };
 
   // Handle approve appointment
   const handleApprove = (appointmentId: string) => {
-    if (!tokens?.accessToken) return;
 
-    ApproveAppointmentApi({ appointmentId: appointmentId, token: tokens.accessToken })
+    ApproveAppointmentApi({ appointmentId: appointmentId })
       .then((response) => {
         if (response.data.status === "success") {
           toast({
@@ -121,9 +122,12 @@ const DoctorProfile = () => {
         }
       })
       .catch((err) => {
+        const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message;
         toast({
           title: "Error",
-          description: err.response?.data?.detail || "Failed to approve appointment",
+          description: message || "Failed to approve appointment",
           variant: "destructive",
         });
       });
@@ -131,9 +135,8 @@ const DoctorProfile = () => {
 
   // Handle cancel appointment
   const handleCancel = (appointmentId: string) => {
-    if (!tokens?.accessToken) return;
 
-    CancelAppointmentApi({ appointmentId, token: tokens.accessToken })
+    CancelAppointmentApi({ appointmentId})
       .then((response) => {
         if (response.data.status === "success") {
           toast({
@@ -150,9 +153,12 @@ const DoctorProfile = () => {
         }
       })
       .catch((err) => {
+        const message =
+                err?.response?.data?.detail || 
+                err?.response?.data?.message;
         toast({
           title: "Error",
-          description: err.response?.data?.detail || "Failed to cancel appointment",
+          description: message || "Failed to cancel appointment",
           variant: "destructive",
         });
       });
@@ -311,6 +317,7 @@ const DoctorProfile = () => {
                   data={approvedAppointments}
                   cardClassName="bg-gradient-to-br from-green-50 via-white to-emerald-50 border border-green-200 rounded-3xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                   onCancel={handleCancel}
+                  setAppointments={setAppointments}
                 />
               ) : (
                 <div className="text-center py-10">
@@ -347,6 +354,7 @@ const DoctorProfile = () => {
                   title="Completed Appointments"
                   data={completedAppointments}
                   cardClassName="bg-gradient-to-br from-blue-50 via-white to-indigo-50 border border-blue-200 rounded-3xl shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                  setAppointments={setAppointments}
                 />
               ) : (
                 <div className="text-center py-10">

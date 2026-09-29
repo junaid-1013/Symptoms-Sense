@@ -12,14 +12,13 @@ from app.doctors.schema import (
     DoctorListResponse,
     DoctorDetailResponse,
     DoctorCreateRequest,
-    DoctorCreateResponse,
     DoctorUpdateByClinicRequest,
     DoctorUpdateOwnRequest,
-    DoctorUpdateResponse,
-    DoctorDeleteResponse,
-    ClinicDoctorsResponse
+    ClinicDoctorsResponse,
+    DoctorReviewCreateRequest,
+    DoctorReviewCreateResponse,
+    DoctorReviewListResponse,
 )
-from app.clinics.schema import ClinicDoctorBasicInfo
 from app.doctors.service import DoctorsService
 from app.models.user import User
 from app.models.clinic import Clinic
@@ -54,7 +53,7 @@ async def get_all_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/search", response_model=APIResponseGeneric[DoctorListResponse])
@@ -83,7 +82,7 @@ async def search_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
 
 @router.get("/clinic/{clinic_id}", response_model=APIResponseGeneric[DoctorListResponse])
@@ -108,8 +107,59 @@ async def get_clinic_doctors(
             page=page,
             page_size=page_size
         )
-    ).dict()
+    ).model_dump()
 
+@router.get("/{doctor_id}/reviews", response_model=APIResponseGeneric[DoctorReviewListResponse])
+async def list_doctor_reviews(
+    doctor_id: str,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(10, ge=1, le=50, description="Items per page"),
+    db: Session = Depends(get_db),
+):
+    """Public — paginated list of reviews for a doctor."""
+    doctors_service = DoctorsService(db)
+    items, total = doctors_service.list_reviews(
+        doctor_id=doctor_id, page=page, page_size=page_size
+    )
+    return APIResponse(
+        message="Doctor reviews retrieved successfully",
+        data=DoctorReviewListResponse(reviews=items, total=total, page=page, page_size=page_size),
+    ).model_dump()
+
+@router.post(
+    "/{doctor_id}/reviews",
+    response_model=APIResponseGeneric[DoctorReviewCreateResponse],
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_doctor_review(
+    doctor_id: str,
+    payload: DoctorReviewCreateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Authenticated — patients submit a review for a doctor."""
+    from app.core.constants import UserType
+    if current_user.user_type != UserType.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Please login as a patient to leave a review",
+        )
+    doctors_service = DoctorsService(db)
+    try:
+        doctors_service.create_review(
+            doctor_id=doctor_id,
+            user_id=current_user.id,
+            data=payload,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    return APIResponse(
+        message="Review submitted successfully",
+        data=DoctorReviewCreateResponse(message="Review submitted successfully", success=True),
+    ).model_dump()
 
 @router.get("/{doctor_id}", response_model=APIResponseGeneric[DoctorDetailResponse])
 async def get_doctor_detail(
@@ -128,7 +178,7 @@ async def get_doctor_detail(
     return APIResponse(
         message="Doctor details retrieved successfully",
         data=doctor
-    ).dict()
+    ).model_dump()
 
 
 # ========== Clinic Endpoints ==========
@@ -160,7 +210,7 @@ async def create_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserAlreadyExistsException, ValidationException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -205,7 +255,7 @@ async def update_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, InsufficientPermissionsException, UserAlreadyExistsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -254,7 +304,7 @@ async def delete_doctor(
                 clinic_id=current_clinic.id,
                 clinic_name=current_clinic.user.name if current_clinic.user else None
             )
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, InsufficientPermissionsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -278,7 +328,7 @@ async def get_own_profile(
     return APIResponse(
         message="Doctor profile retrieved successfully",
         data=doctors_service._build_doctor_detail_response(current_doctor)
-    ).dict()
+    ).model_dump()
 
 
 @router.put("/me/profile", response_model=APIResponseGeneric[DoctorDetailResponse])
@@ -298,7 +348,7 @@ async def update_own_profile(
         return APIResponse(
             message="Doctor profile updated successfully",
             data=doctors_service._build_doctor_detail_response(doctor)
-        ).dict()
+        ).model_dump()
     except (UserNotFoundException, UserAlreadyExistsException) as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

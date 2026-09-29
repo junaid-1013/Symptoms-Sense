@@ -16,24 +16,14 @@ export default function ClinicRegForm() {
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterClinicApiProps>();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { tokens, updateUserType} = useUser();
+  const { updateUserType} = useUser();
 
   const onRegister = (data: RegisterClinicApiProps) => {
-    if (!tokens?.accessToken) {
-      toast({
-        title: "Unauthorized",
-        description: "Please log in again.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setLoading(true);
     RegisterClinicApi({
       address: data.address,
       registration_no: data.registration_no,
       established_year: Number(data.established_year),
-      token: tokens.accessToken,
     })
       .then((response) => {
         toast({
@@ -44,9 +34,12 @@ export default function ClinicRegForm() {
         router.push("/clinicDashboard");
       })
       .catch((error) => {
+        const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message || "Something went wrong";
         toast({
           title: "Failed!",
-          description: error.message || "Something went wrong.",
+          description: message,
           variant: "destructive",
         });
       })

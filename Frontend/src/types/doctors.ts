@@ -1,5 +1,6 @@
 import { APPOINTMENT_TYPES } from "@/config/constants";
 import { DoctorAppointmentItem } from "./appointments";
+import { Appointment } from "@/types";
 export interface DoctorBasicInfo {
     id: string;
     user_id: string;
@@ -21,7 +22,6 @@ export interface RegisterDoctorApiProps {
     license_no: string;
     experience_years: number;
     bio?: string;
-    token: string
 }
 export interface DoctorAppointmentCardProps {
     item: DoctorAppointmentItem;
@@ -30,6 +30,7 @@ export interface DoctorAppointmentCardProps {
     className?: string;
     onApprove?: (appointmentId: string) => void;
     onCancel?: (appointmentId: string) => void;
+    setAppointments?: (appointments: Appointment[]) => void;
 }
 export interface DoctorScheduleDialogProps {
     open: boolean;
@@ -42,7 +43,6 @@ export interface DoctorScheduleDialogProps {
 export interface BulkUpdateDoctorScheduleApiProps {
     slotDuration: number;
     schedules: any[];
-    token: string;
 }
 export interface DoctorData {
     id: string;
@@ -128,12 +128,12 @@ export interface CompleteAppointmentApiProps {
   prescription_notes: string;
   prescription_instructions: string;
   medicines: Medicine[];
-  token: string;
 }
 
 export interface CompleteAppointmentProps {
   appointmentId: string;
   onComplete?: (updatedAppointment: { id: string; status: string }) => void;
+  setAppointments?: (appointments: Appointment[]) => void;
 }
 
 export interface FormValues {

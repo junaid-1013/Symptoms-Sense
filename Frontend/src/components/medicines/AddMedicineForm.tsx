@@ -38,7 +38,7 @@ const AddMedicineForm = () => {
     const { toast } = useToast();
     const [isAdding, setIsAdding] = useState(false);
     const [open, setOpen] = useState(false);
-    const { tokens, setClinicMedicines } = useUser();
+    const { setClinicMedicines } = useUser();
 
     const {
         register,
@@ -55,8 +55,7 @@ const AddMedicineForm = () => {
             name: data.name,
             description: data.description,
             manufacturer: data.manufacturer,
-            category: data.category,
-            token: tokens?.accessToken || ""
+            category: data.category
         })
         .then(response => {
             setIsAdding(false);
@@ -74,10 +73,13 @@ const AddMedicineForm = () => {
             setOpen(false);
         })
         .catch(error => {
+            const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message;
             setIsAdding(false);
             toast({
                 title: "Error",
-                description: error?.response?.data?.detail || "An unknown error occurred.",
+                description: message || "An unknown error occurred.",
                 variant: "destructive"
             });
         });

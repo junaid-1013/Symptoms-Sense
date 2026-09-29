@@ -26,7 +26,7 @@ const AddDoctorForm = () => {
     const [isAdding, setIsAdding] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
     const [authError, setAuthError] = useState("");
-    const { tokens, setClinicDoctors } = useUser();
+    const { setClinicDoctors } = useUser();
 
     const {
         register,
@@ -43,8 +43,7 @@ const AddDoctorForm = () => {
             name: data.name,
             email: data.email,
             password: data.password,
-            phone: data.phone,
-            token: tokens?.accessToken || ""
+            phone: data.phone
         })
             .then(response => {
                 if (response) {
@@ -61,10 +60,13 @@ const AddDoctorForm = () => {
                 }
             })
             .catch(error => {
+                const message =
+                error?.response?.data?.detail || 
+                error?.response?.data?.message;
                 setIsAdding(false);
                 toast({
                     title: "Error",
-                    description: error?.response.data.detail || "An unkown error occurred. Please try again later.",
+                    description: message || "An unknown error occurred. Please try again later.",
                     variant: "destructive"
                 })
             })

@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useUser } from "@/contextApis/UserContext"
 import { LogoutApi } from "@/endPoints/auth.endPoints"
 import { useRouter } from "next/navigation"
+import { tokenBridge } from "@/lib/tokenBridge"
 
 export function useLogout() {
     const { toast } = useToast()
@@ -12,7 +13,7 @@ export function useLogout() {
     const onLogout = async () => {
         LogoutApi(tokens?.refreshToken || "")
             .then(() => {
-                clearAuthData()
+                tokenBridge.logout();
                 toast({ title: "Success!", description: "Successfully logged out" })
                 router.push("/login")
             })

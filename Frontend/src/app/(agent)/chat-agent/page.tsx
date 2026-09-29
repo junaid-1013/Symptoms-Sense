@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from "react";
 import { useUser } from "@/contextApis/UserContext";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { MedicalInsightsPanel } from "@/components/chat/medical-insights-panel";
+import { MedicalInsightsPanel } from "@/components/agentComps/medical-insights-panel";
 import {
   MedicalChatApiResponse,
   ConversationState,
