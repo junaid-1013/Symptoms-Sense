@@ -15,7 +15,7 @@ export default function OurTeam() {
                 <h2 id="team-heading" className="mt-3 text-3xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">Built by people who care about the details.</h2>
                 <p className="mt-5 text-lg leading-relaxed text-slate-600">Meet the {TEAM_MEMBERS.length} software engineers building Symptoms Sense and shaping a simpler way to navigate healthcare tools.</p>
             </div>
-            <ul className="mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-3">
+            <ul className="mx-auto mt-12 grid max-w-6xl grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
                 {TEAM_MEMBERS.map((member, index) => <li key={member.id}>
                     <article className="group h-full overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition-shadow duration-300 hover:shadow-md">
                         <div className={`relative m-2.5 aspect-square overflow-hidden rounded-[1.25rem] sm:m-3 ${tones[index % tones.length]}`}>

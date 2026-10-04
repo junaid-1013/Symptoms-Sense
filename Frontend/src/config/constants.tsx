@@ -74,20 +74,6 @@ export const TEAM_MEMBERS: Array<{
         title: "Software Engineer",
         github: "https://github.com/humerahub",
         linkedin: "https://www.linkedin.com/in/humera-akmal-4a0b482a4/",
-    },
-    {
-        id: 5,
-        name: "Faryal Awais",
-        title: "Software Engineer",
-        github: "https://github.com/faryal-awais",
-        linkedin: "https://www.linkedin.com/in/faryal-awais-b546771b3/",
-    },
-    {
-        id: 6,
-        name: "Mehar Aziz",
-        title: "Software Engineer",
-        github: "https://github.com/Mehar-Aziz",
-        linkedin: "https://www.linkedin.com/in/mehar-aziz-b588a0281/",
     }
 ]
 export const CONTACT_INFO = {
