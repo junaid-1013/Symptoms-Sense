@@ -372,7 +372,7 @@ export default function ChatAgentPage() {
           sidebarOpen={sidebarOpen}
           onBack={() => router.push("/")}
         />
-        {hasInsights && (
+        {(
           <div className="flex items-center justify-between gap-3 border-b bg-card/40 px-4 py-2">
             <div className="flex min-w-0 items-center gap-2 text-sm">
               <Activity className="h-4 w-4 shrink-0 text-primary" aria-hidden />
@@ -460,7 +460,7 @@ export default function ChatAgentPage() {
           />
         </div>
         </div>
-        {hasInsights && insightsOpen && (
+        {insightsOpen && (
         <div className="hidden min-w-0 flex-[1] overflow-y-auto border-l bg-card/40 backdrop-blur lg:block">
           <MedicalInsightsPanel
             extractedSymptoms={insights.extractedSymptoms}
