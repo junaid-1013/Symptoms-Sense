@@ -37,7 +37,7 @@ export const SERVICES = [
 ]
 // Photos come from each member's GitHub avatar (github.com/<user>.png), so they update by themselves
 // when the member changes their GitHub picture. `imageSrc` is an optional local fallback.
-// A social icon only renders when its URL is set.
+// A social icon (LinkedIn, GitHub, portfolio) only renders when its URL is set.
 export const TEAM_MEMBERS: Array<{
     id: number;
     name: string;
@@ -45,6 +45,7 @@ export const TEAM_MEMBERS: Array<{
     imageSrc?: string;
     linkedin?: string;
     github?: string;
+    portfolio?: string; // optional personal site
 }> = [
     {
         id: 1,
@@ -53,6 +54,7 @@ export const TEAM_MEMBERS: Array<{
         imageSrc: "/junaid.jpg",
         github: "https://github.com/junaid-1013",
         linkedin: "https://www.linkedin.com/in/junaid-ali-bhatti-101452/",
+        portfolio: "https://junaidalibhatti.vercel.app",
     },
     {
         id: 2,

@@ -107,14 +107,12 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
 
 ## Team
 
-| Name | GitHub | LinkedIn |
-|---|---|---|
-| Junaid Ali Bhatti | [junaid-1013](https://github.com/junaid-1013) | [profile](https://www.linkedin.com/in/junaid-ali-bhatti-101452/) |
-| Dilawar Ali | [Dilawar4Ali](https://github.com/Dilawar4Ali) | [profile](https://www.linkedin.com/in/dilawar-ali-thaheem-368707212/) |
-| Ayesha Mubashir | [ayeeshaa5](https://github.com/ayeeshaa5) | [profile](https://www.linkedin.com/in/ayesha-mubashir-008169275/) |
-| Humera Akmal | [humerahub](https://github.com/humerahub) | [profile](https://www.linkedin.com/in/humera-akmal-4a0b482a4/) |
-| Faryal Awais | [faryal-awais](https://github.com/faryal-awais) | [profile](https://www.linkedin.com/in/faryal-awais-b546771b3/) |
-| Mehar Aziz | [Mehar-Aziz](https://github.com/Mehar-Aziz) | [profile](https://www.linkedin.com/in/mehar-aziz-b588a0281/) |
+| Name | GitHub | LinkedIn | Portfolio |
+|---|---|---|---|
+| Junaid Ali Bhatti | [junaid-1013](https://github.com/junaid-1013) | [profile](https://www.linkedin.com/in/junaid-ali-bhatti-101452/) | [junaidalibhatti.vercel.app](https://junaidalibhatti.vercel.app) |
+| Dilawar Ali | [Dilawar4Ali](https://github.com/Dilawar4Ali) | [profile](https://www.linkedin.com/in/dilawar-ali-thaheem-368707212/) | - |
+| Ayesha Mubashir | [ayeeshaa5](https://github.com/ayeeshaa5) | [profile](https://www.linkedin.com/in/ayesha-mubashir-008169275/) | - |
+| Humera Akmal | [humerahub](https://github.com/humerahub) | [profile](https://www.linkedin.com/in/humera-akmal-4a0b482a4/) | - |
 
 See also the [contributors graph](https://github.com/junaid-1013/Symptoms-Sense/graphs/contributors).
 
